@@ -73,7 +73,8 @@ def serve_employee_create_account_action():
     try:
         required = {
             'company': None, 'sector': None, 'address': None, 'city': None,
-            'state': None, 'zip_code': None, 'phone': None, 'company': None
+            'state': None, 'zip_code': None, 'phone': None, 'company': None,
+            'partner_pays': None
         }
         for required_field in required:
             if required_field not in request.form:
@@ -86,7 +87,8 @@ def serve_employee_create_account_action():
         partner = format_field(request.form['partner'])
         affiliate_id = format_field(request.form['affiliate_id'])
         sector = format_field(required['sector'])
-        sector, phone, affiliate_id = Accounts(g.db).validate_new_account(sector, partner, affiliate_id, phone)
+        partner_pays = int(str_to_bool(required['partner_pays']))
+        sector, phone, affiliate_id = Accounts(g.db).validate_or_fail_account(sector, partner, affiliate_id, phone, partner_pays)
 
         # Creating an account without an admin
         account_obj = Accounts(g.db).create_account(
@@ -99,7 +101,8 @@ def serve_employee_create_account_action():
                 city=format_field(required['city']),
                 state=format_field(required['state']),
                 zip=format_field(required['zip_code']),
-                created_by_employee_id=g.employee.id()
+                created_by_employee_id=g.employee.id(),
+                partner_pays=partner_pays
         )
 
         user_id = Users(g.db).create_pseudo_user(account_obj.id(), False)
@@ -158,6 +161,7 @@ def serve_view_account():
     accounts = Accounts(g.db).get_accounts(is_partner=0)
     for account in accounts:
         account['company'] = account['company'].upper()
+        account['partner_account'] = account['partner_account']
         admin_user = AccountUsers(g.db).get_account_users(account=account["id"], is_admin=1)
         account["account_partner_name"] = g.db.accounts.get_accounts(id=account["partner_account"])[0]["company"] if account["partner_account"] is not None else ""
         if len(admin_user) > 0:
@@ -282,7 +286,8 @@ def serve_edit_selected_account(account_id):
             address=format_field(request.form["address"]),
             city=format_field(request.form["city"]),
             state=format_field(request.form["state"]),
-            zip=format_field(request.form["zip_code"])
+            zip=format_field(request.form["zip_code"]),
+            partner_pays=int(str_to_bool(request.form["partner_pays"]))
         )
         return {"redirect": "/employee/dashboard"}
 
@@ -316,7 +321,6 @@ def serve_edit_selected_partner(partner_id):
             state=format_field(request.form["state"]),
             zip=format_field(request.form["zip_code"]),
             is_partner_used_for_signup=int(str_to_bool(request.form["is_partner_used_for_signup"])),
-            partner_pays_sales_groups=int(str_to_bool(request.form["partner_pays_sales_groups"])),
             partner_subscription_credits=subscription_credits,
             partner_color=format_field(request.form["partner_color"])
         )
@@ -525,33 +529,35 @@ def serve_archive_notification():
     return {}
 
 
-@bp.route("/employee/update-account-paid-status", methods=["PUT"])
+@bp.route("/employee/account/<int:account_id>", methods=["PUT"])
 @crut.require_employee
-def serve_update_account_paid_status():
+def serve_update_account_paid_status(account_id):
     request_data = json.loads(request.data)
-    account_id = request_data["account_id"]
     account = Accounts(g.db).get_accounts(id=account_id)[0]
-    if request_data["paid_status"]:
-        if account["partner_account"]:
-            partner = Accounts(g.db).get_partners(id=account["partner_account"])[0]
-            if partner["partner_subscription_credits"]:
-                update_partner_payment_of_account(g.db, partner, account_id, True, g.employee.id())
-            else:
-                Accounts(g.db).update_account(
-                    account_id, manual_paid=1, subscription_start_date=datetime.utcnow(), subscription_end_date=None
-                )
-        else:
+    if "paid_status" in request_data:
+        if request_data["paid_status"]:
+            # Retained
+            # if account["partner_account"]:
+            #     partner = Accounts(g.db).get_partners(id=account["partner_account"])[0]
+            #     if partner["partner_subscription_credits"]:
+            #         update_partner_payment_of_account(g.db, partner, account_id, True, g.employee.id())
+            #     else:
             Accounts(g.db).update_account(
                 account_id, manual_paid=1, subscription_start_date=datetime.utcnow(), subscription_end_date=None
             )
-    else:
-        if account["stripe_paid"]:
-            raise ExportException(f"This account ({account_id}) has paid through stripe and cannot be marked unpaid")
-        elif account["partner_paid"]:
-            partner = Accounts(g.db).get_partners(id=account["partner_account"])[0]
-            update_partner_payment_of_account(g.db, partner, account_id, False, g.employee.id())
         else:
-            g.db.accounts.update_account(account_id, manual_paid=0, subscription_end_date=datetime.utcnow())
+            if account["stripe_paid"]:
+                raise ExportException(f"This account ({account_id}) has paid through stripe and cannot be marked unpaid")
+            elif account["partner_paid"]:
+                partner = Accounts(g.db).get_partners(id=account["partner_account"])[0]
+                update_partner_payment_of_account(g.db, partner, account_id, False, g.employee.id())
+            else:
+                g.db.accounts.update_account(account_id, manual_paid=0, subscription_end_date=datetime.utcnow())
+    else:
+        if account["partner_account"]:
+            Accounts(g.db).update_account(account_id=account_id, partner_pays=int(request_data["partner_pays"]))
+        else:
+            raise ExportException(f"This account ({account_id}) doesn't have a partner account")
     return Response(status=HTTP_NO_CONTENT)
 
 
@@ -698,10 +704,10 @@ def serve_upload_ranch_accounts_test(partner_id):
                     if len(account_data[required_field].strip()) == 0:
                         raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
                     required_data[required_field] = format_field(account_data[required_field])
-                sector, phone, affiliate_id = Accounts(g.db).validate_new_account(
+                sector, phone, affiliate_id = Accounts(g.db).validate_or_fail_account(
                     SECTORS_NAME_TO_ID[required_data["sector"]],
-                    partner_id, 
-                    required_data["affiliate_id"], 
+                    partner_id,
+                    required_data["affiliate_id"],
                     required_data["phone"]
                 )
 
@@ -1044,20 +1050,20 @@ def serve_archive_seedstock_producer_ads():
 @bp.route('/employee/partners-sales-group-payments', methods=["GET"])
 @crut.require_employee
 def serve_partners_sales_group_payments():
-    partners = Accounts(g.db).get_partners(partner_pays_sales_groups=int(True))
+    accounts = Accounts(g.db).get_accounts(partner_pays=int(True))
+    partners = Accounts(g.db).get_partners(ids=tuple(account["partner_account"] for account in accounts))
     partner_payments = []
     for partner in partners:
         row = {}
         row["id"] = partner["id"]
         row["name"] = partner["company"]
-        accounts = Accounts(g.db).get_accounts(partner_account=partner["id"])
         sales_groups = SalesGroups(g.db).get_sales_groups(
-            account_ids=tuple(account["id"] for account in accounts),
+            account_ids=tuple(account["id"] for account in accounts if account["partner_account"] == partner["id"]),
             published=int(True),
             is_paid=int(False)
         )
-        total_amount = reduce(lambda x, y: x + y["reported"]["count"], sales_groups, 0)
-        row["total_amount"] = total_amount
+        amount = reduce(lambda x, y: x + y["reported"]["count"], sales_groups, 0)
+        row["amount"] = amount
         partner_payments.append(row)
     return employee_render("/employee/finance/partner-sales-group-payments-list.html",
                            {"partner_payments": partner_payments})
@@ -1067,18 +1073,41 @@ def serve_partners_sales_group_payments():
 @crut.require_employee
 def serve_partner_sales_group_payments(partner_id):
     partner = Accounts(g.db).get_partners(id=partner_id)[0]
-    accounts = Accounts(g.db).get_accounts(partner_account=partner_id)
+    accounts = Accounts(g.db).get_accounts(partner_account=partner_id, partner_pays=int(True))
     sales_groups = SalesGroups(g.db).get_sales_groups(
         account_ids=tuple(account["id"] for account in accounts),
-        published=int(True)
+        published=int(True), is_paid=int(False)
     )
     paid_groups = []
     unpaid_groups = []
     for group in sales_groups:
-        if not group["is_paid"]:
-            patron = next(account for account in accounts if account["id"] == group["account"])
-            group["patron"] = patron["company"]
-            group["patron_id"] = patron["id"]
-            unpaid_groups.append(group)
+        patron = next(account for account in accounts if account["id"] == group["account"])
+        group["patron"] = patron["company"]
+        group["patron_id"] = patron["id"]
+        unpaid_groups.append(group)
     return employee_render("/employee/finance/partner-sales-group-payments-detail.html",
                            {"partner": partner["company"], "paid_groups": paid_groups, "unpaid_groups": unpaid_groups})
+
+
+@bp.route('/employee/dashboard/emails', methods=["GET"])
+@crut.require_employee
+def serve_emails():
+    accounts = Accounts(g.db).get_accounts()
+    return employee_render("/employee/accounts/emails.html", {"accounts": accounts})
+
+
+@bp.route('/employee/dashboard/send-welcome-email', methods=["POST"])
+@crut.require_employee
+def serve_send_welcome_email():
+    account_id = int(request.form["account_id"])
+    admin_user = AccountUsers(g.db).get_account_users(account=account_id, is_admin=1)
+    if len(admin_user) > 0:
+        user = Users(g.db).get_user_by_id(admin_user[0]['user'])
+        if user is not None and user.is_system_generated() == 0:
+            send_email(
+                "Welcome",
+                render_email("employee/welcome-email.html", {}), user.email()
+            )
+        else:
+            return {"error": "Invalid Email or User is System Generated"}
+    return {"redirect": "/employee/dashboard/emails"}

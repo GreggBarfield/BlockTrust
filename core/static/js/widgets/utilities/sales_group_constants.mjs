@@ -22,6 +22,7 @@ let salesGroupFormInputIds = {
     characteristicsHorns: "characteristics-horns",
     characteristicsPregnancyStatus: "characteristics-pregnancy-status",
     characteristicsImplants: "characteristics-implants",
+    characteristicsFirstBirthDate: "characteristics-first-birth-date",
     characteristicsComments: "characteristics-comments",
     geneticsGenomicTesting: "genetics-genomic-testing",
     geneticsEPD: "genetics-epd",
@@ -36,11 +37,13 @@ let salesGroupFormInputIds = {
     maintenanceCastrated: "maintenance-castrated",
     maintenanceWeaned: "maintenance-weaned",
     maintenanceComments: "maintenance-comments",
+    maintenanceWeanedDate: "maintenance-weaned-date",
     valueAddProgramProgramType: "value-add-program-program-type",
     valueAddProgramPreconditioningProgram: "value-add-program-preconditioning=program",
     valueAddProgramFeedingProgram: "value-add-program-feeding-program",
     valueAddProgramBreedProgramCertificationCo: "value-add-program-breed-program-certification-co",
     valueAddProgramCertifiedThrough: "value-add-program-certified-through",
+    valueAddProgramNutritionType: "value-add-program-nutrition-type",
     valueAddProgramProgramComments: "value-add-program-program-comments"
 }
 

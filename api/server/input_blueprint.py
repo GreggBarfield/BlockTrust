@@ -208,7 +208,6 @@ def serve_insert_sales_group():
             weight=sales_group_data["base_weight"],
             category=sales_group_data["category"],
             breeds=sales_group_data["breeds"],
-            auction_sale=None,
             sale_date=sales_group_data["sale_date"],
             delivery_location=sales_group_data["delivery_location"],
             auction_market_location=sales_group_data["auction_market"],

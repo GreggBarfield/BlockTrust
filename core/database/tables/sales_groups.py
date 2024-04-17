@@ -289,9 +289,10 @@ class SalesGroups:
         if zip_code is not NO_VALUE:
             query_conditions.append("zip = %(zip_code)s")
             query_values["zip_code"] = zip_code
-            market_location = get_locations(zip_code)
-            query_conditions.append("market_location = %(market_location)s")
-            query_values["market_location"] = market_location
+            if zip_code:
+                market_location = get_locations(zip_code)
+                query_conditions.append("market_location = %(market_location)s")
+                query_values["market_location"] = market_location
         if delivery_location is not NO_VALUE:
             query_conditions.append("delivery_location = %(delivery_location)s")
             query_values["delivery_location"] = delivery_location
@@ -470,7 +471,7 @@ class SalesGroups:
 
     def validate_or_fail_sales_group(self, group_name, zip, account_id, delivery_location_type, count, weight,
                                      breeds, sale_date, delivery_location, auction_market_location,
-                                     images, price, category, slide, weighing_conditions, auction_sale=None):
+                                     images, price, category, slide, weighing_conditions, published):
         """
         Validates that the values received for a sales group is valid
 
@@ -503,37 +504,34 @@ class SalesGroups:
             raise ExportException("Sales group name cannot be blank")
         if count is None:
             raise ExportException("Total animals cannot be 0")
-        if zip is None:
-            raise ExportException("Zip code cannot be blank")
-        if zip not in ZIP_CODES:
-            raise ExportException("Zip code is invalid")
-        if sale_date is None:
-            raise ExportException("Sorry, sale date date missing.")
-        if delivery_location_type is None:
-            raise ExportException("Sale location type is not selected.")
-        elif delivery_location_type == "Direct/Off Ranch":
+        if delivery_location_type == "Direct/Off Ranch":
             if len(delivery_location.strip()) == 0:
                 raise ExportException("Delivery Location cannot be blank")
         elif delivery_location_type == "Auction":
-            if auction_market_location == "None":
+            if not auction_market_location or auction_market_location == "None":
                 raise ExportException("Please select an auction market location")
         elif delivery_location_type == "Video Auction":
             if len(slide.strip()) == 0:
                 raise ExportException("Video Auction Slide cannot be blank")
             if len(weighing_conditions.strip()) == 0:
                 raise ExportException("Video Auction Weighing Conditions cannot be blank")
-        if category == "":
-            raise ExportException("Please select a category")
-        if len(breeds) == 0:
-            raise ExportException("Please select one or more breeds")
-        if weight is None:
-            raise ExportException("Base weight does not have a value")
-        if auction_sale is not None:
-            # it was changed to a non-None value, verify new is published
-            if not AuctionSales(self._db).auction_sales.get_auction_sale_by_id(auction_sale)["published"]:
-                raise ExportException("Auction sale specified is not published yet.")
-        if price == "0":
-            raise ExportException("Sales Group price is not provided")
+        if zip and zip not in ZIP_CODES:
+            raise ExportException("Zip code is invalid")
+        if published:
+            if zip is None:
+                raise ExportException("Zip code cannot be blank")
+            if sale_date is None:
+                raise ExportException("Sorry, sale date date missing.")
+            if delivery_location_type is None:
+                raise ExportException("Sale location type is not selected.")
+            if category == "":
+                raise ExportException("Please select a category")
+            if len(breeds) == 0:
+                raise ExportException("Please select one or more breeds")
+            if weight is None:
+                raise ExportException("Base weight does not have a value")
+            if price == "0":
+                raise ExportException("Sales Group price is not provided")
 
     def get_sales_groups(self, id=NO_VALUE, reported=NO_VALUE, published=NO_VALUE, zip_code=NO_VALUE,
                          delivery_location=NO_VALUE, sale_date=NO_VALUE, auction_sale=NO_VALUE,
