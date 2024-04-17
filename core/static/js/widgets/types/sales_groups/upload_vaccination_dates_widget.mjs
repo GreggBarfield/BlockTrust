@@ -28,7 +28,7 @@ export class UploadVaccinationDatesWidget{
 
     displayModal = () =>{
         if(this.infoModal == null){
-            let infoModal = new InfoModal("Upload Vaccination Dates", null, true);
+            let infoModal = new InfoModal("Enter Vaccination Details", null, true);
             this.infoModal = infoModal;
             let vaccinationDatesUploadContainer = this.generateVaccinationDatesUploadContainer();
             this.infoModal.getBody().append(vaccinationDatesUploadContainer);
