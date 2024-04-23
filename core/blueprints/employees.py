@@ -1113,8 +1113,27 @@ def serve_send_welcome_email():
     return {"redirect": "/employee/dashboard/emails"}
 
 
-@bp.route('/employee/dashboard/emails/send-custom-emails', methods=["GET"])
+@bp.route('/employee/dashboard/emails/send-custom-emails', methods=["GET", "POST"])
 @crut.require_employee
 def serve_send_custom_emails():
-    accounts = Accounts(g.db).get_accounts()
-    return employee_render("/employee/accounts/send-custom-emails.html", {"accounts": accounts})
+    if request.method == "GET":
+        accounts = Accounts(g.db).get_accounts()
+        return employee_render("/employee/accounts/send-custom-emails.html", {"accounts": accounts})
+    if request.method == "POST":
+        if str_to_bool(request.form["send_email_to_admin_only"]):
+            email_recipients = AccountUsers(g.db).get_account_users(account=request.form["account_id"], is_admin=1)
+        else:
+            email_recipients = AccountUsers(g.db).get_account_users(account=request.form["account_id"])
+        for email_recipient in email_recipients:
+            user = Users(g.db).get_user_by_id(email_recipient["user"])
+            if user is not None and user.is_email_verified() == 1 and user.is_system_generated() == 0:
+                send_email(
+                    request.form["email_subject"],
+                    render_email("employee/custom-email.html", {
+                        "email_header": request.form["email_header"],
+                        "email_body": request.form["email_body"]
+                        }
+                    ),
+                    user.email()
+                )
+        return {"redirect": "/employee/dashboard/emails"}
