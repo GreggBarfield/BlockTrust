@@ -2680,3 +2680,7 @@ ADD COLUMN `partner_pays` INT NULL DEFAULT 0 AFTER `partner_account`;
 /* Nisheet Thakur 04/19/2024 */
 SELECT id FROM accounts WHERE company = 'Top Dollar Angus' AND is_partner=1 INTO @partner_id;
 UPDATE accounts SET partner_private_logo = '/static/images/partners/logos/top_dollar.png' WHERE id = @partner_id;
+
+/* Nisheet Thakur 04/22/2024 */
+SELECT id FROM accounts WHERE company = 'Missouri Veterinary Medical Association' AND is_partner=1 INTO @partner_id;
+UPDATE accounts SET partner_private_logo = '/static/images/partners/logos/mvma-logo.jpg' WHERE id = @partner_id;
