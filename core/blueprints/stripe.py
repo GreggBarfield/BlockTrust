@@ -423,7 +423,7 @@ def serve_payment(payment_id):
                 'price_data': {
                     'currency': 'usd',
                     'product_data': product_data,
-                    'unit_amount': int(payment["amount"])*100,
+                    'unit_amount': int(payment["amount"]*100),
                 },
                 'quantity': 1,
             }],
@@ -492,7 +492,7 @@ def serve_recurring_payment(recurring_payment_id):
         price_data = {
             'currency': 'usd',
             'product_data': product_data,
-            'unit_amount': int(recurring_payment["amount"])*100,
+            'unit_amount': int(recurring_payment["amount"]*100),
             'recurring': {
                 'interval': recurring_payment["recurring_interval"]
             }

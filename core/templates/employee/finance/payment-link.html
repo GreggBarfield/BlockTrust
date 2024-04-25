@@ -9,6 +9,7 @@
         <div class="card">
             <div class="card-header">
                 <h4>{{'Payment Link' if payment else 'Create New Payment Link'}}</h4>
+                <a href="/employee/payment-links" class="btn btn-sm btn-primary float-right"><i class="fa fa-arrow-left"></i></a>
             </div>
             <div class="card-body">
                 <div class="container">
@@ -67,7 +68,7 @@
                                             <label for="reason">
                                                 Amount (will be shown to payer)
                                             </label>
-                                            <input type="number" class="form-control" id="amount" value="{{payment.amount if payment}}" {{"disabled" if payment}} required>
+                                            <input type="number" class="form-control" id="amount" value="{{payment.amount if payment}}" {{"disabled" if payment}} required min="0.5" step=".01">
                                             <span class="focus-border"></span>
                                         </div>
                                     </div>
