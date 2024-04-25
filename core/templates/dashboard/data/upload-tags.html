@@ -212,6 +212,15 @@ const importer = new FlatfileImporter('{{license}}', {
         key: "implants", label: "Implants",
         validators: [
 
+      ]},
+      { 
+        key: "yearling_weight", label: "Yearling Weight",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '^([0-9]*[.])?[0-9]+$',
+          error: 'Only can be a number and/or decimal.'
+        }
       ]}
     ],
   i18nOverrides: {
