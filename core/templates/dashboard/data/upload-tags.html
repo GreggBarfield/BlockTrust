@@ -221,6 +221,56 @@ const importer = new FlatfileImporter('{{license}}', {
           regex: '^([0-9]*[.])?[0-9]+$',
           error: 'Only can be a number and/or decimal.'
         }
+      ]},
+      { 
+        key: "dry_matter_intake", label: "Dry Matter Intake",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '^([0-9]*[.])?[0-9]+$',
+          error: 'Only can be a number and/or decimal.'
+        }
+      ]},
+      { 
+        key: "carcass_weight", label: "Carcass Weight",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '^([0-9]*[.])?[0-9]+$',
+          error: 'Only can be a number and/or decimal.'
+        }
+      ]},
+      { 
+        key: "rib_fat", label: "Rib Fat",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '^([0-9]*[.])?[0-9]+$',
+          error: 'Only can be a number and/or decimal.'
+        }
+      ]},
+      { 
+        key: "ribeye_area", label: "Ribeye Area (in sq.)",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '^([0-9]*[.])?[0-9]+$',
+          error: 'Only can be a number and/or decimal.'
+        }
+      ]},
+      { 
+        key: "marbling", label: "Marbling",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '^([0-9]*[.])?[0-9]+$',
+          error: 'Only can be a number and/or decimal.'
+        }
+      ]},
+      { 
+        key: "certified_hereford_beef_index", label: "Certified Hereford Beef Index",
+        validators: [
+
       ]}
     ],
   i18nOverrides: {
