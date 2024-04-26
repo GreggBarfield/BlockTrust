@@ -1021,7 +1021,7 @@ def serve_genetics():
         if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"]:
             breeds = SalesGroupFieldsValues(g.db).get(field_id=SALES_GROUP_FIELD_NAMES_TO_IDS["breed"])
             return dashboard_render("genetics/genetics-cow-calf.html", {"breeds": breeds})
-        if g.account.sector_id == SECTORS_NAME_TO_ID["Seedstock Producer"]:
+        if g.account.sector_id() == SECTORS_NAME_TO_ID["Seedstock Producer"]:
             return dashboard_render("genetics/genetics.html", {"license": FLATFILE_LICENSE, "user": g.user})
     elif request.method == "POST":
         if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"]:
