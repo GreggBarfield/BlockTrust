@@ -196,8 +196,13 @@ def serve_new_sales_group():
     sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
     form_post_route = url_for('widgets_bp.serve_create_sales_group')
     payment_URL = url_for("stripe_bp.serve_sales_group_payment")
-    if g.account.partner_account_id() and g.account.partner_pays():
-        payment_URL = ""
+    if g.account.partner_account_id():
+        if g.account.partner_pays():
+            payment_URL = ""
+        partner = g.db.accounts.get_partners(id=g.account.partner_account_id())[0]
+        per_head_fee = partner["per_head_fee"]
+    else:
+        per_head_fee = g.account.per_head_fee()
     return dashboard_render("sales-groups/sales-group/create.html", {
         "form_post_route": form_post_route,
         "auction_markets": auction_markets,
@@ -206,7 +211,8 @@ def serve_new_sales_group():
         "sales_group_fields_values": sales_group_fields_values,
         "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
         "payment_URL": payment_URL,
-        "view_sales_group_URL": url_for("dashboard_bp.serve_view_sales_group")
+        "view_sales_group_URL": url_for("dashboard_bp.serve_view_sales_group"),
+        "per_head_fee": per_head_fee
     })
 
 
@@ -223,8 +229,13 @@ def serve_edit_sales_group(sales_group_id):
     form_post_route = url_for('widgets_bp.serve_update_sales_group')
     sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
     payment_URL = url_for("stripe_bp.serve_sales_group_payment")
-    if g.account.partner_account_id() and g.account.partner_pays():
-        payment_URL = ""
+    if g.account.partner_account_id():
+        if g.account.partner_pays():
+            payment_URL = ""
+        partner = g.db.accounts.get_partners(id=g.account.partner_account_id())[0]
+        per_head_fee = partner["per_head_fee"]
+    else:
+        per_head_fee = g.account.per_head_fee()
     return dashboard_render(
         "sales-groups/sales-group/edit.html", {
             "sales_group": sales_group_row,
@@ -233,7 +244,8 @@ def serve_edit_sales_group(sales_group_id):
             "sales_group_fields_values": sales_group_fields_values,
             "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
             "payment_URL": payment_URL,
-            "view_sales_group_URL": url_for("dashboard_bp.serve_view_sales_group")
+            "view_sales_group_URL": url_for("dashboard_bp.serve_view_sales_group"),
+            "per_head_fee": per_head_fee
         }
     )
 

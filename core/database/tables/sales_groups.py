@@ -522,7 +522,7 @@ class SalesGroups:
                 raise ExportException("Zip code cannot be blank")
             if sale_date is None:
                 raise ExportException("Sorry, sale date date missing.")
-            if delivery_location_type is None:
+            if not delivery_location_type:
                 raise ExportException("Sale location type is not selected.")
             if category == "":
                 raise ExportException("Please select a category")

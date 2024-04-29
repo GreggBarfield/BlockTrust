@@ -18,6 +18,7 @@
                                 <th>SALES GROUP NAME</th>
                                 <th>PUBLISHED BY PATRON</th>                                
                                 <th>PATRON ACCOUNT NUMBER</th>
+                                <th>COUNT</th>
                                 <th>AMOUNT</th>
                             </tr>
                         </thead>
@@ -29,7 +30,8 @@
                                 <td>{{row.group_name}}</td>
                                 <td>{{row.patron}}</td>
                                 <td>{{row.patron_id}}</td>
-                                <td>{{ "${:,.2f}".format(row.reported.count)}}</td>
+                                <td>{{row.reported.count}}</td>
+                                <td>{{ "${:,.2f}".format(row.amount)}}</td>
                             </tr>
                             {% endfor %}
                             {% else %}
