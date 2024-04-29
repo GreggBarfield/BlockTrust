@@ -1,6 +1,6 @@
 import {AsyncForm} from '/static/global/async_form.mjs';
 
-let customEmailForm = $("#welcome_email_form");
+let customEmailForm = $("#email_form");
 let statusMessage = customEmailForm.find("#email_status_message");
 let errorMessage = customEmailForm.find("#email_error_message");
 
@@ -11,7 +11,7 @@ let emailHeader = customEmailForm.find("#email-header");
 let emailBody = customEmailForm.find("#email-body");
 
 let customEmailAsyncForm = new AsyncForm({
-    action: "/employee/dashboard/emails/send-custom-emails",
+    action: "/employee/dashboard/emails/send-custom-emails-to-account",
     form: customEmailForm[0],
     status: statusMessage[0],
     error: errorMessage[0],

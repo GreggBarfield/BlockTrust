@@ -6,7 +6,7 @@ let errorMessage = welcomeEmailForm.find("#email_error_message");
 let accountId = welcomeEmailForm.find("#accounts_select");
 
 let welcomeEmailAsyncForm = new AsyncForm({
-    action: "/employee/dashboard/send-welcome-email",
+    action: "/employee/dashboard/emails/send-welcome-email",
     form: welcomeEmailForm[0],
     status: statusMessage[0],
     error: errorMessage[0],

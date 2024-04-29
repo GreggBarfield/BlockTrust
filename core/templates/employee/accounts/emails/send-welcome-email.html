@@ -1,6 +1,6 @@
 {% extends "employee/standard.html" %}
 
-{% set page_title = "Emails" %}
+{% set page_title = "Send Welcome Email" %}
 {% set employee_locations = [("/employee/dashboard", "Dashboard")] %}
 
 {% block employee_content_header %}
@@ -28,5 +28,5 @@
         </div>
     </div>
 </div>
-<script type="module" src="/static/entry_points/employee/accounts/emails.mjs"></script>
+<script type="module" src="/static/entry_points/employee/accounts/emails/send-welcome-email.mjs"></script>
 {% endblock employee_content %}
