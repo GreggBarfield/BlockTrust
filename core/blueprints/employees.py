@@ -287,7 +287,8 @@ def serve_edit_selected_account(account_id):
             city=format_field(request.form["city"]),
             state=format_field(request.form["state"]),
             zip=format_field(request.form["zip_code"]),
-            partner_pays=int(str_to_bool(request.form["partner_pays"]))
+            partner_pays=int(str_to_bool(request.form["partner_pays"])),
+            per_head_fee=format_field(request.form["per_head_fee"])
         )
         return {"redirect": "/employee/dashboard"}
 
@@ -322,7 +323,8 @@ def serve_edit_selected_partner(partner_id):
             zip=format_field(request.form["zip_code"]),
             is_partner_used_for_signup=int(str_to_bool(request.form["is_partner_used_for_signup"])),
             partner_subscription_credits=subscription_credits,
-            partner_color=format_field(request.form["partner_color"])
+            partner_color=format_field(request.form["partner_color"]),
+            per_head_fee=format_field(request.form["per_head_fee"])
         )
         return {"redirect": request.path}
 
@@ -1062,7 +1064,8 @@ def serve_partners_sales_group_payments():
             published=int(True),
             is_paid=int(False)
         )
-        amount = reduce(lambda x, y: x + y["reported"]["count"], sales_groups, 0)
+        row["per_head_fee"] = partner["per_head_fee"]
+        amount = reduce(lambda x, y: x + y["reported"]["count"], sales_groups, 0) * partner["per_head_fee"]
         row["amount"] = amount
         partner_payments.append(row)
     return employee_render("/employee/finance/partner-sales-group-payments-list.html",
@@ -1084,6 +1087,7 @@ def serve_partner_sales_group_payments(partner_id):
         patron = next(account for account in accounts if account["id"] == group["account"])
         group["patron"] = patron["company"]
         group["patron_id"] = patron["id"]
+        group["amount"] = group["reported"]["count"] * partner["per_head_fee"]
         unpaid_groups.append(group)
     return employee_render("/employee/finance/partner-sales-group-payments-detail.html",
                            {"partner": partner["company"], "paid_groups": paid_groups, "unpaid_groups": unpaid_groups})

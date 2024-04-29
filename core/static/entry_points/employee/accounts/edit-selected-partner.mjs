@@ -18,6 +18,7 @@ let zip_code = editPartnerAccountForm.find("#edit_zip");
 let is_partner_used_for_signup = document.getElementById("is_partner_used_for_signup");
 let partner_color = editPartnerAccountForm.find("#partner_color");
 let subscription_credits = editPartnerAccountForm.find("#subscription_credits");
+let per_head_fee = editPartnerAccountForm.find("#per_head_fee"); 
 let action_route = "/employee/dashboard/edit-partner/"+partner_id;
 
 let form = new AsyncForm({
@@ -38,6 +39,7 @@ let form = new AsyncForm({
             zip_code: zip_code.val(),
             is_partner_used_for_signup: is_partner_used_for_signup.checked,
             subscription_credits: subscription_credits.val(),
+            per_head_fee: per_head_fee.val(),
             partner_color: partner_color.val()
         }
     }
