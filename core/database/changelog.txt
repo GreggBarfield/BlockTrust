@@ -2684,3 +2684,7 @@ UPDATE accounts SET partner_private_logo = '/static/images/partners/logos/top_do
 /* Nisheet Thakur 04/22/2024 */
 SELECT id FROM accounts WHERE company = 'Missouri Veterinary Medical Association' AND is_partner=1 INTO @partner_id;
 UPDATE accounts SET partner_private_logo = '/static/images/partners/logos/mvma-logo.jpg' WHERE id = @partner_id;
+
+/* Rohan Sureshkumar 4/23/24 */
+ALTER TABLE `accounts` 
+ADD COLUMN `per_head_fee` DECIMAL(4,2) NOT NULL DEFAULT 1 AFTER `partner_color`;

@@ -497,7 +497,7 @@ class Accounts:
                        address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        partner_account=NO_VALUE, is_partner_used_for_signup=NO_VALUE,
-                       partner_subscription_credits=NO_VALUE, partner_color=NO_VALUE):
+                       partner_subscription_credits=NO_VALUE, partner_color=NO_VALUE, per_head_fee=NO_VALUE):
         """
         Updates an account.
 
@@ -573,6 +573,9 @@ class Accounts:
         if partner_color is not NO_VALUE:
             query_conditions.append(" partner_color = %(partner_color)s")
             query_values["partner_color"] = partner_color
+        if per_head_fee is not NO_VALUE:
+            query_conditions.append(" per_head_fee = %(per_head_fee)s")
+            query_values["per_head_fee"] = per_head_fee
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
             query = base_query + combined_query_condition
@@ -601,7 +604,7 @@ class Accounts:
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
                        subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, can_partner_login=NO_VALUE,
-                       partner_pays=NO_VALUE):
+                       partner_pays=NO_VALUE, per_head_fee=NO_VALUE):
         """
         Transform, validate and updates an account.
         """
@@ -628,7 +631,8 @@ class Accounts:
             stripe_account_id=stripe_account_id, is_stripe_payouts_enabled=is_stripe_payouts_enabled,
             retail_name=retail_name, retail_description=retail_description,
             subscription_start_date=subscription_start_date, subscription_end_date=subscription_end_date,
-            show_real_name=show_real_name, can_partner_login=can_partner_login, partner_pays=partner_pays
+            show_real_name=show_real_name, can_partner_login=can_partner_login, partner_pays=partner_pays,
+            per_head_fee=per_head_fee
         )
 
     def update_account(self, account_id, company=NO_VALUE, name=NO_VALUE, address=NO_VALUE, city=NO_VALUE,
@@ -637,7 +641,7 @@ class Accounts:
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
                        subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, can_partner_login=NO_VALUE, 
-                       partner_pays=NO_VALUE):
+                       partner_pays=NO_VALUE, per_head_fee=NO_VALUE):
         """
         Updates an account.
 
@@ -730,6 +734,9 @@ class Accounts:
         if partner_pays is not NO_VALUE:
             query_conditions.append("partner_pays = %(partner_pays)s")
             query_values["partner_pays"] = partner_pays
+        if per_head_fee is not NO_VALUE:
+            query_conditions.append("per_head_fee = %(per_head_fee)s")
+            query_values["per_head_fee"] = per_head_fee
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE a.id=%(id)s"

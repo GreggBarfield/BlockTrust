@@ -127,6 +127,9 @@ class Account:
     def partner_pays(self):
         return self._row["partner_pays"]
 
+    def per_head_fee(self):
+        return self._row["per_head_fee"]
+
     def add_user(self, user, is_admin=0):
         """Add a user to this account.
 
