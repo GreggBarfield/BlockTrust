@@ -17,6 +17,7 @@ export class CreateSalesGroupWidget extends Widget {
         this.accountId = this.frame.getAttribute("data-widget-account-id");
         this.paymentURL = this.frame.getAttribute("data-widget-payment-URL");
         this.viewURL = this.frame.getAttribute("data-widget-view-URL");
+        this.perHeadFee = this.frame.getAttribute("data-widget-per-head-fee");
 
         // Checking for availability of carcass data
         this.carcassDataAvailable = true;
@@ -98,7 +99,7 @@ export class CreateSalesGroupWidget extends Widget {
         this.frame.append(card)
         // Widget containing common input fields used in sales group form
         let salesGroupForm = new SalesGroupsCommonForm(
-            null, this.auctionMarkets, this.postRoute, this.salesGroupFieldsValues, this.preSelectAuctionMarket, this.preSelectedAuctionMarketId, this.carcassDataAvailable, this.viewURL, this.paymentURL
+            null, this.auctionMarkets, this.postRoute, this.salesGroupFieldsValues, this.preSelectAuctionMarket, this.preSelectedAuctionMarketId, this.carcassDataAvailable, this.viewURL, this.paymentURL, this.perHeadFee
         );
         cardBody.append(salesGroupForm);
     }

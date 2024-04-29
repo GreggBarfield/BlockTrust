@@ -151,15 +151,29 @@
                             </div>
                         </div>
                     </div>
+                    {% if not account_row.partner_account_id() %}
                     <div class="row">
-                        <div class="col-lg-12">
-                            <div class="custom-control custom-switch mb-3" title="{{'Partner cannot make payments since this account has no partner' if not account_row.partner_account_id() else ''}}">
-                                <input type="checkbox" class="custom-control-input" id="partner_pays"
-                                 {{'disabled' if not account_row.partner_account_id() else ''}} {{'checked' if account_row.partner_pays() else ''}}>
-                                <label class="custom-control-label" for="partner_pays">Partner makes payments</label>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="per_head_fee">Per Head Fee (in $)</label>
+                                <input type="number" class="form-control" id="per_head_fee" step="0.01" min="0"
+                                    value="{{account_row.per_head_fee()}}">
                             </div>
                         </div>
                     </div>
+                    {% else %}
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group mt-2 mb-3">
+                                <div class="custom-control custom-switch" title="{{'Partner cannot make payments since this account has no partner' if not account_row.partner_account_id() else ''}}">
+                                    <input type="checkbox" class="custom-control-input" id="partner_pays"
+                                    {{'disabled' if not account_row.partner_account_id() else ''}} {{'checked' if account_row.partner_pays() else ''}}>
+                                    <label class="custom-control-label" for="partner_pays">Partner makes payments</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                     <button type="submit" class="btn btn-primary">Apply Changes</button>
                 <p class="mt-2 mb-0" id="edit_account_status_message" style="display:none;">Hang on, saving your changes...</p>
                 <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="edit_account_error_message">Internal error...</p>

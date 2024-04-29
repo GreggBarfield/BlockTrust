@@ -126,8 +126,15 @@
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <label for="subscription_credits">Subscription Credits</label>
-                                <input type="number" class="form-control" id="subscription_credits"
+                                <input type="number" class="form-control" id="subscription_credits" min="0"
                                     value="{{partner_row.partner_subscription_credits}}">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="per_head_fee">Per Head Fee (in $)</label>
+                                <input type="number" class="form-control" id="per_head_fee" step="0.01" min="0"
+                                    value="{{partner_row.per_head_fee}}">
                             </div>
                         </div>
                     </div>

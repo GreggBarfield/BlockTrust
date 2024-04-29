@@ -19,6 +19,7 @@
                             <tr>
                                 <th>PARTNER ACCOUNT NUMBER</th>
                                 <th>PARTNER NAME</th>
+                                <th>PER HEAD FEE</th>
                                 <th>AMOUNT DUE</th>
                                 <th></th>
                             </tr>
@@ -29,6 +30,7 @@
                             <tr>
                                 <td>{{row.id}}</td>
                                 <td>{{row.name}}</td>
+                                <td>{{row.per_head_fee}}</td>
                                 <td>{{ "${:,.2f}".format(row.amount)}}</td>
                                 <td>
                                     <button class="btn btn-sm btn-danger" {{'disabled' if row.total_amount == 0 else ''}} partner-id="{{row.id}}" data-toggle="tooltip" data-placement="top" title="Send Invoice to {{row.name}}">

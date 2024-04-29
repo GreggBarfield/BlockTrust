@@ -12,7 +12,7 @@ import { UploadEIDsForSalesGroupWidget } from './upload_eids_for_sales_group_wid
 import { UploadVaccinationDatesWidget } from './upload_vaccination_dates_widget.mjs';
 
 export class SalesGroupsCommonForm{
-    constructor(data, auctionMarketsData, postRoute, salesGroupFieldsValues, preSelectAuctionMarket="false", preSelectedAuctionMarketId=null, carcassDataAvailable=false, viewSalesGroupURL=null, paymentURL=null) {
+    constructor(data, auctionMarketsData, postRoute, salesGroupFieldsValues, preSelectAuctionMarket="false", preSelectedAuctionMarketId=null, carcassDataAvailable=false, viewSalesGroupURL=null, paymentURL=null, perHeadFee=1) {
         this.box = document.createElement("div");
         this.data = data;
         // Initialize variables which hold field values
@@ -139,6 +139,7 @@ export class SalesGroupsCommonForm{
         this.carcassDataAvailable = carcassDataAvailable;
         this.viewSalesGroupURL = viewSalesGroupURL;
         this.paymentURL = paymentURL;
+        this.perHeadFee = perHeadFee;
         this.makeForm();
         return this.box;
     }
@@ -818,7 +819,7 @@ export class SalesGroupsCommonForm{
                     }
                     if (this.paymentURL) {
                         if (publishSwitch.isChecked() && !this.isPaid) {
-                            let infoModal = new InfoModal(`Since you are publishing this sales group, you will be charged <span class="text-danger">$${safeInt(characteristicsCount.value).toFixed(2)}</span> on your saved card. 
+                            let infoModal = new InfoModal(`Since you are publishing this sales group, you will be charged <span class="text-danger">$${(safeInt(characteristicsCount.value)*this.perHeadFee).toFixed(2)}</span> on your saved card. 
                                                            If no card has been added to your account or if payment on your saved card fails, you will be redirected to enter new payment details. Click <span class="text-danger">OK</span> to proceed.
                                                            <br/><br/>In case, you are not ready to pay, click <span class="text-danger">Cancel</span>. In this case, the sales group will be saved and not published.`,
                                 null, false, "d-none", () => window.location.href = this.viewSalesGroupURL + this.salesGroupID);
