@@ -2688,3 +2688,14 @@ UPDATE accounts SET partner_private_logo = '/static/images/partners/logos/mvma-l
 /* Rohan Sureshkumar 4/23/24 */
 ALTER TABLE `accounts` 
 ADD COLUMN `per_head_fee` DECIMAL(4,2) NOT NULL DEFAULT 1 AFTER `partner_color`;
+
+/* Nisheet Thakur 04/29/2024 */
+INSERT INTO `product_vendors` (vendor_name, vendor_email)
+VALUES ("Allflex", "gregg.barfield@ledgerspace.net");
+
+SET @partner_id := (SELECT id FROM accounts WHERE name="Health Track");
+SET @low_frequency_id := (SELECT id FROM product_categories WHERE category_name="Low Frequency");
+SET @allflexid := (SELECT id FROM product_vendors WHERE vendor_name="Allflex");
+INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,partner,details, product_category_id, product_vendor_id, is_premise_id_required, member_price, is_internal)
+VALUES ("FDX 982 w/ GESMY", "FDX982_GESMY.gif", "FDX982_GESMY.gif", 3.50, 0, "", "", @partner_id, 'Standard Performance Full Duplex FDX EID Tag.;Tamperproof Ultra Cap provides ultimate security and retention.;ISO Compliant.;FDX Tag Weight: 9 Grams.;Packed in quantities of 25', @low_frequency_id, @allflexid, 0, 3.50, 0),
+("FDX 982-GESMY-TP Maxi F-SMWH #3", "FDX982_GESMY_TPMAXI.png", "FDX982_GESMY_TPMAXI.png", 4.75, 0, "", "", @partner_id, 'EID Visual Matched Set with FDX EID tag paired Tamperproof Maxi visual tag.;Visual Tags feature Laser-ink printed markings.;Both tags have Tamperproof Ultra Cap.;Tamperproof Maxi: 4 inches high x 3 inches wide', @low_frequency_id, @allflexid, 0, 4.75, 0);
