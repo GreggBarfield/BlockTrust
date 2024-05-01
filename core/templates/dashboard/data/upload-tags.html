@@ -119,23 +119,9 @@ const importer = new FlatfileImporter('{{license}}', {
 
       ]},
       { 
-        key: "wean_date", label: "Weaning Date",
-        validators: [
-
-      ]},
-      { 
         key: "breed", label: "Breed",
         validators: [
 
-      ]},
-      { 
-        key: "birth_weight", label: "Birth Weight",
-        validators: [
-          {
-            validate: 'regex_matches',
-            regex: '^([0-9]+[.])?[0-9]+$',
-            error: 'Only can be a number.'
-          }  
       ]},
       { 
         key: "calf_reg_no", label: "Calf Registration #",
@@ -170,7 +156,7 @@ const importer = new FlatfileImporter('{{license}}', {
 
       ]},
       { 
-        key: "wean_weight", label: "Wean Weight",
+        key: "wean_weight", label: "Weaning Weight",
         validators: [
         {
           validate: 'regex_matches',
@@ -179,7 +165,7 @@ const importer = new FlatfileImporter('{{license}}', {
         }
       ]},
       { 
-        key: "wean_date", label: "Wean Date",
+        key: "wean_date", label: "Weaning Date",
         validators: [
 
       ]},
