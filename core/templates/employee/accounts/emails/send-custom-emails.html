@@ -1,0 +1,55 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Send Custom Emails" %}
+{% set employee_locations = [("/employee/dashboard", "Dashboard")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+<div class="card">
+    <h5 class="card-header">Send Custom Emails</h5>
+    <div class="card-body">
+        <form  class="bg-white col-md-12" id="email_form">
+            <div class="row col-md-12">
+                <div class="col-md-3 sub-col-left">
+                    <p><h6>Email Recipients (Comma Separated): </h6></p>
+                </div>
+                <div class="col-md-9 sub-col-right">
+                    <input id="email-recipients" class="form-control" type="text" required/>
+                </div>
+            </div>
+            <div class="row col-md-12">
+                <div class=" col-md-3 sub-col-left">
+                    <p><h6>Email Subject: </h6></p>
+                </div>
+                <div class="col-md-9 sub-col-right">
+                    <input id="email-subject" class="form-control" type="text" required/>
+                </div>
+            </div>
+            <div class="row col-md-12">
+                <div class=" col-md-3 sub-col-left">
+                    <p><h6>Email Header: </h6></p>
+                </div>
+                <div class="col-md-9 sub-col-right">
+                    <input id="email-header" class="form-control" type="text"/>
+                </div>
+            </div>
+            <div class="row col-md-12">
+                <div class=" col-md-3 sub-col-left">
+                    <p><h6>Email Body: </h6></p>
+                </div>
+                <div class="col-md-9 sub-col-right justify-content-center align-items-center">
+                    <textarea id="email-body" class="form-control" type="text" required></textarea>
+                </div>
+            </div>
+            <div class="row col-md-6 m-1 p-1">
+                <button type="submit" class="btn btn-primary">Send Email</button>
+            </div>
+            <p class="mt-2 mb-0" id="email_status_message" style="display:none;">Sending Email...</p>
+            <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="email_error_message">Error</p>
+        </form>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/employee/accounts/emails/send-custom-emails.mjs"></script>
+{% endblock employee_content %}
