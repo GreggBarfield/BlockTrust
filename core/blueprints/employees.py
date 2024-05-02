@@ -1096,22 +1096,76 @@ def serve_partner_sales_group_payments(partner_id):
 @bp.route('/employee/dashboard/emails', methods=["GET"])
 @crut.require_employee
 def serve_emails():
-    accounts = Accounts(g.db).get_accounts()
-    return employee_render("/employee/accounts/emails.html", {"accounts": accounts})
+    return employee_render("/employee/accounts/emails/emails.html")
 
 
-@bp.route('/employee/dashboard/send-welcome-email', methods=["POST"])
+@bp.route('/employee/dashboard/emails/send-welcome-email', methods=["GET", "POST"])
 @crut.require_employee
 def serve_send_welcome_email():
-    account_id = int(request.form["account_id"])
-    admin_user = AccountUsers(g.db).get_account_users(account=account_id, is_admin=1)
-    if len(admin_user) > 0:
-        user = Users(g.db).get_user_by_id(admin_user[0]['user'])
-        if user is not None and user.is_system_generated() == 0:
-            send_email(
-                "Welcome",
-                render_email("employee/welcome-email.html", {}), user.email()
-            )
+    if request.method == "GET":
+        accounts = Accounts(g.db).get_accounts()
+        return employee_render("/employee/accounts/emails/send-welcome-email.html", {"accounts": accounts})
+    if request.method == "POST":
+        account_id = int(request.form["account_id"])
+        admin_user = AccountUsers(g.db).get_account_users(account=account_id, is_admin=1)
+        if len(admin_user) > 0:
+            user = Users(g.db).get_user_by_id(admin_user[0]['user'])
+            if user is not None and user.is_system_generated() == 0:
+                send_email(
+                    "Welcome",
+                    render_email("employee/welcome-email.html", {}), user.email()
+                )
+            else:
+                return {"error": "Invalid Email or User is System Generated"}
+        return {"redirect": "/employee/dashboard/emails"}
+
+
+@bp.route('/employee/dashboard/emails/send-custom-emails-to-account', methods=["GET", "POST"])
+@crut.require_employee
+def serve_send_custom_emails_to_account():
+    if request.method == "GET":
+        accounts = Accounts(g.db).get_accounts()
+        return employee_render("/employee/accounts/emails/send-custom-emails-to-account.html", {"accounts": accounts})
+    if request.method == "POST":
+        if str_to_bool(request.form["send_email_to_admin_only"]):
+            email_recipients = AccountUsers(g.db).get_account_users(account=request.form["account_id"], is_admin=1)
         else:
-            return {"error": "Invalid Email or User is System Generated"}
-    return {"redirect": "/employee/dashboard/emails"}
+            email_recipients = AccountUsers(g.db).get_account_users(account=request.form["account_id"])
+        for email_recipient in email_recipients:
+            user = Users(g.db).get_user_by_id(email_recipient["user"])
+            if user is not None and user.is_email_verified() == 1 and user.is_system_generated() == 0:
+                send_email(
+                    request.form["email_subject"],
+                    render_email("employee/custom-email.html", {
+                        "email_header": request.form["email_header"],
+                        "email_body": request.form["email_body"]
+                        }
+                    ),
+                    user.email()
+                )
+        return {"redirect": "/employee/dashboard/emails"}
+
+
+@bp.route('/employee/dashboard/emails/send-custom-emails', methods=["GET", "POST"])
+@crut.require_employee
+def serve_send_custom_emails():
+    if request.method == "GET":
+        return employee_render("/employee/accounts/emails/send-custom-emails.html")
+    if request.method == "POST":
+        email_recipients = request.form["email_recipients"].split(",")
+        for email_recipient in email_recipients:
+            email_recipient = format_field(email_recipient.strip())
+            email_validation = validate_email(email_recipient)
+            if email_validation["success"]:
+                send_email(
+                    request.form["email_subject"],
+                    render_email("employee/custom-email.html", {
+                        "email_header": request.form["email_header"],
+                        "email_body": request.form["email_body"]
+                        }
+                    ),
+                    email_recipient
+                )
+            else:
+                return {"error": email_validation["message"]}
+        return {"redirect": "/employee/dashboard/emails"}

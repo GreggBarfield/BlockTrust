@@ -1,0 +1,13 @@
+{% extends "email/standard.html" %}
+
+{% block email_standard_center %}
+{{email_header}}
+{% endblock email_standard_center %}
+
+{% block email_standard_subdescription %}
+<br>
+<div>
+    <p>{{email_body}}</p>
+</div>
+<br>
+{% endblock email_standard_subdescription %}

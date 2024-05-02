@@ -1,0 +1,20 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Emails" %}
+{% set employee_locations = [("/employee/dashboard", "Dashboard")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+<div class="card col-md-6">
+    <h5 class="card-header">Email Options</h5>
+    <div class="card-body">
+        <div class="col">
+            <div class="row m-1 p-1"><a href="/employee/dashboard/emails/send-welcome-email">Send Welcome Email</a></div>
+            <div class="row m-1 p-1"><a href="/employee/dashboard/emails/send-custom-emails-to-account">Send Custom Emails to Account</a></div>
+            <div class="row m-1 p-1"><a href="/employee/dashboard/emails/send-custom-emails">Send Custom Emails</a></div>
+        </div>
+    </div>
+</div>
+{% endblock employee_content %}
