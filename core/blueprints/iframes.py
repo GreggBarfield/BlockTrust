@@ -329,7 +329,7 @@ def serve_iframe_invoice():
 
 @bp.route('/iframe/external/tag-store/<int:partner_id>', methods=["GET"])
 def serve_iframe_external_tag_store(partner_id):
-    all_product_data = ProductTable(g.db).get_products(partner=partner_id, include_images=True)
+    all_product_data = ProductTable(g.db).get_products(partner=partner_id, include_images=True, is_internal=int(False))
     product_categories = ProductCategories(g.db).get_product_categories()
     product_vendors = ProductVendors(g.db).get_product_vendors()
     product_vendor_ids_to_names = {}
