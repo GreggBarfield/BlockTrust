@@ -274,7 +274,7 @@ export class TableWidget extends Widget {
 
     displayGlobal() {
         if ('count_eid_distinct' in this) {
-            let interest = this.tableSectionSightingsRows[1].children[2];
+            let interest = this.tableSectionSightingsRows[1].children[3];
             if (this.count_eid_distinct === null) {
                 interest.innerHTML = "";
                 interest.append(this.createNotAvailableYet());
@@ -304,7 +304,7 @@ export class TableWidget extends Widget {
                     if (total > 0) {
                         v = (100 * yg[i] / total).toFixed(2) + "%";
                     }
-                    this.tableSectionYieldRows[1 + parseInt(i)].children[2].textContent = v;
+                    this.tableSectionYieldRows[1 + parseInt(i)].children[3].textContent = v;
                 }
             }
         }
@@ -335,13 +335,13 @@ export class TableWidget extends Widget {
                     if (total > 0) {
                         v = (100 * yg[i] / total).toFixed(2) + "%";
                     }
-                    this.tableSectionQualityRows[1 + parseInt(i)].children[2].textContent = v;
+                    this.tableSectionQualityRows[1 + parseInt(i)].children[3].textContent = v;
                 }
             }
         }
         if ('count_eid_distinct' in this) {
-            let totalCalvesSighted = this.tableSectionSightingsRows[2].children[2];
-            let percentageOfTotalCalvesSighted = this.tableSectionSightingsRows[3].children[2];
+            let totalCalvesSighted = this.tableSectionSightingsRows[2].children[3];
+            let percentageOfTotalCalvesSighted = this.tableSectionSightingsRows[3].children[3];
 
             if ('count_eid_distinct' in this && this.count_eid_distinct === null) {
                 totalCalvesSighted.innerHTML = "";
@@ -450,6 +450,9 @@ export class TableWidget extends Widget {
                 percentOfCalvesSightedForAccount.textContent = v;
             }
         }
+        this.unavailableSection(this.tableSectionSightingsRows, 2);
+        this.unavailableSection(this.tableSectionQualityRows, 2);
+        this.unavailableSection(this.tableSectionYieldRows, 2);
     }
 
     createNotAvailableYet() {
@@ -487,13 +490,38 @@ export class TableWidget extends Widget {
         this.mainTableHeadRow0.appendChild(this.mainTableHeadRow0TH0);
 
         this.mainTableHeadRow0TH1 = document.createElement("th");
+        this.mainTableHeadRow0TH1.className = "text-center";
+        this.mainTableHeadRow0TH1.colSpan = 2;
         this.mainTableHeadRow0TH1.textContent = this.companyName;
         this.mainTableHeadRow0.appendChild(this.mainTableHeadRow0TH1);
 
         this.mainTableHeadRow0TH2 = document.createElement("th");
+        this.mainTableHeadRow0TH2.className = "text-center";
         this.mainTableHeadRow0TH2.textContent = "Global Benchmark";
         this.mainTableHeadRow0.appendChild(this.mainTableHeadRow0TH2);
 
+        // Secondary Header
+        this.mainTableHeadRow1 = document.createElement("tr");
+        this.mainTableHead.appendChild(this.mainTableHeadRow1);
+
+        this.mainTableHeadRow1TH0 = document.createElement("th");
+        this.mainTableHeadRow1TH0.textContent = "";
+        this.mainTableHeadRow1.appendChild(this.mainTableHeadRow1TH0);
+
+        this.mainTableHeadRow1TH1 = document.createElement("th");
+        this.mainTableHeadRow1TH1.className = "text-center";
+        this.mainTableHeadRow1TH1.textContent = "Previous Years";
+        this.mainTableHeadRow1.appendChild(this.mainTableHeadRow1TH1);
+
+        this.mainTableHeadRow1TH2 = document.createElement("th");
+        this.mainTableHeadRow1TH2.className = "text-center";
+        this.mainTableHeadRow1TH2.textContent = "2024";
+        this.mainTableHeadRow1.appendChild(this.mainTableHeadRow1TH2);
+
+        this.mainTableHeadRow1TH3 = document.createElement("th");
+        this.mainTableHeadRow1TH3.className = "text-center";
+        this.mainTableHeadRow1TH3.textContent = "";
+        this.mainTableHeadRow1.appendChild(this.mainTableHeadRow1TH3);
         // Body
 
         this.mainTableBody = document.createElement("tbody");
@@ -520,7 +548,7 @@ export class TableWidget extends Widget {
                 let bodyRow = document.createElement("tr");
                 allRows.push(bodyRow);
 
-                for (let i = 0; i < 3; i++) {
+                for (let i = 0; i < 4; i++) {
                     let bodyTd = document.createElement("td");
                     bodyRow.appendChild(bodyTd);
                     if (i == 0) {
