@@ -219,6 +219,18 @@ class Reports:
             }
 
         )
+    
+    def make_annual_reports_for_account(self, account_id, sector_id):
+        """ Temporary routine to create annual reports for accounts """
+        if sector_id != SECTORS_NAME_TO_ID["Buyer"]:
+            queries = [
+                annual_count_distribution_by_account.create(account_id, "USDA Yield Grade"),
+                annual_count_distribution_by_account.create(account_id, "USDA Quality Grade"),
+                annual_count_eid_distinct_by_account.create(account_id)
+            ]
+            for query in queries:
+                self.insert_query(account_id, query)
+
 
     def get_reports(self, query=NO_VALUE, selectColumns=[]):
         """Generic get report routine

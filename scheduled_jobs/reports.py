@@ -1,3 +1,4 @@
+from core.database.tables.accounts import Accounts
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.debug_logs import DebugLogs
 from core.database.tables.job_runs import JobRuns
@@ -22,11 +23,25 @@ def make_missed_reports_for_accounts(db, reports_table):
     )
 
 
+def make_annual_reports_for_accounts(db, reports_table):
+    """ Temporary routine to create annual reports for accounts """
+    accounts = Accounts(db).get_accounts()
+    account_ids = []
+    for account in accounts:
+        print("Reports Thread: Setting up annual reports for account: ", account['id'])
+        reports_table.make_annual_reports_for_account(account["id"], account["sector"])
+        account_ids.append(account['id'])
+    DebugLogs(db).insert_debug_log(
+        component="Reports", short_info="Annual reports created", details={"account_ids": ','.join(str(id) for id in account_ids)}
+    )
+
+
 def run_report_tasks(job_run_id, db):
     try:
         reports_table = Reports(db)
         reports_table.make_global_reports()
         make_missed_reports_for_accounts(db, reports_table)
+        make_annual_reports_for_accounts(db, reports_table)
         reports_table.mark_account_reports_for_reprocessing()
 
         market_cache_report = reports_table.get_reports(query=market_data_cache.create(), selectColumns=["id"])[0]
