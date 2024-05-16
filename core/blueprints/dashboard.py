@@ -88,6 +88,7 @@ def serve_dashboard():
     }
 
     if g.account.sector_id() in (SECTORS_NAME_TO_ID["Auction"], SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"]):
+        account_params["sales_groups"] = None
         if g.account.sector_id() == SECTORS_NAME_TO_ID["Auction"] and g.account.auction_market_id():
             account_params["sales_groups"] = SalesGroups(g.db).get_sales_groups(
                 auction_market_id=g.account.auction_market_id(), is_archived=int(False)

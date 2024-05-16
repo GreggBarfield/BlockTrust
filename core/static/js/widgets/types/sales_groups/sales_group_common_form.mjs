@@ -429,6 +429,7 @@ export class SalesGroupsCommonForm{
         characteristicsCount.onchange = () =>{
             uploadEIDsWidget.setEidCountLimit(characteristicsCount.value);
         }
+        characteristicsCount.onchange();
         let characteristicBreeds = createSelect({
             row: characteristicsRow,
             name: "Breed",
