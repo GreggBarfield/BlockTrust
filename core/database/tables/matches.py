@@ -85,7 +85,8 @@ class Matches:
         result = self._db.execute_d(query)
         return Matches._load_rows(result)
 
-    def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_id, is_partner=False, as_count=False, associated_account_ids=()):
+    def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_id, is_partner=False, as_count=False,
+                                                              associated_account_ids=(), get_by_year=None):
         if not all(isinstance(id, int) for id in associated_account_ids):
             raise Exception("Incorrect input for account ids")
 
@@ -108,6 +109,10 @@ class Matches:
             else:
                 first_account_link_clause = f"al1.partner_account = {account_id}"
 
+        matches_get_by_year_clause = ""
+        if get_by_year is not None:
+            matches_get_by_year_clause = f" AND YEAR(m1.created_timestamp) = {get_by_year} "
+
         if first_account_link_clause:
             match_rows = self._db.execute_d(
                 f"""
@@ -116,7 +121,8 @@ class Matches:
                 INNER JOIN matches m2 ON m1.eid = m2.eid
                 INNER JOIN account_links al2 on al2.id = m2.account_link
                 {third_matches_clause}
-                WHERE {first_account_link_clause} AND m1.type = %(sighting_type)s AND m2.type = %(sighting_type)s
+                WHERE {first_account_link_clause} 
+                AND m1.type = %(sighting_type)s AND m2.type = %(sighting_type)s {matches_get_by_year_clause}
                 AND al2.sector IN {sectors_clause}
                 ORDER BY m1.eid
                 """,
@@ -649,7 +655,7 @@ class Matches:
                 }
         )
 
-    def get_count_eid_distinct_for_accounts(self, account_id, is_partner=False, associated_account_ids=(),):
+    def get_count_eid_distinct_for_accounts(self, account_id, is_partner=False, associated_account_ids=(), get_by_year=None):
         """Count the number of distinct EIDs in the database for an account.
 
         Params:
@@ -674,6 +680,9 @@ class Matches:
             else:
                 condition = f" AND al.partner_account = {account_id}"
 
+        if get_by_year is not None:
+            condition += f" AND YEAR(m.created_timestamp) = {get_by_year} "
+
         if condition:
             return self._db.execute_d(
                 query + " WHERE m.type= %(sighting_type)s" + condition,
@@ -684,7 +693,7 @@ class Matches:
         else:
             return 0
 
-    def get_count_distribution(self, type_int=None, account_id=None, is_partner=False, associated_accounts=()):
+    def get_count_distribution(self, type_int=None, account_id=None, get_by_year=None, is_partner=False, associated_accounts=()):
         """Gets the count of each data type for an account
 
         Params:
@@ -714,6 +723,10 @@ class Matches:
             else:
                 account_link_condition = " AND al.account = %(account_id)s"
                 args["account_id"] = account_id
+
+            if get_by_year:
+                account_link_condition += " AND YEAR(m1.created_timestamp) = %(get_by_year)s"
+                args["get_by_year"] = get_by_year
 
             if account_link_condition:
                 return Matches._load_rows(self._db.execute_d(

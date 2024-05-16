@@ -1,0 +1,59 @@
+from core.database.tables.connections import Connections
+from core.database.tables.matches import Matches
+from core.sectors import SECTORS_NAME_TO_ID
+from datetime import datetime
+
+TYPE_NAME = "annual_count_eid_distinct_by_account"
+INITIAL_YEAR = 2021
+
+def execute(db, query):
+    """Execute the query."""
+    params = query['params']
+    is_partner = params.get("is_partner", False)
+    account_ids = []
+    if is_partner:
+        partner = db.accounts.get_accounts(id=params['account'])[0]
+        if partner["sector"] == SECTORS_NAME_TO_ID["Producer Service"]:
+            account_ids = Connections(db).get_connected_account_ids(partner["id"])
+
+    annual_count_eid_distinct_and_sighted = {}
+    for report_year in range(INITIAL_YEAR, datetime.now().year + 1):
+        annual_count_eid_distinct_and_sighted[report_year] = {
+            'count_eid_distinct': Matches(db).get_count_eid_distinct_for_accounts(
+                params['account'], is_partner, account_ids, report_year
+            ),
+            'count_eid_distinct_sighted': Matches(db).get_sightings_in_auction_house_feedlot_packer_stocker(
+                params['account'], is_partner, as_count=True, associated_account_ids=account_ids, get_by_year=report_year
+            )
+        }
+
+    return annual_count_eid_distinct_and_sighted
+
+def accessible(query, account_id):
+    """Checks whether the query is accessible by an account.
+
+    Params:
+        query: The query (dictionary)
+        account_id: The account ID
+
+    Returns:
+        Boolean whether query is accessible
+    """
+    if account_id is None:
+        return False
+    return query['account'] == account_id
+
+def create(account_id, is_partner=False):
+    """Creates a query.
+
+    Params:
+        account_id: The account ID
+
+    Returns:
+        A dictionary of the query
+    """
+    params = {'account': account_id, 'is_partner': True} if is_partner else {'account': account_id}
+    return {
+        'type': TYPE_NAME,
+        'params': params
+    }

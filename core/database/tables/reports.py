@@ -7,7 +7,8 @@ from ..frag import frag, frag_insert_into
 
 from core.reports.query_types import (
     count_distribution, count_distribution_for_sector_at_account, count_eid_distinct_by_account,
-    count_distribution_global, count_eid_distinct
+    count_distribution_global, count_eid_distinct, annual_count_distribution_by_account,
+    annual_count_eid_distinct_by_account
 )
 import json
 
@@ -163,7 +164,10 @@ class Reports:
             queries = [
                 count_distribution.create(account_id, "USDA Yield Grade"),
                 count_distribution.create(account_id, "USDA Quality Grade"),
-                count_eid_distinct_by_account.create(account_id)
+                count_eid_distinct_by_account.create(account_id),
+                annual_count_distribution_by_account.create(account_id, "USDA Yield Grade"),
+                annual_count_distribution_by_account.create(account_id, "USDA Quality Grade"),
+                annual_count_eid_distinct_by_account.create(account_id)
             ]
 
             if sector_id in (SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"], SECTORS_NAME_TO_ID["Auction"]):
@@ -181,7 +185,10 @@ class Reports:
                 count_distribution.create(partner_id, is_partner=True),
                 count_distribution.create(partner_id, "USDA Yield Grade", is_partner=True),
                 count_distribution.create(partner_id, "USDA Quality Grade", is_partner=True),
-                count_eid_distinct_by_account.create(partner_id, is_partner=True)
+                count_eid_distinct_by_account.create(partner_id, is_partner=True),
+                annual_count_distribution_by_account.create(partner_id, "USDA Yield Grade", is_partner=True),
+                annual_count_distribution_by_account.create(partner_id, "USDA Quality Grade", is_partner=True),
+                annual_count_eid_distinct_by_account.create(partner_id, is_partner=True)
             ]
 
             for query in queries:
