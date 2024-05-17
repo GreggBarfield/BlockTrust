@@ -220,13 +220,24 @@ class Reports:
 
         )
     
-    def make_annual_reports_for_account(self, account_id, sector_id):
+    def get_accounts_with_annual_reports(self):
+        """ Temporary routine to get accounts with no annual reports set up """
+        account_ids_with_annual_reports = []
+        account_reports = self._db.execute_d("SELECT * from reports where account_id IS NOT NULL")
+        for account_report in account_reports:
+            query = json.loads(account_report["query"])
+            if query["type"] == annual_count_distribution_by_account.TYPE_NAME or query["type"] == annual_count_eid_distinct_by_account.TYPE_NAME:
+                if account_report["account_id"] not in account_ids_with_annual_reports:
+                    account_ids_with_annual_reports.append(account_report["account_id"])
+        return account_ids_with_annual_reports
+
+    def make_annual_reports_for_account(self, account_id, sector_id, is_partner):
         """ Temporary routine to create annual reports for accounts """
         if sector_id != SECTORS_NAME_TO_ID["Buyer"]:
             queries = [
-                annual_count_distribution_by_account.create(account_id, "USDA Yield Grade"),
-                annual_count_distribution_by_account.create(account_id, "USDA Quality Grade"),
-                annual_count_eid_distinct_by_account.create(account_id)
+                annual_count_distribution_by_account.create(account_id, "USDA Yield Grade", is_partner),
+                annual_count_distribution_by_account.create(account_id, "USDA Quality Grade", is_partner),
+                annual_count_eid_distinct_by_account.create(account_id, is_partner)
             ]
             for query in queries:
                 self.insert_query(account_id, query)

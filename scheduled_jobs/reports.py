@@ -26,11 +26,13 @@ def make_missed_reports_for_accounts(db, reports_table):
 def make_annual_reports_for_accounts(db, reports_table):
     """ Temporary routine to create annual reports for accounts """
     accounts = Accounts(db).get_accounts()
+    accounts_with_annual_reports_setup = reports_table.get_accounts_with_annual_reports()
     account_ids = []
     for account in accounts:
-        print("Reports Thread: Setting up annual reports for account: ", account['id'])
-        reports_table.make_annual_reports_for_account(account["id"], account["sector"])
-        account_ids.append(account['id'])
+        if account["id"] not in accounts_with_annual_reports_setup:
+            print("Reports Thread: Setting up annual reports for account: ", account['id'])
+            reports_table.make_annual_reports_for_account(account["id"], account["sector"], bool(account["is_partner"]))
+            account_ids.append(account['id'])
     DebugLogs(db).insert_debug_log(
         component="Reports", short_info="Annual reports created", details={"account_ids": ','.join(str(id) for id in account_ids)}
     )
