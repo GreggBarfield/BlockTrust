@@ -20,3 +20,9 @@ types[count_distribution_for_sector_at_account.TYPE_NAME] = count_distribution_f
 
 from . import sustainability_response_averages  # noqa
 types[sustainability_response_averages.TYPE_NAME] = sustainability_response_averages
+
+from . import annual_count_distribution_by_account # noqa
+types[annual_count_distribution_by_account.TYPE_NAME] = annual_count_distribution_by_account
+
+from . import annual_count_eid_distinct_by_account # noqa
+types[annual_count_eid_distinct_by_account.TYPE_NAME] = annual_count_eid_distinct_by_account
