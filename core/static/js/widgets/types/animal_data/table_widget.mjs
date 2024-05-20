@@ -356,7 +356,7 @@ export class TableWidget extends Widget {
     }
 
     displayAccountData = () =>{
-        let displayConfigurations = [{year: 2021, columnId: 1}, {year:2024, columnId: 2}];
+        let displayConfigurations = [{year: 2023, columnId: 1}, {year:2024, columnId: 2}];
         for(let config of displayConfigurations){
             let annual_eid_count_data = this.annual_count_eid_distinct_and_sighted[config.year];
             this.displayAnnualAccountData(
