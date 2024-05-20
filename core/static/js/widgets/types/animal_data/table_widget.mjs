@@ -356,17 +356,19 @@ export class TableWidget extends Widget {
     }
 
     displayAccountData = () =>{
-        let displayConfigurations = [{year: 2023, columnId: 1}, {year:2024, columnId: 2}];
-        for(let config of displayConfigurations){
-            let annual_eid_count_data = this.annual_count_eid_distinct_and_sighted[config.year];
-            this.displayAnnualAccountData(
-                this.annual_account_usda_yield_grade_distribution[config.year],
-                this.annual_account_usda_quality_grade_distribution[config.year],
-                annual_eid_count_data.count_eid_distinct,
-                annual_eid_count_data.count_eid_distinct_sighted,
-                config.columnId
-            )
-        }
+        let displayConfigurations = [{year: 2021, columnId: 1}, {year:2024, columnId: 2}];
+        if(this.annual_account_usda_yield_grade_distribution && this.annual_account_usda_quality_grade_distribution && this.annual_count_eid_distinct_and_sighted){
+            for(let config of displayConfigurations){
+                let annual_eid_count_data = this.annual_count_eid_distinct_and_sighted[config.year];
+                this.displayAnnualAccountData(
+                    this.annual_account_usda_yield_grade_distribution[config.year],
+                    this.annual_account_usda_quality_grade_distribution[config.year],
+                    annual_eid_count_data.count_eid_distinct,
+                    annual_eid_count_data.count_eid_distinct_sighted,
+                    config.columnId
+                )
+            }
+        }  
     }
 
     displayAnnualAccountData(usda_yield_grade_distribution, usda_quality_grade_distribution, total_distinct_eids, sighted_distinct_eids, columnId) {
