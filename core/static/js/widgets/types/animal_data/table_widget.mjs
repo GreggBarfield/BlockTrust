@@ -19,28 +19,6 @@ export class TableWidget extends Widget {
                 "data_request",
                 {
                     request: {
-                        type: 'count_eid_distinct_by_account',
-                        params: {
-
-                        }
-                    }
-                }
-            ).then((data) => {
-                if (data.result === null) {
-                    this.account_total_distinct = null;
-                    this.account_sighted_distinct = null;
-                }
-                else {
-                    this.account_total_distinct = data.result.count_eid_distinct;
-                    this.account_sighted_distinct = data.result.count_eid_distinct_sighted;
-                }
-                this.displayAccount();
-            }),
-            
-            this.getData(
-                "data_request",
-                {
-                    request: {
                         type: 'count_distribution_global',
                         params: {
                             match_type: 'USDA Yield Grade'
@@ -81,48 +59,6 @@ export class TableWidget extends Widget {
                 "data_request",
                 {
                     request: {
-                        type: 'count_distribution',
-                        params: {
-                            match_type: 'USDA Yield Grade',
-                            account: null
-                        }
-                    }
-                }
-            ).then((data) => {
-                if (data.result === null) {
-                    this.account_usda_yield_grade_distribution = null;
-                }
-                else {
-                    this.account_usda_yield_grade_distribution = data.result.count_distribution;
-                }
-                this.displayAccount();
-            }),
-                
-            this.getData(
-                "data_request",
-                {
-                    request: {
-                        type: 'count_distribution',
-                        params: {
-                            match_type: 'USDA Quality Grade',
-                            account: null
-                        }
-                    }
-                }
-            ).then((data) => {
-                if (data.result === null) {
-                    this.account_usda_quality_grade_distribution = null;
-                }
-                else {
-                    this.account_usda_quality_grade_distribution = data.result.count_distribution;
-                }
-                this.displayAccount();
-            }),
-                
-            this.getData(
-                "data_request",
-                {
-                    request: {
                         type: 'count_eid_distinct',
                         params: {}
                     }
@@ -143,8 +79,67 @@ export class TableWidget extends Widget {
                 "get_yield_and_quality_grades_for_owned_eids"
             ).then((data) =>{
                 this.eid_based_yield_and_quality_grade_data = data;
+            }),
+
+            this.getData(
+                "data_request",
+                {
+                    request: {
+                        type: 'annual_count_distribution_by_account',
+                        params: {
+                            match_type: 'USDA Yield Grade',
+                            account: null
+                        }
+                    }
+                }
+            ).then((data) => {
+                if (data.result === null) {
+                    this.annual_account_usda_yield_grade_distribution = null;
+                }
+                else {
+                    this.annual_account_usda_yield_grade_distribution = data.result.annual_count_distribution_by_account;
+                }
+            }),
+                
+            this.getData(
+                "data_request",
+                {
+                    request: {
+                        type: 'annual_count_distribution_by_account',
+                        params: {
+                            match_type: 'USDA Quality Grade',
+                            account: null
+                        }
+                    }
+                }
+            ).then((data) => {
+                if (data.result === null) {
+                    this.annual_account_usda_quality_grade_distribution = null;
+                }
+                else {
+                    this.annual_account_usda_quality_grade_distribution = data.result.annual_count_distribution_by_account;
+                }
+            }),
+                
+            this.getData(
+                "data_request",
+                {
+                    request: {
+                        type: 'annual_count_eid_distinct_by_account',
+                        params: {}
+                    }
+                },
+            ).then((data) => {
+                if (data.result === null) {
+                    this.count_eid_distinct = null;
+                    this.count_eid_distinct_sighted = null;
+                }
+                else {
+                    this.annual_count_eid_distinct_and_sighted = data.result;
+                }
             })
         ]).then(() => {
+            this.displayAccountData();
             if (this.downloadButtonId && this.account_usda_quality_grade_distribution) {
                 this.createSummaryTableExport();
                 this.createDetailTableExport();
@@ -360,99 +355,104 @@ export class TableWidget extends Widget {
         }
     }
 
-    displayAccount() {
-        if ('account_usda_yield_grade_distribution' in this) {
-            if (this.account_usda_yield_grade_distribution === null) {
-                this.unavailableSection(this.tableSectionYieldRows, 1);
+    displayAccountData = () =>{
+        let displayConfigurations = [{year: 2021, columnId: 1}, {year:2024, columnId: 2}];
+        if(this.annual_account_usda_yield_grade_distribution && this.annual_account_usda_quality_grade_distribution && this.annual_count_eid_distinct_and_sighted){
+            for(let config of displayConfigurations){
+                let annual_eid_count_data = this.annual_count_eid_distinct_and_sighted[config.year];
+                this.displayAnnualAccountData(
+                    this.annual_account_usda_yield_grade_distribution[config.year],
+                    this.annual_account_usda_quality_grade_distribution[config.year],
+                    annual_eid_count_data.count_eid_distinct,
+                    annual_eid_count_data.count_eid_distinct_sighted,
+                    config.columnId
+                )
             }
-            else {
-                let total = 0;
-                let yg = [0,0,0,0,0,0];
-                for (const r of this.account_usda_yield_grade_distribution) {
-                    total += r.count;
-                    if (r.data >= 1 && r.data <= 5) {
-                        yg[5-r.data]+=r.count;
-                    }
-                    else {
-                        yg[5]+=r.count;
-                    }
+        }  
+    }
+
+    displayAnnualAccountData(usda_yield_grade_distribution, usda_quality_grade_distribution, total_distinct_eids, sighted_distinct_eids, columnId) {
+        if (usda_yield_grade_distribution === null) {
+            this.unavailableSection(this.tableSectionYieldRows, 1);
+        }
+        else {
+            let total = 0;
+            let yg = [0,0,0,0,0,0];
+            for (const r of usda_yield_grade_distribution) {
+                total += r.count;
+                if (r.data >= 1 && r.data <= 5) {
+                    yg[5-r.data]+=r.count;
                 }
-                for (const i in yg) {
-                    let v = "n/a";
-                    if (total > 0) {
-                        v = (100 * yg[i] / total).toFixed(2) + "%";
-                    }
-                    this.tableSectionYieldRows[1 + parseInt(i)].children[1].textContent = v;
+                else {
+                    yg[5]+=r.count;
                 }
+            }
+            for (const i in yg) {
+                let v = "n/a";
+                if (total > 0) {
+                    v = (100 * yg[i] / total).toFixed(2) + "%";
+                }
+                this.tableSectionYieldRows[1 + parseInt(i)].children[columnId].textContent = v;
             }
         }
-        if ('account_usda_quality_grade_distribution' in this) {
-            if (this.account_usda_quality_grade_distribution === null) {
-                this.unavailableSection(this.tableSectionQualityRows, 1);
+        if (usda_quality_grade_distribution === null) {
+            this.unavailableSection(this.tableSectionQualityRows, 1);
+        }
+        else {
+            let total = 0;
+            let yg = [0,0,0,0];
+            for (const r of usda_quality_grade_distribution) {
+                total += r.count;
+                if (r.data == "Prime") {
+                    yg[0]+=r.count;
+                }
+                else if (r.data == "Choice") {
+                    yg[1]+=r.count;
+                }
+                else if (r.data.includes("Select")) {
+                    yg[2]+=r.count;
+                }
+                else {
+                    yg[3]+=r.count;
+                }
             }
-            else {
-                let total = 0;
-                let yg = [0,0,0,0];
-                for (const r of this.account_usda_quality_grade_distribution) {
-                    total += r.count;
-                    if (r.data == "Prime") {
-                        yg[0]+=r.count;
-                    }
-                    else if (r.data == "Choice") {
-                        yg[1]+=r.count;
-                    }
-                    else if (r.data.includes("Select")) {
-                        yg[2]+=r.count;
-                    }
-                    else {
-                        yg[3]+=r.count;
-                    }
+            for (const i in yg) {
+                let v = "n/a";
+                if (total > 0) {
+                    v = (100 * yg[i] / total).toFixed(2) + "%";
                 }
-                for (const i in yg) {
-                    let v = "n/a";
-                    if (total > 0) {
-                        v = (100 * yg[i] / total).toFixed(2) + "%";
-                    }
-                    this.tableSectionQualityRows[1 + parseInt(i)].children[1].textContent = v;
-                }
+                this.tableSectionQualityRows[1 + parseInt(i)].children[columnId].textContent = v;
             }
         }
 
-        if ('account_total_distinct' in this) {
-            let totalCalvesForAccount = this.tableSectionSightingsRows[1].children[1];
-            if (this.account_total_distinct === null) {
-                totalCalvesForAccount.innerHTML = "";
-                totalCalvesForAccount.append(this.createNotAvailableYet());
-            }
-            else {
-                totalCalvesForAccount.textContent = this.account_total_distinct;
-            }
-            let totalCalvesSightedForAccount = this.tableSectionSightingsRows[2].children[1];
-            if (this.account_sighted_distinct === null) {
-                totalCalvesSightedForAccount.innerHTML = "";
-                totalCalvesSightedForAccount.append(this.createNotAvailableYet());
-            }
-            else {
-                totalCalvesSightedForAccount.textContent = this.account_sighted_distinct;
-            }
+        let totalCalvesForAccount = this.tableSectionSightingsRows[1].children[columnId];
+        if (total_distinct_eids === null) {
+            totalCalvesForAccount.innerHTML = "";
+            totalCalvesForAccount.append(this.createNotAvailableYet());
         }
-        if ('account_total_distinct' in this) {
-            let percentOfCalvesSightedForAccount = this.tableSectionSightingsRows[3].children[1];
-            if ('account_total_distinct' in this && this.account_total_distinct === null) {
-                percentOfCalvesSightedForAccount.innerHTML = "";
-                percentOfCalvesSightedForAccount.append(this.createNotAvailableYet());
-            }
-            else if ('account_total_distinct' in this) {
-                let v = "n/a";
-                if (this.account_total_distinct != 0) {
-                    v = (100 * this.account_sighted_distinct / this.account_total_distinct).toFixed(2) + "%";
-                }
-                percentOfCalvesSightedForAccount.textContent = v;
-            }
+        else {
+            totalCalvesForAccount.textContent = total_distinct_eids;
         }
-        this.unavailableSection(this.tableSectionSightingsRows, 2);
-        this.unavailableSection(this.tableSectionQualityRows, 2);
-        this.unavailableSection(this.tableSectionYieldRows, 2);
+        let totalCalvesSightedForAccount = this.tableSectionSightingsRows[2].children[columnId];
+        if (sighted_distinct_eids === null) {
+            totalCalvesSightedForAccount.innerHTML = "";
+            totalCalvesSightedForAccount.append(this.createNotAvailableYet());
+        }
+        else {
+            totalCalvesSightedForAccount.textContent = sighted_distinct_eids;
+        }
+        let percentOfCalvesSightedForAccount = this.tableSectionSightingsRows[3].children[columnId];
+        if (total_distinct_eids === null) {
+            percentOfCalvesSightedForAccount.innerHTML = "";
+            percentOfCalvesSightedForAccount.append(this.createNotAvailableYet());
+        }
+        else {
+            let v = "n/a";
+            if (total_distinct_eids != 0) {
+                v = (100 * sighted_distinct_eids / total_distinct_eids).toFixed(2) + "%";
+            }
+            percentOfCalvesSightedForAccount.textContent = v;
+        }
     }
 
     createNotAvailableYet() {
@@ -510,7 +510,7 @@ export class TableWidget extends Widget {
 
         this.mainTableHeadRow1TH1 = document.createElement("th");
         this.mainTableHeadRow1TH1.className = "text-center";
-        this.mainTableHeadRow1TH1.textContent = "Previous Years";
+        this.mainTableHeadRow1TH1.textContent = "2023";
         this.mainTableHeadRow1.appendChild(this.mainTableHeadRow1TH1);
 
         this.mainTableHeadRow1TH2 = document.createElement("th");
