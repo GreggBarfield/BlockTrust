@@ -356,7 +356,7 @@ export class TableWidget extends Widget {
     }
 
     displayAccountData = () =>{
-        let displayConfigurations = [{year: 2021, columnId: 1}, {year:2024, columnId: 2}];
+        let displayConfigurations = [{year: 2023, columnId: 1}, {year:2024, columnId: 2}];
         if(this.annual_account_usda_yield_grade_distribution && this.annual_account_usda_quality_grade_distribution && this.annual_count_eid_distinct_and_sighted){
             for(let config of displayConfigurations){
                 let annual_eid_count_data = this.annual_count_eid_distinct_and_sighted[config.year];
