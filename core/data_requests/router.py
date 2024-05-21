@@ -13,7 +13,8 @@ from .types.aggregated import (
 
 from .types.specific import (
     count_distribution, matches_by_eids, matches_by_account,
-    matches_by_auction_account, count_eid_distinct_by_account
+    matches_by_auction_account, count_eid_distinct_by_account,
+    annual_count_distribution_by_account, annual_count_eid_distinct_by_account
 )
 
 routing_table = {
@@ -26,7 +27,9 @@ routing_table = {
     'count_eid_distinct_by_account': count_eid_distinct_by_account,
     'market_data_cache': market_data_cache,
     'count_distribution_for_sector_at_account': count_distribution_for_sector_at_account,
-    'sustainability_response_averages': sustainability_response_averages
+    'sustainability_response_averages': sustainability_response_averages,
+    'annual_count_distribution_by_account': annual_count_distribution_by_account,
+    'annual_count_eid_distinct_by_account': annual_count_eid_distinct_by_account
 }
 
 
