@@ -84,7 +84,7 @@ class SustainabilityResponses:
         if questionnaire_status_id is not NO_VALUE:
             query_conditions.append(" questionnaire_status_id = %(questionnaire_status_id)s")
             query_values["questionnaire_status_id"] = questionnaire_status_id
-        if questionnaire_status_id is not NO_VALUE:
+        if sustainability_response_year is not NO_VALUE:
             query_conditions.append(" YEAR(created_timestamp) = %(sustainability_response_year)s")
             query_values["sustainability_response_year"] = sustainability_response_year
 
