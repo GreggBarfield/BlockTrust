@@ -17,7 +17,8 @@ class SustainabilityResponses:
     def get_sustainability_responses(self, id=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, air_points=NO_VALUE,
                                      land_points=NO_VALUE, water_points=NO_VALUE, animal_points=NO_VALUE,
                                      safety_points=NO_VALUE, efficiency_points=NO_VALUE, improvement_points=NO_VALUE,
-                                     score=NO_VALUE, sector_id=NO_VALUE, questionnaire_status_id=NO_VALUE):
+                                     score=NO_VALUE, sector_id=NO_VALUE, questionnaire_status_id=NO_VALUE,
+                                     sustainability_response_year=NO_VALUE):
         """
         Gets the sustainability responses based on the attributes provided
 
@@ -83,6 +84,9 @@ class SustainabilityResponses:
         if questionnaire_status_id is not NO_VALUE:
             query_conditions.append(" questionnaire_status_id = %(questionnaire_status_id)s")
             query_values["questionnaire_status_id"] = questionnaire_status_id
+        if questionnaire_status_id is not NO_VALUE:
+            query_conditions.append(" YEAR(created_timestamp) = %(sustainability_response_year)s")
+            query_values["sustainability_response_year"] = sustainability_response_year
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
