@@ -3,6 +3,7 @@ from core.database.tables.matches import Matches
 from core.sectors import SECTORS_NAME_TO_ID
 from ...database.tables.sustainability_responses import QUESTIONNAIRE_STATUS_NAMES_TO_IDS, SustainabilityResponses
 from ...match_types import MATCH_TYPES_NAME_TO_ID
+from datetime import datetime
 
 
 TYPE_NAME = "count_distribution"
@@ -45,7 +46,9 @@ def execute(db, query):
 
         for result in count_distribution.values():
             completed_sustainability_surveys = SustainabilityResponses(db).get_sustainability_responses(
-                account_id=result['account_id'], questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
+                account_id=result['account_id'],
+                questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"],
+                sustainability_response_year=datetime.now().year
             )
             result["survey_completed"] = True if len(completed_sustainability_surveys) > 0 else False
 
