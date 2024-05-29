@@ -54,7 +54,7 @@ Sustainability Scores for {{account_name}}
         let sectorsIdToName = JSON.parse('{{ sectors_id_to_name|tojson }}');
         let partnerName = '{{ partner.company() }}';
         
-        let tableHeaders = ["SECTOR", "ACCOUNT NUMBER", "COMPANY", "TAGS COUNT", "AIR POINTS", "LAND POINTS", "WATER POINTS", "ANIMAL POINTS", "SAFETY POINTS", "EFFICIENCY POINTS", "IMPROVEMENT POINTS", "TOTAL SUSTAINABILITY SCORE", "PRIME", "CHOICE", "SELECT OR LOWER", "YIELD GRADE 1", "YIELD GRADE 2", "YIELD GRADE 3", "YIELD GRADE 4", "YIELD GRADE 5"];
+        let tableHeaders = ["SECTOR", "ACCOUNT NUMBER", "COMPANY", "TAGS COUNT", "AIR POINTS", "LAND POINTS", "WATER POINTS", "ANIMAL POINTS", "SAFETY POINTS", "EFFICIENCY POINTS", "IMPROVEMENT POINTS", "TOTAL SUSTAINABILITY SCORE", "PRIME", "CHOICE", "SELECT OR LOWER", "STANDARD", "YIELD GRADE 1", "YIELD GRADE 2", "YIELD GRADE 3", "YIELD GRADE 4", "YIELD GRADE 5"];
         let accountsDataTableExport = [];
         accountsDataTableExport.push(["", "", "", "", "", "", "", "", partnerName+ " Supply Chain"]);
         accountsDataTableExport.push([]);
@@ -87,21 +87,22 @@ Sustainability Scores for {{account_name}}
                     let USDAQualityGradeDistribution = USDAQualityGradeDistributionData.count_distribution;
                     if(USDAQualityGradeDistribution != null){
                         let total = 0;
-                        let qualityGradePercentages = {"Select or Lower": 0, "Choice": 0,"Prime": 0};
+                        let qualityGradePercentages = {"Select or Lower": 0, "Choice": 0,"Prime": 0, "Standard": 0};
                         let selectPercentage = 0;
                         let primePercentage = 0;
                         let choicePercentage = 0;
+                        let standardPercentage = 0;
                         for(let qualityGradeData of USDAQualityGradeDistribution){
                             total += qualityGradeData.count;
                         }
                         for(let qualityGradeData of USDAQualityGradeDistribution){
                             qualityGradePercentages[qualityGradeData.data] = (100*qualityGradeData.count/total).toFixed(2) + "%";
                         }
-                        accountDataRow.push(qualityGradePercentages["Prime"], qualityGradePercentages["Choice"], qualityGradePercentages["Select or Lower"]);
+                        accountDataRow.push(qualityGradePercentages["Prime"], qualityGradePercentages["Choice"], qualityGradePercentages["Select or Lower"], qualityGradePercentages["Standard"]);
                     }
                 }
                 else{
-                    accountDataRow.push("N/A", "N/A", "N/A");
+                    accountDataRow.push("N/A", "N/A", "N/A", "N/A");
                 }
 
                 // Calculating and adding the USDA Yield grade percentages if available

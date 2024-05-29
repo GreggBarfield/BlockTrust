@@ -295,21 +295,21 @@ export class SalesGroupViewer {
                 let qualityGradeDistribution = "";
                 if(accountUSDAQualityGradeDistribution != null){
                     let total = 0;
-                    let qualityGradePercentages = {"Select or Lower": 0, "Choice": 0,"Prime": 0};
+                    let qualityGradePercentages = {"Select or Lower": 0, "Choice": 0,"Prime": 0, "Standard": 0};
                     for(let qualityGradeData of accountUSDAQualityGradeDistribution){
                         total += qualityGradeData.count;
                     }
                     for(let qualityGradeData of accountUSDAQualityGradeDistribution){
                         qualityGradePercentages[qualityGradeData.data] = (100*qualityGradeData.count/total).toFixed(2) + "%";
                     }
-                    qualityGradeDistribution = qualityGradePercentages["Choice"] + "/" + qualityGradePercentages["Prime"] + "/" + qualityGradePercentages["Select or Lower"];
+                    qualityGradeDistribution = qualityGradePercentages["Choice"] + "/" + qualityGradePercentages["Prime"] + "/" + qualityGradePercentages["Select or Lower"] + "/" + qualityGradePercentages["Standard"];
                 }
                 let tooltip = document.createElement("a");
                 tooltip.className = "feather icon-info text-primary pl-2";
                 tooltip.style = "color:blue";
                 tooltip.dataToggle = "tooltip";
                 tooltip.dataPlacement = "right";
-                tooltip.title = "Choice/Prime/Select";
+                tooltip.title = "Choice/Prime/Select/Standard";
                 carcassData.textContent =`Ranch Carcass History: ${qualityGradeDistribution}`;
                 carcassData.append(tooltip);
                 left.append(carcassData);

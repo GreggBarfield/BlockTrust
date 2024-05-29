@@ -309,7 +309,7 @@ export class TableWidget extends Widget {
             }
             else {
                 let total = 0;
-                let yg = [0,0,0,0];
+                let yg = [0,0,0,0,0];
                 for (const r of this.global_usda_quality_grade_distribution) {
                     total += r.count;
                     if (r.data == "Prime") {
@@ -321,8 +321,11 @@ export class TableWidget extends Widget {
                     else if (r.data.includes("Select")) {
                         yg[2]+=r.count;
                     }
-                    else {
+                    else if (r.data == "Standard") {
                         yg[3]+=r.count;
+                    }
+                    else {
+                        yg[4]+=r.count;
                     }
                 }
                 for (const i in yg) {
@@ -400,7 +403,7 @@ export class TableWidget extends Widget {
         }
         else {
             let total = 0;
-            let yg = [0,0,0,0];
+            let yg = [0,0,0,0,0];
             for (const r of usda_quality_grade_distribution) {
                 total += r.count;
                 if (r.data == "Prime") {
@@ -412,8 +415,11 @@ export class TableWidget extends Widget {
                 else if (r.data.includes("Select")) {
                     yg[2]+=r.count;
                 }
-                else {
+                else if (r.data == "Standard") {
                     yg[3]+=r.count;
+                }
+                else {
+                    yg[4]+=r.count;
                 }
             }
             for (const i in yg) {
@@ -572,7 +578,7 @@ export class TableWidget extends Widget {
         }
 
         this.tableSectionSightingsRows = generateSection("Sightings Summary", ["Total Calves", "Total Available", "% Available"], this.mainTableBody);
-        this.tableSectionQualityRows = generateSection("Carcass Quality (% of available)", ["Prime", "Choice", "Select or Lower", "Other"], this.mainTableBody);
+        this.tableSectionQualityRows = generateSection("Carcass Quality (% of available)", ["Prime", "Choice", "Select or Lower", "Standard", "Other"], this.mainTableBody);
         this.tableSectionYieldRows = generateSection("Carcass Yield Grade (% of available)", ["YG 5", "YG 4", "YG 3", "YG 2", "YG 1", "Other"], this.mainTableBody);
 
         // Put HTML in frame
