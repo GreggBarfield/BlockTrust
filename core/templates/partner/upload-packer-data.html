@@ -130,7 +130,7 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: []
       },
       { 
-        key: "carcass_weight", label: "Hot Carcass Weight (lbs.)",
+        key: "carcass_weight", label: "Sire EPD - Carcass Weight (CW)",
         validators: [
         {
             validate: 'regex_matches',
@@ -144,7 +144,8 @@ const importer = new FlatfileImporter('{{license}}', {
         options: [
           {value:"Choice", label:"Choice"},
           {value:"Prime", label:"Prime"},
-          {value:"Select", label:"Select"}
+          {value:"Select", label:"Select"},
+          {value:"Standard", label:"Standard"}
         ]
       },
       { 
@@ -175,7 +176,7 @@ const importer = new FlatfileImporter('{{license}}', {
         ]
       },
       { 
-        key: "ribeye_area", label: "Ribeye Area",
+        key: "ribeye_area", label: "Sire EPD - Ribeye Area (REA)",
         validators: [
             {
                 validate: 'regex_matches',

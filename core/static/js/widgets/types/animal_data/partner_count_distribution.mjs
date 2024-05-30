@@ -28,7 +28,7 @@ export class PartnerCountDistributionWidget extends Widget {
 
         this.mainTableHeadRow0 = document.createElement("tr");
         this.mainTableHead.appendChild(this.mainTableHeadRow0);
-        const headers = ["Member", "Sightings", "Sustainability Score", "Prime", "Choice", "Select", "YG1", "YG2", "YG3", "YG4", "YG5"]
+        const headers = ["Member", "Sightings", "Sustainability Score", "Prime", "Choice", "Select", "Standard", "YG1", "YG2", "YG3", "YG4", "YG5"]
         for (const headerText of headers) {
             let th = document.createElement("th");
             th.textContent = headerText;
@@ -84,7 +84,7 @@ export class PartnerCountDistributionWidget extends Widget {
                     row.push((100*qualityDistribution["Select or Lower"]/dataCount).toFixed(2)+"%");
                 else 
                     row.push((0).toFixed(2)+"%")
-
+                row.push(("Standard" in qualityDistribution? 100*qualityDistribution.Standard/dataCount : 0).toFixed(2)+"%");
                 let yieldDistribution = data.yield_distribution;
                 row.push(("1" in yieldDistribution? 100*yieldDistribution["1"]/dataCount : 0).toFixed(2)+"%");
                 row.push(("2" in yieldDistribution? 100*yieldDistribution["2"]/dataCount : 0).toFixed(2)+"%");
