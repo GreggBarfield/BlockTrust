@@ -168,7 +168,7 @@ const importer = new FlatfileImporter('{{license}}', {
 
       ]},
       { 
-        key: "wean_weight", label: "Sire EPD - Weaning Weight (WW)",
+        key: "wean_weight", label: "Weaning Weight",
         validators: [
         {
           validate: 'regex_matches',
@@ -216,6 +216,15 @@ const importer = new FlatfileImporter('{{license}}', {
         key: "terminal_reimplant_date", label: "Terminal Re-implant Date",
         validators: []
       },
+      { 
+        key: "sire_epd_wean_weight", label: "Sire EPD - Weaning Weight (WW)",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '^([0-9]+[.])?[0-9]+$',
+          error: 'Only can be a number and/or decimal.'
+        }
+      ]},
       { 
         key: "yearling_weight", label: "Sire EPD - Yearling Weight (YW)",
         validators: [
