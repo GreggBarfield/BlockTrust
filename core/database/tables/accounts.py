@@ -118,7 +118,7 @@ class Accounts:
             return None
         return Account(self._db, account_rows[0])
 
-    def validate_or_fail_account(self, sector, partner, affiliate_id, phone, partner_pays=None):
+    def validate_or_fail_account(self, sector, partner, affiliate_id, phone, zip, partner_pays=None,):
         """validates input to create account
 
         Params:
@@ -167,6 +167,9 @@ class Accounts:
             # If phone is empty it is NULL
             if phone == "":
                 phone = None
+
+        if not zip:
+            raise AccountsException("Zip is required.")
 
         return sector, phone, affiliate_id
 
@@ -264,7 +267,7 @@ class Accounts:
         return account
 
     def create_partner(self, company, sector, partner_contact_name, partner_contact_email, address, city, state, zip,
-                       phone, is_partner_used_for_signup, created_by_employee_id=None):
+                       phone, is_partner_used_for_signup, created_by_employee_id=None, token=None):
         """Creates a new partner without a user.
 
         Params:
@@ -301,10 +304,12 @@ class Accounts:
         self._db.execute(
             """INSERT INTO accounts
                 (company, name, sector, is_partner, partner_contact_name, partner_contact_email, 
-                 address, city, state, zip, phone, is_partner_used_for_signup, created_by_employee_id)
+                 address, city, state, zip, phone, is_partner_used_for_signup, created_by_employee_id,
+                 token)
                 VALUES
                     (%(company)s, %(name)s, %(sector)s, %(is_partner)s, %(partner_contact_name)s, %(partner_contact_email)s, 
-                     %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(is_partner_used_for_signup)s, %(created_by_employee_id)s)
+                     %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(is_partner_used_for_signup)s,
+                     %(created_by_employee_id)s, %(token)s)
             """,
             {
                 "company": company,
@@ -319,7 +324,8 @@ class Accounts:
                 "zip": zip,
                 "phone": phone,
                 "is_partner_used_for_signup": is_partner_used_for_signup,
-                "created_by_employee_id": created_by_employee_id
+                "created_by_employee_id": created_by_employee_id,
+                "token": token
             }
         )
         return self._db.last_row_id()

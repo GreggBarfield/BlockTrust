@@ -88,7 +88,7 @@ def serve_employee_create_account_action():
         affiliate_id = format_field(request.form['affiliate_id'])
         sector = format_field(required['sector'])
         partner_pays = int(str_to_bool(required['partner_pays']))
-        sector, phone, affiliate_id = Accounts(g.db).validate_or_fail_account(sector, partner, affiliate_id, phone, partner_pays)
+        sector, phone, affiliate_id = Accounts(g.db).validate_or_fail_account(sector, partner, affiliate_id, phone, format_field(required['zip_code']), partner_pays)
 
         # Creating an account without an admin
         account_obj = Accounts(g.db).create_account(
@@ -710,7 +710,8 @@ def serve_upload_ranch_accounts_test(partner_id):
                     SECTORS_NAME_TO_ID[required_data["sector"]],
                     partner_id,
                     required_data["affiliate_id"],
-                    required_data["phone"]
+                    required_data["phone"],
+                    required_data["zip_code"]
                 )
 
                 user = Users(g.db).validate_and_insert_user(

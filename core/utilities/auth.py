@@ -189,7 +189,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     if len(auction_markets_used) == 0 and len(preconditioning_programs) == 0 and len(pvp_programs) == 0:
         optional_fields = None
 
-    sector, phone, affiliate_id = g.db.accounts.validate_or_fail_account(sector, partner, affiliate_id, phone)
+    sector, phone, affiliate_id = g.db.accounts.validate_or_fail_account(sector, partner, affiliate_id, phone, zip_code)
 
     user = g.db.users.validate_and_insert_user(
         username=username,
@@ -787,7 +787,7 @@ def verified_signup(username, email, phone, first_name, last_name, password, con
     if len(auction_markets_used) == 0 and len(preconditioning_programs) == 0 and len(pvp_programs) == 0:
         optional_fields = None
 
-    sector, phone, affiliate_id = g.db.accounts.validate_or_fail_account(sector, partner, affiliate_id, phone)
+    sector, phone, affiliate_id = g.db.accounts.validate_or_fail_account(sector, partner, affiliate_id, phone, zip_code)
 
     user = g.db.users.validate_and_insert_user(
         username=username,
