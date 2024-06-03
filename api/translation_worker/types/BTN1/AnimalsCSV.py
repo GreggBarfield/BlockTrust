@@ -13,6 +13,8 @@ def block_key(insert):
 
 def handle(db: Database, insert):
     partner_account = insert["account"]
+    if "partner_id" in insert["fields"]:
+        partner_account = insert["fields"]["partner_id"]
     api_insert = insert["id"]
     insert["fields"] = fields = remap(insert["fields"], {
         "Sex": "sex",

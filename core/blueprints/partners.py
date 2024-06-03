@@ -302,7 +302,7 @@ def serve_patrons():
             fields = {key: value for key, value in request.form.items()}
             sector, phone, affiliate_id = Accounts(g.db).validate_or_fail_account(
                 g.account.sector_id(), g.account.id(), fields["affiliate_id"], fields["phone"],
-                str_to_bool(fields["partner_pays"])
+                fields["zip"], str_to_bool(fields["partner_pays"])
             )
             account_obj = Accounts(g.db).create_account(
                     phone=phone,
