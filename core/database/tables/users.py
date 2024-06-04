@@ -439,9 +439,6 @@ class Users:
             raise UsersException("Spaces cannot be in the email.")
 
         if password is not NO_VALUE:
-            if len(password) < 8:
-                raise UsersException("Password must be at least 8 characters.")
-
             if len(password.encode("utf-8")) > 60:
                 raise UsersException("Your password is too long.")
 
