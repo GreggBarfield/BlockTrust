@@ -93,7 +93,7 @@ export class PartnerCountDistributionWidget extends Widget {
                 row.push(("5" in yieldDistribution? 100*yieldDistribution["5"]/dataCount : 0).toFixed(2)+"%");
             }
             else {
-                for(let i=0; i<8; i++)
+                for(let i=0; i<9; i++)
                     row.push("n/a");
             }
 
