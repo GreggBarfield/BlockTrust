@@ -52,6 +52,7 @@ import { SeedstockProducersWidget } from './types/marketplace/seedstock_producer
 import { AddSeedstockProducerDataWidget } from './types/marketplace/add_seedstock_producer_data.mjs';
 import { ManageSalesGroupFieldsValuesWidget } from './types/employee/sales-groups/manage-sales-group-fields-values.mjs';
 import { BlockchainDailyUploadsGraphWidget } from './types/employee/blockchain/blockchain_uploads_graph.mjs';
+import { GeneticTestingWidget } from './types/genetics/genetics_testing.mjs';
 
 // Immediately invoked
 (function () {
@@ -119,6 +120,7 @@ import { BlockchainDailyUploadsGraphWidget } from './types/employee/blockchain/b
     attach("add seedstock producer data", AddSeedstockProducerDataWidget);
     attach("manage sales group fields values", ManageSalesGroupFieldsValuesWidget);
     attach("blockchain daily uploads graph", BlockchainDailyUploadsGraphWidget);
+    attach("genetic testing", GeneticTestingWidget);
 
     // Find widgets
     $(".widget").each(function () {

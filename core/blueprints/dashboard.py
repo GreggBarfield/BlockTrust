@@ -1105,3 +1105,10 @@ def serve_upload_eids_using_excel(sales_group_id):
             )
             return {"upload_completed": True}
         return {"upload_completed": False, "sales_group_animals": sales_group_animals}
+
+
+@bp.route("/dashboard/genetic-testing", methods=["GET", "POST"])
+@crut.require_account
+def serve_genetics_testing():
+    if request.method == "GET":
+        return dashboard_render("genetics/genetic-testing.html")
