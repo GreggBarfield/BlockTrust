@@ -30,12 +30,12 @@ export class GeneticTestingWidget extends Widget {
         return inputContainer;
     }
 
-    createSelectInput = (inputLabel, inputValues) =>{
+    createSelectInput = (inputLabelText, inputValues) =>{
         let inputContainer = document.createElement("div");
         inputContainer.className = "col-md-3";
 
         let inputLabel = document.createElement("div");
-        inputLabel.textContent = inputLabeltext;
+        inputLabel.textContent = inputLabelText;
         inputLabel.className = "m-1 p-1";
         inputContainer.append(inputLabel);
 
