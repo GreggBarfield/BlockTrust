@@ -1094,7 +1094,9 @@ def serve_upload_eids_using_excel(sales_group_id):
         if len(sales_group_animals) == 0:
             uploaded_eids_and_visual_ids = []
             for uploaded_eid_and_visual_id in request.json["uploaded_eids_and_visual_ids"]:
-                visual_id = int(uploaded_eid_and_visual_id["visual_id"]) if len(uploaded_eid_and_visual_id["visual_id"]) > 0 else None
+                visual_id = None
+                if "visual_id" in uploaded_eid_and_visual_id and len(uploaded_eid_and_visual_id["visual_id"]) > 0:
+                    visual_id = int(uploaded_eid_and_visual_id["visual_id"])
                 uploaded_eids_and_visual_ids.append({
                     "eid": uploaded_eid_and_visual_id["eid"],
                     "visual_id": visual_id
