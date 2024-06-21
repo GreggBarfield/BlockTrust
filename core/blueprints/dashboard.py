@@ -19,6 +19,7 @@ from ..database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTI
 from ..database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from ..database.tables.files import Files
 from ..database.tables.genetics import Genetics
+from ..database.tables.genetic_testing import GeneticTesting
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
@@ -1112,3 +1113,16 @@ def serve_upload_eids_using_excel(sales_group_id):
 def serve_genetics_testing():
     if request.method == "GET":
         return dashboard_render("genetics/genetic-testing.html")
+    if request.method == "POST":
+        for genetic_testing_data_row in request.json["genetic_testing_data"]:
+            GeneticTesting(g.db).insert(
+                account_id=g.account.id(),
+                user_id=g.user.id(),
+                eid=genetic_testing_data_row["animal_id"],
+                sample_barcode=genetic_testing_data_row["sample_barcode"],
+                breed=genetic_testing_data_row["breed"],
+                sex=genetic_testing_data_row["sex"],
+                parentage_testing=genetic_testing_data_row["parentage_testing"],
+                sample_type=genetic_testing_data_row["sample_type"]
+            )
+        return {"redirect": "/dashboard/genetic-testing"}
