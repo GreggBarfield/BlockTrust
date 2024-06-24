@@ -2701,3 +2701,18 @@ VALUES ("FDX 982 w/ GESMY", "FDX982_GESMY.gif", "FDX982_GESMY.gif", 87.5, 0, "",
 ("FDX 982-GESMY-TP Maxi F-SMWH #3", "FDX982_GESMY_TPMAXI.png", "FDX982_GESMY_TPMAXI.png", 118.75, 0, "", "Bag(s) of 25", @partner_id, 'EID Visual Matched Set with FDX EID tag paired Tamperproof Maxi visual tag.;Visual Tags feature Laser-ink printed markings.;Both tags have Tamperproof Ultra Cap.;Tamperproof Maxi: 4 inches high x 3 inches wide', @low_frequency_id, @allflexid, 0, 118.75, 0),
 ("FDX 982 w/ GESMY", "FDX982_GESMY.gif", "FDX982_GESMY.gif", 87.5, 0, "", "Bag(s) of 25", @partner_id, 'Standard Performance Full Duplex FDX EID Tag.;Tamperproof Ultra Cap provides ultimate security and retention.;ISO Compliant.;FDX Tag Weight: 9 Grams.;Packed in quantities of 25', @low_frequency_id, @allflexid, 0, 87.5, 1),
 ("FDX 982-GESMY-TP Maxi F-SMWH #3", "FDX982_GESMY_TPMAXI.png", "FDX982_GESMY_TPMAXI.png", 118.75, 0, "", "Bag(s) of 25", @partner_id, 'EID Visual Matched Set with FDX EID tag paired Tamperproof Maxi visual tag.;Visual Tags feature Laser-ink printed markings.;Both tags have Tamperproof Ultra Cap.;Tamperproof Maxi: 4 inches high x 3 inches wide', @low_frequency_id, @allflexid, 0, 118.75, 1);
+
+/* Nisheet Thakur 06/20/2024 */
+CREATE TABLE `genetic_testing` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL DEFAULT NULL,
+  `user_id` INT NULL DEFAULT NULL,
+  `eid` BIGINT NOT NULL,
+  `sample_barcode` BIGINT NOT NULL,
+  `breed` VARCHAR(20) DEFAULT NULL,
+  `sex` VARCHAR(10) DEFAULT NULL,
+  `parentage_testing` VARCHAR(10) DEFAULT NULL,
+  `sample_type` VARCHAR(30) DEFAULT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
