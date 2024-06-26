@@ -1028,48 +1028,50 @@ def serve_seedstock_producers():
     seedstock_producers = SeedstockProducers(g.db).get(is_archived=0, include_logo_url=True)
     return dashboard_render("marketplace/seedstock-producers.html", {"seedstock_producers": seedstock_producers})
 
-@bp.route("/dashboard/genetics", methods=["GET", "POST"])
-@crut.require_account
-def serve_genetics():
-    if request.method == "GET":
-        if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"]:
-            breeds = SalesGroupFieldsValues(g.db).get(field_id=SALES_GROUP_FIELD_NAMES_TO_IDS["breed"])
-            return dashboard_render("genetics/genetics-cow-calf.html", {"breeds": breeds})
-        if g.account.sector_id() == SECTORS_NAME_TO_ID["Seedstock Producer"]:
-            return dashboard_render("genetics/genetics.html", {"license": FLATFILE_LICENSE, "user": g.user})
-    elif request.method == "POST":
-        if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"]:
-            insemination_data = {
-                "genetics_uid": request.form["genetics_uid"],
-                "genetics_kit_breed": request.form["genetics_kit_breed"],
-                "animal_breed" : request.form["animal_breed"]
-            }
-            account_link_id = None
-            account_links = g.account.account_links()
-            if len(account_links) > 0:
-                account_link_data = account_links[0]
-                account_link_id = account_link_data.id()
-            Matches(g.db).insert(
-                eid=request.form["eid"],
-                type_int=MATCH_TYPES_NAME_TO_ID["Insemination"],
-                data=insemination_data,
-                partner_account=g.account.partner_account_id(),
-                account_link=account_link_id
-            )
-            return {"redirect": "/dashboard"}
-        if g.account.sector_id == SECTORS_NAME_TO_ID["Seedstock Producer"]:
-            for genetics_data in request.json["genetics_data"]:
-                Genetics(g.db).insert(
-                    owner_account_id=g.account.id(),
-                    uid=genetics_data["uid"],
-                    breed=genetics_data["breed"],
-                    ranch_name=genetics_data["ranch_name"],
-                    address=genetics_data["address"],
-                    city=genetics_data["city"],
-                    state=genetics_data["state"],
-                    zip_code=genetics_data["zip_code"]
-                )
-            return Response(status=HTTP_OK)
+
+# Deprecated 06/26/2024
+#@bp.route("/dashboard/genetics", methods=["GET", "POST"])
+#@crut.require_account
+#def serve_genetics():
+#    if request.method == "GET":
+#        if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"]:
+#            breeds = SalesGroupFieldsValues(g.db).get(field_id=SALES_GROUP_FIELD_NAMES_TO_IDS["breed"])
+#            return dashboard_render("genetics/genetics-cow-calf.html", {"breeds": breeds})
+#        if g.account.sector_id() == SECTORS_NAME_TO_ID["Seedstock Producer"]:
+#            return dashboard_render("genetics/genetics.html", {"license": FLATFILE_LICENSE, "user": g.user})
+#    elif request.method == "POST":
+#        if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"]:
+#            insemination_data = {
+#                "genetics_uid": request.form["genetics_uid"],
+#                "genetics_kit_breed": request.form["genetics_kit_breed"],
+#                "animal_breed" : request.form["animal_breed"]
+#            }
+#            account_link_id = None
+#            account_links = g.account.account_links()
+#            if len(account_links) > 0:
+#                account_link_data = account_links[0]
+#                account_link_id = account_link_data.id()
+#            Matches(g.db).insert(
+#                eid=request.form["eid"],
+#                type_int=MATCH_TYPES_NAME_TO_ID["Insemination"],
+#                data=insemination_data,
+#                partner_account=g.account.partner_account_id(),
+#                account_link=account_link_id
+#            )
+#            return {"redirect": "/dashboard"}
+#        if g.account.sector_id == SECTORS_NAME_TO_ID["Seedstock Producer"]:
+#            for genetics_data in request.json["genetics_data"]:
+#                Genetics(g.db).insert(
+#                    owner_account_id=g.account.id(),
+#                    uid=genetics_data["uid"],
+#                    breed=genetics_data["breed"],
+#                    ranch_name=genetics_data["ranch_name"],
+#                    address=genetics_data["address"],
+#                    city=genetics_data["city"],
+#                    state=genetics_data["state"],
+#                    zip_code=genetics_data["zip_code"]
+#                )
+#            return Response(status=HTTP_OK)
 
 
 @bp.route('/dashboard/sales-groups/upload-eids-using-excel/<int:sales_group_id>', methods=["GET", "POST"])
