@@ -2716,3 +2716,14 @@ CREATE TABLE `genetic_testing` (
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
+
+/* Nisheet Thakur 06/28/2024 */
+ALTER TABLE `animals`
+ADD COLUMN `sire_epd_wean_weight` INT NULL AFTER `average_daily_gain`,
+ADD COLUMN `sire_epd_yearling_weight` INT NULL AFTER `sire_epd_wean_weight`,
+ADD COLUMN `sire_epd_dry_matter_intake` INT NULL AFTER `sire_epd_yearling_weight`,
+ADD COLUMN `sire_epd_carcass_weight` INT NULL AFTER `sire_epd_dry_matter_intake`,
+ADD COLUMN `sire_epd_rib_fat` INT NULL AFTER `sire_epd_carcass_weight`,
+ADD COLUMN `sire_epd_ribeye_area` INT NULL AFTER `sire_epd_rib_fat`,
+ADD COLUMN `sire_epd_certified_hereford_beef_index` VARCHAR(30) NULL AFTER `sire_epd_ribeye_area`,
+ADD COLUMN `sire_epd_marbling` INT NULL AFTER `sire_epd_certified_hereford_beef_index`;

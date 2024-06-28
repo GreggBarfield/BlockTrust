@@ -30,7 +30,10 @@ class Animals:
                               harvest_date=None, program_certification=None, marbling_score=None,
                               marbling_score_code=None, ribeye_area=None, fat_thickness=None,
                               calculated_live_weight=None, total_gain=None, days_on_test=None, average_daily_gain=None,
-                              packer_api_insert_id=None, feeder_api_insert_id=None, is_paid=None):
+                              packer_api_insert_id=None, feeder_api_insert_id=None, is_paid=None,
+                              sire_epd_wean_weight=None, sire_epd_yearling_weight=None, sire_epd_dry_matter_intake=None,
+                              sire_epd_carcass_weight=None, sire_epd_rib_fat=None, sire_epd_ribeye_area=None,
+                              sire_epd_certified_hereford_beef_index=None, sire_epd_marbling=None):
         """
         Validates and inserts a new animal record
 
@@ -51,7 +54,9 @@ class Animals:
             vaccination_summary, herd_sire, ranch_source_county, ranch_size, home_raised, family_farm_or_ranch,
             harvest_date, program_certification, marbling_score, marbling_score_code, ribeye_area, fat_thickness,
             calculated_live_weight, total_gain, days_on_test, average_daily_gain, packer_api_insert_id,
-            feeder_api_insert_id, is_paid
+            feeder_api_insert_id, is_paid, sire_epd_wean_weight, sire_epd_yearling_weight, sire_epd_dry_matter_intake,
+            sire_epd_carcass_weight, sire_epd_rib_fat, sire_epd_ribeye_area, sire_epd_certified_hereford_beef_index,
+            sire_epd_marbling
         )
 
     def insert_animal(self, eid, visual_id=None, breed=None, calf_registration_number=None,
@@ -63,7 +68,10 @@ class Animals:
                       home_raised=None, family_farm_or_ranch=None, harvest_date=None, program_certification=None,
                       marbling_score=None, marbling_score_code=None, ribeye_area=None, fat_thickness=None,
                       calculated_live_weight=None, total_gain=None, days_on_test=None, average_daily_gain=None,
-                      packer_api_insert_id=None, feeder_api_insert_id=None, is_paid=None):
+                      packer_api_insert_id=None, feeder_api_insert_id=None, is_paid=None, sire_epd_wean_weight=None,
+                      sire_epd_yearling_weight=None, sire_epd_dry_matter_intake=None, sire_epd_carcass_weight=None,
+                      sire_epd_rib_fat=None, sire_epd_ribeye_area=None, sire_epd_certified_hereford_beef_index=None,
+                      sire_epd_marbling=None):
         """
         Inserts a new animal record
 
@@ -81,7 +89,9 @@ class Animals:
                     vaccination_summary, herd_sire, ranch_source_county, ranch_size, home_raised, family_farm_or_ranch,
                     harvest_date, program_certification, marbling_score, marbling_score_code, ribeye_area,
                     fat_thickness, calculated_live_weight, total_gain, days_on_test, average_daily_gain,
-                    packer_api_insert_id, feeder_api_insert_id, is_paid
+                    packer_api_insert_id, feeder_api_insert_id, is_paid, sire_epd_wean_weight, sire_epd_yearling_weight,
+                    sire_epd_dry_matter_intake, sire_epd_carcass_weight, sire_epd_rib_fat, sire_epd_ribeye_area,
+                    sire_epd_certified_hereford_beef_index, sire_epd_marbling
                 )
                 VALUES (
                     %(eid)s, %(visual_id)s, %(breed)s, %(calf_registration_number)s, %(sire_registration_number)s,
@@ -92,7 +102,10 @@ class Animals:
                     %(ranch_size)s, %(home_raised)s, %(family_farm_or_ranch)s, %(harvest_date)s,
                     %(program_certification)s, %(marbling_score)s, %(marbling_score_code)s, %(ribeye_area)s,
                     %(fat_thickness)s, %(calculated_live_weight)s, %(total_gain)s, %(days_on_test)s,
-                    %(average_daily_gain)s, %(packer_api_insert_id)s, %(feeder_api_insert_id)s, %(is_paid)s
+                    %(average_daily_gain)s, %(packer_api_insert_id)s, %(feeder_api_insert_id)s, %(is_paid)s,
+                    %(sire_epd_wean_weight)s, %(sire_epd_yearling_weight)s, %(sire_epd_dry_matter_intake)s,
+                    %(sire_epd_carcass_weight)s, %(sire_epd_rib_fat)s, %(sire_epd_ribeye_area)s,
+                    %(sire_epd_certified_hereford_beef_index)s, %(sire_epd_marbling)s
                 )
             """,
             {
@@ -133,7 +146,15 @@ class Animals:
                 "average_daily_gain": average_daily_gain,
                 "packer_api_insert_id": packer_api_insert_id,
                 "feeder_api_insert_id": feeder_api_insert_id,
-                "is_paid": is_paid
+                "is_paid": is_paid,
+                "sire_epd_wean_weight": sire_epd_wean_weight,
+                "sire_epd_yearling_weight": sire_epd_yearling_weight,
+                "sire_epd_dry_matter_intake": sire_epd_dry_matter_intake,
+                "sire_epd_carcass_weight": sire_epd_carcass_weight,
+                "sire_epd_rib_fat": sire_epd_rib_fat,
+                "sire_epd_ribeye_area": sire_epd_ribeye_area,
+                "sire_epd_certified_hereford_beef_index": sire_epd_certified_hereford_beef_index,
+                "sire_epd_marbling": sire_epd_marbling
             }
         )
         return self._db.last_row_id()
@@ -182,7 +203,11 @@ class Animals:
                       marbling_score=NO_VALUE, marbling_score_code=NO_VALUE, ribeye_area=NO_VALUE,
                       fat_thickness=NO_VALUE, calculated_live_weight=NO_VALUE, total_gain=NO_VALUE,
                       days_on_test=NO_VALUE, average_daily_gain=NO_VALUE, packer_api_insert_id=NO_VALUE,
-                      feeder_api_insert_id=NO_VALUE, is_paid=NO_VALUE, payment_id=NO_VALUE):
+                      feeder_api_insert_id=NO_VALUE, is_paid=NO_VALUE, payment_id=NO_VALUE,
+                      sire_epd_wean_weight=NO_VALUE, sire_epd_yearling_weight=NO_VALUE,
+                      sire_epd_dry_matter_intake=NO_VALUE, sire_epd_carcass_weight=NO_VALUE, sire_epd_rib_fat=NO_VALUE,
+                      sire_epd_ribeye_area=NO_VALUE, sire_epd_certified_hereford_beef_index=NO_VALUE,
+                      sire_epd_marbling=NO_VALUE):
         """
         Updates an animal.
         """
@@ -306,6 +331,30 @@ class Animals:
         if payment_id is not NO_VALUE:
             query_conditions.append("payment_id = %(payment_id)s")
             query_values["payment_id"] = payment_id
+        if sire_epd_wean_weight is not NO_VALUE:
+            query_conditions.append("sire_epd_wean_weight = %(sire_epd_wean_weight)s")
+            query_values["sire_epd_wean_weight"] = sire_epd_wean_weight
+        if sire_epd_yearling_weight is not NO_VALUE:
+            query_conditions.append("sire_epd_yearling_weight = %(sire_epd_yearling_weight)s")
+            query_values["sire_epd_yearling_weight"] = sire_epd_yearling_weight
+        if sire_epd_dry_matter_intake is not NO_VALUE:
+            query_conditions.append("sire_epd_dry_matter_intake = %(sire_epd_dry_matter_intake)s")
+            query_values["sire_epd_dry_matter_intake"] = sire_epd_dry_matter_intake
+        if sire_epd_carcass_weight is not NO_VALUE:
+            query_conditions.append("sire_epd_carcass_weight = %(sire_epd_carcass_weight)s")
+            query_values["sire_epd_carcass_weight"] = sire_epd_carcass_weight
+        if sire_epd_rib_fat is not NO_VALUE:
+            query_conditions.append("sire_epd_rib_fat = %(sire_epd_rib_fat)s")
+            query_values["sire_epd_rib_fat"] = sire_epd_rib_fat
+        if sire_epd_ribeye_area is not NO_VALUE:
+            query_conditions.append("sire_epd_ribeye_area = %(sire_epd_ribeye_area)s")
+            query_values["sire_epd_ribeye_area"] = sire_epd_ribeye_area
+        if sire_epd_certified_hereford_beef_index is not NO_VALUE:
+            query_conditions.append("sire_epd_certified_hereford_beef_index = %(sire_epd_certified_hereford_beef_index)s")
+            query_values["sire_epd_certified_hereford_beef_index"] = sire_epd_certified_hereford_beef_index
+        if sire_epd_marbling is not NO_VALUE:
+            query_conditions.append("sire_epd_marbling = %(sire_epd_marbling)s")
+            query_values["sire_epd_marbling"] = sire_epd_marbling
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE eid=%(eid)s"
