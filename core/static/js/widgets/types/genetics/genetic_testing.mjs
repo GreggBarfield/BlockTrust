@@ -15,9 +15,24 @@ export class GeneticTestingWidget extends Widget {
         geneticTestingContainerHeader.className = "card-header";
         geneticTestingContainerHeader.textContent = "Genetic Testing";
         geneticTestingContainer.append(geneticTestingContainerHeader);
+        geneticTestingContainer.append(this.createInfoText());
         let geneticTestingForm = this.createGeneticTestingForm();
         geneticTestingContainer.append(geneticTestingForm);
         this.frame.append(geneticTestingContainer);
+    }
+
+    createInfoText = () => {
+        let container = document.createElement("p");
+        container.classList = "card-header";
+        let image = document.createElement("img");
+        image.src = "/static/images/partners/logos/neogen-logo.png";
+        image.classList = "float-left";
+        container.append(image);
+        let div = document.createElement("div");
+        div.classList = "mt-2";
+        div.innerHTML = "Genetics testing is available through our partner, Neogen.    To start genetics testing, please enter your tags using the form below.  The data will be transferred to Neogen so all you have to do is retrieve your DNA samples and send them in. Results will come back through your dashboard and we will notify you of the next steps.";
+        container.append(div);
+        return container;
     }
 
     createInput = (inputLabeltext, inputType, inputId, inputRequired=false, inputSize="col-md-3") =>{
