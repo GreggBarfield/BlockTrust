@@ -5,7 +5,7 @@ import re  # Note that it automatically caches up to MAXCACHE
 from pytz import timezone as pytz_timezone
 
 
-def all_to_unix(d, tz=pytz_timezone('Etc/GMT+11')):
+def all_to_unix(d, tz=pytz_timezone("Etc/GMT+11")):
     """Converts a date time string to Unix timestamp.
 
     Params:
@@ -50,13 +50,11 @@ def all_to_unix(d, tz=pytz_timezone('Etc/GMT+11')):
     if result.tzinfo is None:
         result = result.replace(tzinfo=tz)
 
+    if result.year < 1800:
+        return None
+
     # These checks shouldn't return None as we should have already validated
     # that it is a good date.
-
-    if result.year < 1800:
-        raise ExecutionException(
-            "Failed to convert date, older than 1800: " + d
-        )
 
     if result.year > datetime.now().year + 10:
         raise ExecutionException(
@@ -90,9 +88,7 @@ def _old_all_to_unix(d):
     if re.fullmatch("\\d*/\\d*/\\d*", d):
         month, day, year = list(map(int, d.split("/")))
         if year < 1800:
-            raise ExecutionException(
-                "Failed to convert american date, older than 1800: " + d
-            )
+            raise ExecutionException("Failed to convert american date, older than 1800: " + d)
         return int(datetime(year, month, day, tzinfo=timezone.utc).timestamp())
 
     elif re.fullmatch("\\d+/\\d+/\\d+ \\d+:\\d+:\\d+ (AM|PM)", d):
@@ -101,9 +97,7 @@ def _old_all_to_unix(d):
         hours, minutes, seconds = map(int, p_time.split(":"))
 
         if year < 1800:
-            raise ExecutionException(
-                "Failed to convert american date, older than 1800: " + d
-            )
+            raise ExecutionException("Failed to convert american date, older than 1800: " + d)
 
         if hours == 12 and p_period == "AM":
             hours = 0
@@ -112,18 +106,20 @@ def _old_all_to_unix(d):
         elif hours <= 12 and p_period == "PM":
             hours = hours + 12
 
-        return int(datetime(
-            year=year,
-            month=month,
-            day=day,
-            hour=hours,
-            minute=minutes,
-            second=seconds,
-            tzinfo=timezone.utc
-        ).timestamp())
+        return int(
+            datetime(
+                year=year,
+                month=month,
+                day=day,
+                hour=hours,
+                minute=minutes,
+                second=seconds,
+                tzinfo=timezone.utc,
+            ).timestamp()
+        )
 
     # ISO-8601 'T' type, standard date
-    if 'T' in d or len(d) == len("0000-00-00") and d.count("-") == 2:
+    if "T" in d or len(d) == len("0000-00-00") and d.count("-") == 2:
         try:
             return int(isoparse(d).timestamp())
         except ValueError:
