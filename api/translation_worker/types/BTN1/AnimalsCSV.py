@@ -56,7 +56,6 @@ def handle(db: Database, insert):
         raise ExecutionException("patron id error: " + str(e))
     account_link = db.account_links.get_by_affiliate_id(patronid, partner_account=partner_account, api_insert=api_insert, insert=True)[0]
 
-    # See if account is present but not linked to account_links and if so link the account.
     if account_link.account_id() is None:
         account = db.accounts.get_by_partner_affiliate_id(account_link.partner_account_id(), account_link.affiliate_id())
         if account is not None:
