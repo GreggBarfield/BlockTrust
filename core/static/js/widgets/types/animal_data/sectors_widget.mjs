@@ -228,7 +228,7 @@ export class SectorsWidget extends Widget {
         addField("Cow-Calf", "EPD", "Dry Matter Intake", null, null, null, "sire_epd_dry_matter_intake");
         addField("Cow-Calf", "EPD", "Carcass Weight", null, null, null, "sire_epd_carcass_weight");
         addField("Cow-Calf", "EPD", "Rib Fat", null, null, null, "sire_epd_rib_fat");
-        addField("Cow-Calf", "EPD", "Ribeye Area", null, null, null, "ribeye_area");
+        addField("Cow-Calf", "EPD", "Ribeye Area", null, null, null, "sire_epd_ribeye_area");
         addField("Cow-Calf", "EPD", "Marbling", null, null, null, "sire_epd_marbling");
         addField("Cow-Calf", "EPD", "Certified Hereford Beef Index", null, null, null, "sire_epd_certified_hereford_beef_index");
 
