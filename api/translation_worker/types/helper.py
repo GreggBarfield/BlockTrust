@@ -211,19 +211,19 @@ def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id
                 if timezone else all_to_unix(input_data["terminal_reimplant_date"])
             )
         if "sire_epd_wean_weight" in input_data and input_data["sire_epd_wean_weight"].strip() != "":
-            characteristics["sire_epd_wean_weight"] = int(input_data["sire_epd_wean_weight"])
+            characteristics["sire_epd_wean_weight"] = float(input_data["sire_epd_wean_weight"])
         if "yearling_weight" in input_data and input_data["yearling_weight"].strip() != "":
-            characteristics["sire_epd_yearling_weight"] = int(input_data["yearling_weight"])
+            characteristics["sire_epd_yearling_weight"] = float(input_data["yearling_weight"])
         if "dry_matter_intake" in input_data and input_data["dry_matter_intake"].strip() != "":
-            characteristics["sire_epd_dry_matter_intake"] = int(input_data["dry_matter_intake"])
+            characteristics["sire_epd_dry_matter_intake"] = float(input_data["dry_matter_intake"])
         if "carcass_weight" in input_data and input_data["carcass_weight"].strip() != "":
-            characteristics["sire_epd_carcass_weight"] = int(input_data["carcass_weight"])
+            characteristics["sire_epd_carcass_weight"] = float(input_data["carcass_weight"])
         if "rib_fat" in input_data and input_data["rib_fat"].strip() != "":
-            characteristics["sire_epd_rib_fat"] = int(input_data["rib_fat"])
+            characteristics["sire_epd_rib_fat"] = float(input_data["rib_fat"])
         if "ribeye_area" in input_data and input_data["ribeye_area"].strip() != "":
-            characteristics["ribeye_area"] = int(input_data["ribeye_area"])
+            characteristics["sire_epd_ribeye_area"] = float(input_data["ribeye_area"])
         if "marbling" in input_data and input_data["marbling"].strip() != "":
-            characteristics["sire_epd_marbling"] = int(input_data["marbling"])
+            characteristics["sire_epd_marbling"] = float(input_data["marbling"])
         if "certified_hereford_beef_index" in input_data and input_data["certified_hereford_beef_index"].strip() != "":
             characteristics["sire_epd_certified_hereford_beef_index"] = input_data["certified_hereford_beef_index"]
         if is_paid:

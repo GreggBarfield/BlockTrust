@@ -2727,3 +2727,14 @@ ADD COLUMN `sire_epd_rib_fat` INT NULL AFTER `sire_epd_carcass_weight`,
 ADD COLUMN `sire_epd_ribeye_area` INT NULL AFTER `sire_epd_rib_fat`,
 ADD COLUMN `sire_epd_certified_hereford_beef_index` VARCHAR(30) NULL AFTER `sire_epd_ribeye_area`,
 ADD COLUMN `sire_epd_marbling` INT NULL AFTER `sire_epd_certified_hereford_beef_index`;
+
+/* Nisheet Thakur 08/09/2024 */
+ALTER TABLE `animals` 
+CHANGE COLUMN `sire_epd_wean_weight` `sire_epd_wean_weight` DECIMAL(8,3) NULL DEFAULT NULL,
+CHANGE COLUMN `sire_epd_yearling_weight` `sire_epd_yearling_weight` DECIMAL(8,3) NULL DEFAULT NULL,
+CHANGE COLUMN `sire_epd_dry_matter_intake` `sire_epd_dry_matter_intake` DECIMAL(8,3) NULL DEFAULT NULL,
+CHANGE COLUMN `sire_epd_carcass_weight` `sire_epd_carcass_weight` DECIMAL(8,3) NULL DEFAULT NULL,
+CHANGE COLUMN `sire_epd_rib_fat` `sire_epd_rib_fat` DECIMAL(8,3) NULL DEFAULT NULL,
+CHANGE COLUMN `sire_epd_ribeye_area` `sire_epd_ribeye_area` DECIMAL(8,3) NULL DEFAULT NULL,
+CHANGE COLUMN `sire_epd_marbling` `sire_epd_marbling` DECIMAL(8,3) NULL DEFAULT NULL,
+CHANGE COLUMN `sire_epd_certified_hereford_beef_index` `sire_epd_certified_hereford_beef_index` DECIMAL(8,3) NULL DEFAULT NULL;
