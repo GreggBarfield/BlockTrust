@@ -80,5 +80,8 @@
         "username": "blocktrust",
         "invoice_id": 5230,
         "fetch_eids_from_api": false
+    },
+    "sales_group": {
+        "temporary_api_token": "AgvV29f7BTRfIIegM1hG267cLCz4b5TQrHbyrJ2"
     }
 }
