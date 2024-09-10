@@ -191,7 +191,8 @@ def serve_insert_sales_group():
             "pvp_program": "",
             "publish_sales_group": 1,
             "show_carcass_data_for_account": 1,
-            "price": 0
+            "price": 0,
+            "slide": "" 
         }
 
         for sales_group_data_field_name, sales_group_data_field_value in sales_group_data.items():
@@ -214,7 +215,10 @@ def serve_insert_sales_group():
             delivery_location=sales_group_data["delivery_location"],
             auction_market_location=sales_group_data["auction_market"],
             images=[],
-            price=sales_group_data["price"]
+            price=sales_group_data["price"],
+            slide=sales_group_data["slide"],
+            weighing_conditions=sales_group_data["weighing_conditions"],
+            published=True if sales_group_data["publish_sales_group"] == 1 else False
         )
         reported_data = {
             "comments": request_data["comments"] if "comments" in request_data else "",
