@@ -818,6 +818,7 @@ def verified_signup(username, email, phone, first_name, last_name, password, con
             event_type_id=EVENT_TYPE_NAMES_TO_IDS["API Signup"], sector_id=account_obj.sector_id(),
             partner_id=partner, email=email
         )
+        return account_obj
 
     except Exception as e:
         raise e
