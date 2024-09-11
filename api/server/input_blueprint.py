@@ -306,9 +306,9 @@ def serve_create_new_account():
                 state=required['state'],
                 zip_code=required['zip_code'],
                 personal_phone=request_data['personal_phone'],
-                auction_markets_used=[],
-                preconditioning_programs=[],
-                pvp_programs=[]
+                auction_markets_used=request_data.get("auction_market_ids", []),
+                preconditioning_programs=request_data.get("preconditioning_programs", []),
+                pvp_programs=request_data.get("pvp_programs", [])
             )
         except (auth.SignupFailedException, AccountsException, UsersException) as e:
             raise ExportException("Signup failed for " + required['company'] +" : " + str(e))
