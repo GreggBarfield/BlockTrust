@@ -156,7 +156,7 @@ let addToSalesGroupTable = (table, future) => {
     if (salesGroups) {
         for (let salesGroup of salesGroups) {
             if (future) {
-                if (Math.round(Date.now() / 1000) <= salesGroup.sale_date) {
+                if (Math.floor(Date.now() / 1000) <= salesGroup.sale_date) {
                     window.salesGroupsDisplayed.push(salesGroup);
                     table.row.add($(`<tr>
                     <td>${salesGroup.group_name}</td>
@@ -173,7 +173,7 @@ let addToSalesGroupTable = (table, future) => {
                 }
             }
             else {
-                if (Math.round(Date.now() / 1000) > salesGroup.sale_date) {
+                if (Math.floor(Date.now() / 1000) > salesGroup.sale_date) {
                     window.salesGroupsDisplayed.push(salesGroup);
                     table.row.add($(`<tr>
                     <td>${salesGroup.group_name}</td>
