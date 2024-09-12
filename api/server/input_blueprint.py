@@ -295,7 +295,7 @@ def serve_create_new_account():
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
         
         try:
-            auth.verified_signup(
+            account = auth.verified_signup(
                 username=required['username'],
                 email=required['email'],
                 phone=request_data['phone'],
@@ -311,12 +311,15 @@ def serve_create_new_account():
                 city=required['city'],
                 state=required['state'],
                 zip_code=required['zip_code'],
-                personal_phone=request_data['personal_phone']
+                personal_phone=request_data['personal_phone'],
+                auction_markets_used=request_data.get("auction_market_ids", []),
+                preconditioning_programs=request_data.get("preconditioning_programs", []),
+                pvp_programs=request_data.get("pvp_programs", [])
             )
         except (auth.SignupFailedException, AccountsException, UsersException) as e:
             raise ExportException("Signup failed for " + required['company'] +" : " + str(e))
 
-        return {"response": "New Account Created for " + required['company']}
+        return {"response": "New Account Created for " + required['company'], "account_id": account.id()}
     except ExportException as e:
         raise e
     except Exception as e:
