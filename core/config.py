@@ -121,3 +121,5 @@ HERDWHISTLE_DB = config_file["herdwhistle"]["db"]
 HERDWHISTLE_USERNAME = config_file["herdwhistle"]["username"]
 HERDWHISTLE_INVOICE_ID = config_file["herdwhistle"]["invoice_id"]
 HERDWHISTLE_FETCH_EIDS_FROM_API = config_file["herdwhistle"]["fetch_eids_from_api"]
+
+TEMPORARY_SALES_GROUP_API_TOKEN = config_file["sales_group"]["temporary_api_token"]

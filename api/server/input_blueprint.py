@@ -17,7 +17,7 @@ from core.database.tables.accounts import Accounts
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.sales_groups import SalesGroups
 from core.database.tables.users import UsersException
-from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG
+from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG, TEMPORARY_SALES_GROUP_API_TOKEN
 from core.common_exceptions import ExportException
 from core.utilities import auth
 
@@ -158,9 +158,11 @@ def serve_insert_sales_group():
             return {"error": "Decoding request JSON has failed"}, 400
         if "token" not in request_data:
             raise ExportException("Bad request. Missing token.")
-        accounts_list = Accounts(g.db).get_accounts(token=request_data["token"])
+        if request_data["token"] != TEMPORARY_SALES_GROUP_API_TOKEN:
+            raise ExportException("Invlaid Token provided")
+        accounts_list = Accounts(g.db).get_accounts(id=request_data["account_id"])
         if len(accounts_list) == 0:
-            raise ExportException("Bad token. You are not authorized to insert a sales group")
+            raise ExportException("Account not found.")
         else:
             authenticated_account = accounts_list[0]
         sales_group_data = {
@@ -189,7 +191,8 @@ def serve_insert_sales_group():
             "pvp_program": "",
             "publish_sales_group": 1,
             "show_carcass_data_for_account": 1,
-            "price": 0
+            "price": 0,
+            "slide": "" 
         }
 
         for sales_group_data_field_name, sales_group_data_field_value in sales_group_data.items():
@@ -212,7 +215,10 @@ def serve_insert_sales_group():
             delivery_location=sales_group_data["delivery_location"],
             auction_market_location=sales_group_data["auction_market"],
             images=[],
-            price=sales_group_data["price"]
+            price=sales_group_data["price"],
+            slide=sales_group_data["slide"],
+            weighing_conditions=sales_group_data["weighing_conditions"],
+            published=True if sales_group_data["publish_sales_group"] == 1 else False
         )
         reported_data = {
             "comments": request_data["comments"] if "comments" in request_data else "",
