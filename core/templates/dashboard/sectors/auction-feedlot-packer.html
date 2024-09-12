@@ -18,8 +18,10 @@
         <div class="card">
             <h5 class="card-header">
                 Sales Group Summary
-                <button class="btn btn-sm btn-success float-right" onclick="downloadSalesGroupsSummaryReport()">Download Summary Report</button>
-                <button class="btn btn-sm btn-success float-right" onclick="downloadSalesGroupsDetailedReport()">Download Detailed Report</button>
+                <button class="btn btn-sm btn-success float-right" onclick="downloadSalesGroupsSummaryReport()">Download
+                    Summary Report</button>
+                <button class="btn btn-sm btn-success float-right"
+                    onclick="downloadSalesGroupsDetailedReport()">Download Detailed Report</button>
             </h5>
             <div class="card-body">
                 <div class="table-responsive">
@@ -35,26 +37,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% if sales_groups %}
-                            {% for group in sales_groups %}
-                            <tr>
-                                <td>{{group.group_name}}</td>
-                                <td>{{group.reported.count}}</td>
-                                <td>{{group.reported.breeds|join(", ")}}</td>
-                                <td>{{group.reported.weight}}</td>
-                                <td name="sale-date" value="">{{group.sale_date}}</td>
-                                <td>
-                                    <a class="btn btn-sm btn-info" href="/dashboard/sales-groups/view/{{group.id}}" target="_blank">View</a>
-                                    <!-- TODO: Fix print option to print sales group viewer -->
-                                    <!-- <button class="btn btn-sm btn-info" onclick="printSalesGroup('{{group.id}}')">Download PDF</button> -->
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            {% else %}
-                            <tr class="text-center">
-                                <td colspan="6" class="font-italic">Nothing to show currently</td>
-                            </tr>
-                            {% endif %}
                         </tbody>
                     </table>
                 </div>
@@ -100,15 +82,15 @@
                     <div class="tab-pane fade" id="carcass-quality" role="tabpanel"
                         aria-labelledby="carcass-quality-tab">
                         <p class="mb-0">
-                            <p class="mb-0 widget" data-widget-type="grade" data-widget-match-str data-widget-match-type="USDA Quality Grade"
-                                data-widget-account="{{ account.id() }}"></p>
+                        <p class="mb-0 widget" data-widget-type="grade" data-widget-match-str
+                            data-widget-match-type="USDA Quality Grade" data-widget-account="{{ account.id() }}"></p>
                         </p>
                     </div>
                     <div class="tab-pane fade" id="carcass-yield-grade" role="tabpanel"
                         aria-labelledby="carcass-yield-grade-tab">
                         <p class="mb-0">
-                            <p class="mb-0 widget" data-widget-type="grade" data-widget-match-type="USDA Yield Grade"
-                                data-widget-account="{{ account.id() }}"></p>
+                        <p class="mb-0 widget" data-widget-type="grade" data-widget-match-type="USDA Yield Grade"
+                            data-widget-account="{{ account.id() }}"></p>
                         </p>
                     </div>
                 </div>
@@ -121,8 +103,8 @@
         <div class="card">
             <h5 class="card-header">{{account.sector_name()}} Summary</h5>
             <div class="card-body">
-                <div class="mb-0 widget" data-widget-type="tag distribution sector at account" data-widget-account-name="{{account.name()}}"
-                    data-widget-tag-detail="tag-detail"></div>
+                <div class="mb-0 widget" data-widget-type="tag distribution sector at account"
+                    data-widget-account-name="{{account.name()}}" data-widget-tag-detail="tag-detail"></div>
             </div>
         </div>
     </div>
@@ -132,8 +114,8 @@
         <div class="card">
             <h5 class="card-header"><span></span></h5>
             <div class="card-body">
-                <div class="mb-0 widget" data-widget-type="source summary" data-widget-display="animals-with-data" data-widget-refresh-id="refresh-sightings-button"
-                     data-widget-animal-URL="{{animal_URL}}"></div>
+                <div class="mb-0 widget" data-widget-type="source summary" data-widget-display="animals-with-data"
+                    data-widget-refresh-id="refresh-sightings-button" data-widget-animal-URL="{{animal_URL}}"></div>
             </div>
         </div>
     </div>
@@ -141,5 +123,5 @@
 <script type="text/javascript">
     let salesGroups = JSON.parse('{{ sales_groups|tojson }}');
 </script>
-<script type="module" src="/static/entry_points/dashboard/sectors/auction-feedlot-packer.mjs" ></script> 
+<script type="module" src="/static/entry_points/dashboard/sectors/auction-feedlot-packer.mjs"></script>
 {% endblock dashboard_content %}
