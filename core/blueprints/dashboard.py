@@ -92,7 +92,7 @@ def serve_dashboard():
         account_params["sales_groups"] = None
         if g.account.sector_id() == SECTORS_NAME_TO_ID["Auction"] and g.account.auction_market_id():
             account_params["sales_groups"] = SalesGroups(g.db).get_sales_groups(
-                auction_market_id=g.account.auction_market_id(), is_archived=int(False)
+                auction_market_id=g.account.auction_market_id(), is_archived=int(False), published=int(True)
             )
         return dashboard_render("sectors/auction-feedlot-packer.html", account_params)
     elif g.account.sector_id() == SECTORS_NAME_TO_ID["Buyer"]:
