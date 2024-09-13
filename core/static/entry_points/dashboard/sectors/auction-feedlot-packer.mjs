@@ -133,8 +133,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     let showPastButton = document.createElement("button");
     showPastButton.className = "btn btn-sm btn-info m-1 p-1";
-    showPastButton.textContent = "Show Past Sales";
+    showPastButton.textContent = "Show Past";
     showPastButton.onclick = () => {
+        dateInput.value = "";
+        salesGroupsTable.columns(4).search('').draw();
+        salesGroupsTable.search('').draw();
         salesGroupsTable.clear().draw();
         addToSalesGroupTable(salesGroupsTable, false);
     }
@@ -144,6 +147,8 @@ document.addEventListener('DOMContentLoaded', function () {
     resetFiltersButton.textContent = "Reset";
     resetFiltersButton.onclick = () => {
         dateInput.value = "";
+        salesGroupsTable.columns(4).search('').draw();
+        salesGroupsTable.search('').draw();
         salesGroupsTable.clear().draw();
         addToSalesGroupTable(salesGroupsTable, true);
     }
