@@ -13,11 +13,12 @@ from core.database.tables.error_logs import ErrorLogs
 from ..database.inserts_model import InsertsModel
 from core.database.tables.accounts import AccountsException
 from core.database.database import Database
+from core.database.tables.account_users import AccountUsers
 from core.database.tables.accounts import Accounts
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.sales_groups import SalesGroups
-from core.database.tables.users import UsersException
-from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG, TEMPORARY_SALES_GROUP_API_TOKEN
+from core.database.tables.users import Users, UsersException
+from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG, TEMPORARY_SALES_GROUP_API_TOKEN, TEMPORARY_CREATE_ACCOUNT_API_TOKEN
 from core.common_exceptions import ExportException
 from core.utilities import auth
 
@@ -279,13 +280,12 @@ def serve_create_new_account():
             return {"error": "Decoding request JSON has failed"}, 400
         if "token" not in request_data:
             raise ExportException("Bad request. Missing token.")
-        accounts_list = Accounts(g.db).get_accounts(token=request_data["token"])
-        if len(accounts_list) == 0:
-            raise ExportException("Bad token. You are not authorized to insert a new account")
+        if request_data["token"] != TEMPORARY_CREATE_ACCOUNT_API_TOKEN:
+            raise ExportException("Invlaid Token provided")
         required = {
             'company': None, 'sector': None, 'first_name': None, 'last_name': None,
-            'address': None, 'city': None, 'state': None, 'zip_code': None,
-            'username': None, 'email': None, 'password': None, 'confirm_password': None
+            'username': None, 'email': None, 'password': None, 'confirm_password': None,
+            'zip_code': None
         }
         for required_field in required:
             if required_field not in request_data:
@@ -293,30 +293,44 @@ def serve_create_new_account():
             required[required_field] = request_data[required_field]
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
-        
+
         try:
             account = auth.verified_signup(
                 username=required['username'],
                 email=required['email'],
-                phone=request_data['phone'],
+                phone=request_data.get("phone", ""),
                 first_name=required['first_name'],
                 last_name=required['last_name'],
                 password=required['password'],
                 confirm_password=required['confirm_password'],
                 company=required['company'],
-                partner=request_data['partner'],
-                affiliate_id=request_data['affiliate_id'],
+                partner=request_data.get("partner", ""),
+                affiliate_id=request_data.get('affiliate_id', ""),
                 sector=required['sector'],
-                address=required['address'],
-                city=required['city'],
-                state=required['state'],
-                zip_code=required['zip_code'],
-                personal_phone=request_data['personal_phone'],
+                address=request_data.get("address", ""),
+                city=request_data.get("city", ""),
+                state=request_data.get("state", ""),
+                zip_code=required["zip_code"],
+                personal_phone=request_data.get("personal_phone", ""),
                 auction_markets_used=request_data.get("auction_market_ids", []),
                 preconditioning_programs=request_data.get("preconditioning_programs", []),
                 pvp_programs=request_data.get("pvp_programs", [])
             )
-        except (auth.SignupFailedException, AccountsException, UsersException) as e:
+        except UsersException:
+            user = Users(g.db).get_by_email(required["email"])
+            if user is not None:
+                account_user = AccountUsers(g.db).get_by_user(user)
+                if len(account_user) > 0:
+                    error_message = "Email is being used by Account " + str(account_user[0].account_id())
+                    raise ExportException("Signup failed for " + required['company'] +" : " + error_message)
+            
+            user = Users(g.db).get_by_username(required["username"])
+            if user is not None:
+                account_user = AccountUsers(g.db).get_by_user(user)
+                if len(account_user) > 0:
+                    error_message = "Username is being used by Account " + str(account_user[0].account_id())
+                raise ExportException("Signup failed for " + required['company'] +" : " + error_message)
+        except (auth.SignupFailedException, AccountsException) as e:
             raise ExportException("Signup failed for " + required['company'] +" : " + str(e))
 
         return {"response": "New Account Created for " + required['company'], "account_id": account.id()}
