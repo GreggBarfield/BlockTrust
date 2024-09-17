@@ -2738,3 +2738,7 @@ CHANGE COLUMN `sire_epd_rib_fat` `sire_epd_rib_fat` DECIMAL(8,3) NULL DEFAULT NU
 CHANGE COLUMN `sire_epd_ribeye_area` `sire_epd_ribeye_area` DECIMAL(8,3) NULL DEFAULT NULL,
 CHANGE COLUMN `sire_epd_marbling` `sire_epd_marbling` DECIMAL(8,3) NULL DEFAULT NULL,
 CHANGE COLUMN `sire_epd_certified_hereford_beef_index` `sire_epd_certified_hereford_beef_index` DECIMAL(8,3) NULL DEFAULT NULL;
+
+/* Rohan Sureshkumar 9/17/24 */
+ALTER TABLE `accounts` 
+CHANGE COLUMN `generated_paid` `generated_paid` TINYINT(1) GENERATED ALWAYS AS (1) VIRTUAL ;
