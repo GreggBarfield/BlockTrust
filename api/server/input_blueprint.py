@@ -264,7 +264,7 @@ def serve_insert_sales_group():
             auction_market_id=request_data.get("auction_market_id", None)
         )
         SalesGroups(g.db).update_sales_group(
-            id=sales_group_id, is_paid=request_data.get("is_paid", 0)
+            id=sales_group_id, is_paid=request_data.get("is_paid", 1)
         )
         return {"response": "Sales Group Inserted"}, 200
     except ExportException as e:
