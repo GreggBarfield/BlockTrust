@@ -17,7 +17,7 @@ window.printSalesGroup = (salesGroupId) => {
 window.downloadSalesGroupsDetailedReport = () => {
     let tableHeaders = ["ID", "SALES GROUP NAME", "SALE DATE", "ACCOUNT", "PUBLISHED", "DELIVERY TYPE", "DELIVERY LOCATION", "PRICE", "CATEGORY",
         "EPD", "COUNT", "HORNS", "BREEDS", "WEANED", "BASE WEIGHT", "WEIGHT VARIANCE", "WEIGHING CONDITIONS", "PVP PROGRAM", "IMPLANTS",
-        "MUSCLING", "CASTRATED", "CREEP FEED", "VACCINATIONS", "VERFIFICATION", "GENOMIC TESTING", "MARKETING SLIDE", "USDA FRAME SIZE",
+        "MUSCLING", "CASTRATED", "CREEP FEED", "VACCINATIONS AND DATES", "VERFIFICATION", "GENOMIC TESTING", "MARKETING SLIDE", "USDA FRAME SIZE",
         "COMINGLED STATUS", "FEEDING PROGRAMS", "PREGNANCY STATUS", "CERTIFIED THROUGH", "EXPECTED SHIP DATE", "PRECON PROGRAM",
         "REPRESENTED BY", "BREED PROGRAM CERTIFICATION COMPANY", "MARKETING COMMENTS", "CHARACTERISTICS COMMENTS", "MAINTENANCE COMMENTS",
         "GENETICS COMMENTS", "PROGRAM COMMENTS", "COMMENTS"];
@@ -27,6 +27,14 @@ window.downloadSalesGroupsDetailedReport = () => {
 
     for (let salesGroup of window.salesGroupsDisplayed) {
         let salesGroupRow = [];
+        let vaccinationsStrings = [];
+        if("vaccinations_and_dates" in salesGroup.reported){
+            for(const vaccination of salesGroup.reported.vaccinations_and_dates){
+                console.log(vaccination)
+                let vaccinationData = vaccination.vaccination + "(" + new Date(vaccination.date * 1000).toDateString() + ")";
+                vaccinationsStrings.push(vaccinationData);
+            }
+        }
         salesGroupRow.push(
             salesGroup.id,
             salesGroup.group_name,
@@ -34,7 +42,7 @@ window.downloadSalesGroupsDetailedReport = () => {
             salesGroup.account,
             salesGroup.published == 1 ? "Yes" : "No",
             salesGroup.delivery_location_type,
-            salesGroup.delivery_location,
+            salesGroup.delivery_location.replaceAll(",", " "),
             salesGroup.price,
             salesGroup.category,
             salesGroup.reported.epd ? salesGroup.reported.epd : "N/A",
@@ -50,7 +58,7 @@ window.downloadSalesGroupsDetailedReport = () => {
             salesGroup.reported.muscling ? salesGroup.reported.muscling : "N/A",
             salesGroup.reported.castrated ? salesGroup.reported.castrated : "N/A",
             salesGroup.reported.creep_feed ? salesGroup.reported.creep_feed : "N/A",
-            salesGroup.reported.vaccinations ? salesGroup.reported.vaccinations.join("/") : "N/A",
+            salesGroup.reported.vaccinations_and_dates ? vaccinationsStrings.join("/") : "N/A",
             salesGroup.reported.verification ? salesGroup.reported.verification : "N/A",
             salesGroup.reported.genomic_testing ? salesGroup.reported.genomic_testing : "N/A",
             salesGroup.reported.marketing_slide ? salesGroup.reported.marketing_slide : "N/A",
