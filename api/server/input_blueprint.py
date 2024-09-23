@@ -193,7 +193,7 @@ def serve_insert_sales_group():
             "publish_sales_group": 1,
             "show_carcass_data_for_account": 1,
             "price": 0,
-            "slide": "" 
+            "slide": ""
         }
 
         for sales_group_data_field_name, sales_group_data_field_value in sales_group_data.items():
@@ -244,10 +244,10 @@ def serve_insert_sales_group():
             delivery_location = sales_group_data["delivery_location"]
         else:
             delivery_location = sales_group_data["auction_market"]
-        SalesGroups(g.db).insert_sales_group(
+        sales_group_id = SalesGroups(g.db).insert_sales_group(
             account=authenticated_account["id"],
             reported=reported_data,
-            published=sales_group_data["publish_sales_group"],
+            published=1,
             zip_code=sales_group_data["zip_code"],
             delivery_location=delivery_location,
             sale_date=sales_group_data["sale_date"],
@@ -260,7 +260,11 @@ def serve_insert_sales_group():
             breed_comments=sales_group_data["breed_comments"],
             weighing_conditions=sales_group_data["weighing_conditions"],
             show_account_carcass_data=1,
-            is_api_insert=1
+            is_api_insert=1,
+            auction_market_id=request_data.get("auction_market_id", None)
+        )
+        SalesGroups(g.db).update_sales_group(
+            id=sales_group_id, is_paid=request_data.get("is_paid", 1)
         )
         return {"response": "Sales Group Inserted"}, 200
     except ExportException as e:
