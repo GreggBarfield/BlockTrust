@@ -336,8 +336,9 @@ def serve_view_partners():
     partner_and_partner_users = []
     for partner in partner_rows:
         partner['company'] = partner['company'].upper()
-        generated_user = AccountUsers(g.db).get_account_users(account=partner["id"], users__is_system_generated=int(True))[0]
-        if generated_user:
+        generated_users = AccountUsers(g.db).get_account_users(account=partner["id"], users__is_system_generated=int(True))
+        if generated_users:
+            generated_user = generated_users[0]
             user = Users(g.db).get_users(generated_user['user'])[0]
             partner["user_name"] = user["first_name"] + " " + user["last_name"]
             partner["user_id"] = user["id"]
