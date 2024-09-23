@@ -30,7 +30,6 @@ window.downloadSalesGroupsDetailedReport = () => {
         let vaccinationsStrings = [];
         if("vaccinations_and_dates" in salesGroup.reported){
             for(const vaccination of salesGroup.reported.vaccinations_and_dates){
-                console.log(vaccination)
                 let vaccinationData = vaccination.vaccination + "(" + new Date(vaccination.date * 1000).toDateString() + ")";
                 vaccinationsStrings.push(vaccinationData);
             }

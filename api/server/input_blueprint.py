@@ -235,6 +235,7 @@ def serve_insert_sales_group():
             "implants": sales_group_data["implants"],
             "castrated": sales_group_data["castrated"],
             "process_verified_program": sales_group_data["pvp_program"],
+            "weaned_date": request_data.get("weaned_date", ""),
             "images": [],
             "videos": []
         }
