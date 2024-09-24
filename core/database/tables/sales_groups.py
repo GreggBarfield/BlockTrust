@@ -181,7 +181,7 @@ class SalesGroups:
                            category=None, breed_comments=None, weighing_conditions=None, auction_market_id=None,
                            seller_id=None, vaccination_date=None, vaccination_summary=None, herd_sire=None,
                            ranch_source_county=None, ranch_size=None, home_raised=None, family_farm_or_ranch=None,
-                           show_account_carcass_data=None, is_api_insert=None):
+                           show_account_carcass_data=None, is_api_insert=None, upload_file=None):
         """
         Inserts a new sales group into the table
         Params:
@@ -215,7 +215,7 @@ class SalesGroups:
                 %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s, %(price)s, %(category)s,
                 %(breed_comments)s, %(weighing_conditions)s, %(seller_id)s, %(vaccination_date)s,
                 %(vaccination_summary)s, %(herd_sire)s, %(ranch_source_county)s, %(ranch_size)s, %(home_raised)s,
-                %(family_farm_or_ranch)s, %(show_account_carcass_data)s, %(is_api_insert)s
+                %(family_farm_or_ranch)s, %(show_account_carcass_data)s, %(is_api_insert)s, %(upload_file)s
             )
             """, {
                 "account": account,
@@ -242,7 +242,8 @@ class SalesGroups:
                 "home_raised": home_raised,
                 "family_farm_or_ranch": family_farm_or_ranch,
                 "show_account_carcass_data": show_account_carcass_data,
-                "is_api_insert": is_api_insert
+                "is_api_insert": is_api_insert,
+                "upload_file": upload_file
             }
         )
         return self._db.last_row_id()
@@ -255,7 +256,7 @@ class SalesGroups:
                            seller_id=NO_VALUE, vaccination_date=NO_VALUE, vaccination_summary=NO_VALUE,
                            herd_sire=NO_VALUE, ranch_source_county=NO_VALUE, ranch_size=NO_VALUE, home_raised=NO_VALUE,
                            family_farm_or_ranch=NO_VALUE, show_account_carcass_data=NO_VALUE, is_paid=NO_VALUE,
-                           payment_id=NO_VALUE):
+                           payment_id=NO_VALUE, upload_file=NO_VALUE):
         """Updates a row.
 
         Params:
@@ -365,6 +366,9 @@ class SalesGroups:
         if payment_id is not NO_VALUE:
             query_conditions.append("payment_id = %(payment_id)s")
             query_values["payment_id"] = payment_id
+        if upload_file is not NO_VALUE:
+            query_conditions.append("upload_file = %(upload_file)s")
+            query_values["upload_file"] = upload_file
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
