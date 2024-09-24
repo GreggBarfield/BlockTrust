@@ -208,7 +208,7 @@ class SalesGroups:
             INSERT INTO sales_groups (account, reported, published, zip, delivery_location, auction_market_id, sale_date,
                 auction_sale, group_name, is_archived, delivery_location_type, price, category, breed_comments, weighing_conditions,
                 seller_id, vaccination_date, vaccination_summary, herd_sire, ranch_source_county, ranch_size, 
-                home_raised, family_farm_or_ranch, show_account_carcass_data, is_api_insert
+                home_raised, family_farm_or_ranch, show_account_carcass_data, is_api_insert, upload_file
             )
             VALUES (
                 %(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(auction_market_id)s, %(sale_date)s,

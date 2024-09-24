@@ -2745,4 +2745,4 @@ CHANGE COLUMN `generated_paid` `generated_paid` TINYINT(1) GENERATED ALWAYS AS (
 
 /* Nisheet Thakur 09/24/2024 */
 ALTER TABLE `sales_groups`
-ADD COLUMN `upload_file` VARCHAR(256) DEFAULT NULL;
+ADD COLUMN `upload_file` VARCHAR(256) DEFAULT NULL AFTER `payment_id`;
