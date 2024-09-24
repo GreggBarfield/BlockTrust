@@ -554,7 +554,7 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let maintenanceWeanedDate = createDate(maintenanceRow, "Weaned Date", salesGroupFormInputIds.maintenanceWeanedDate, this.mantainanceWeanedDateValue, true, "mantainanceWeanedDate","");
+        let maintenanceWeanedDate = createDate(maintenanceRow, "Weaned Date", salesGroupFormInputIds.maintenanceWeanedDate, this.maintenanceWeanedDateValue, true, "mantainanceWeanedDate","");
         let maintenanceComments = createText(maintenanceRow,"Maintenance Comments", salesGroupFormInputIds.maintenanceComments,this.maintenanceCommentsValue || "",false,"maintenanceComments","", 12, 150);
 
         // Genetics
