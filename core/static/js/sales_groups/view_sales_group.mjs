@@ -521,7 +521,12 @@ export class SalesGroupViewer {
             maintenanceBody.className = "card-body";
             maintenanceDataContainer.append(maintenanceBody);
 
-            addInfo("Vaccinations", this.formatData(this.data.reported.vaccinations), maintenanceBody);
+            if("vaccinations_and_dates" in this.data.reported){
+                addInfo("Vaccinations", this.formatVaccinationData(this.data.reported.vaccinations_and_dates), maintenanceBody);
+            }
+            else{
+                addInfo("Vaccinations", this.formatData(this.data.reported.vaccinations), maintenanceBody);
+            }
             addInfo("Comingled Status", this.formatData(this.data.reported.comingled_status), maintenanceBody);
             addInfo("Creep Feed", this.formatData(this.data.reported.creep_feed), maintenanceBody);
             addInfo("Implants", this.formatData(this.data.reported.implants), maintenanceBody);
@@ -711,5 +716,18 @@ export class SalesGroupViewer {
             return "N/A";
         else
             return data;
+    }
+
+    formatVaccinationData(vaccincations){
+        let vaccinationsList = [];
+        for(let vaccination of vaccincations){
+            let vaccinationDate = "";
+            if(vaccination.date.length >= 0){
+                vaccinationDate = new Date(vaccination.date).toDateString()
+            }
+            let vaccinationData = vaccination.vaccination + "(" + vaccinationDate  + ")";
+            vaccinationsList.push(vaccinationData);
+        }
+        return vaccinationsList;
     }
 }

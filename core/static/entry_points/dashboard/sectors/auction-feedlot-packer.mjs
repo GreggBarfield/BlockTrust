@@ -30,7 +30,11 @@ window.downloadSalesGroupsDetailedReport = () => {
         let vaccinationsStrings = [];
         if("vaccinations_and_dates" in salesGroup.reported){
             for(const vaccination of salesGroup.reported.vaccinations_and_dates){
-                let vaccinationData = vaccination.vaccination + "(" + new Date(vaccination.date * 1000).toDateString() + ")";
+                let vaccinationDate = "";
+                if(vaccination.date.length >= 0){
+                    vaccinationDate = new Date(vaccination.date).toDateString()
+                }
+                let vaccinationData = vaccination.vaccination + "(" + vaccinationDate + ")";
                 vaccinationsStrings.push(vaccinationData);
             }
         }
