@@ -159,14 +159,8 @@ export class UploadVaccinationDatesWidget{
         if(vaccinationValue !== null){
             $(vaccinationInput).val(vaccinationValue).trigger("change");
         }
-        if(dateValue !== null && dateValue >=0){
-            let d = new Date(dateValue * 1000);
-            function setWidth(val) {
-                if (val < 10)
-                    return "0" + val;
-                return val;
-            }
-            dateInput.value = d.getFullYear() + "-" + setWidth(d.getMonth() + 1) + "-" + setWidth(d.getDate());
+        if(dateValue !== null && dateValue.length >=0){
+            dateInput.value = dateValue;
         }
 
         let removeButtonContainer = document.createElement("div");
