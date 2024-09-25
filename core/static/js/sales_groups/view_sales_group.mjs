@@ -718,9 +718,9 @@ export class SalesGroupViewer {
             return data;
     }
 
-    formatVaccinationData(vaccincations){
+    formatVaccinationData(vaccinations){
         let vaccinationsList = [];
-        for(let vaccination of vaccincations){
+        for(let vaccination of vaccinations){
             let vaccinationDate = "";
             if(vaccination.date.length >= 0){
                 vaccinationDate = new Date(vaccination.date).toDateString()
