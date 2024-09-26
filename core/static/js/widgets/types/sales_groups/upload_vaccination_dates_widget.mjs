@@ -125,6 +125,7 @@ export class UploadVaccinationDatesWidget{
                 }
             }
             this.closeUploadModal();
+            alert("Please save the Sales Group before navigating away from this webpage");
         }
         modalFooter.prepend(submitButton);
     }
@@ -132,6 +133,9 @@ export class UploadVaccinationDatesWidget{
     createVaccinationAndDateRow = (vaccinationValue=null, dateValue=null) =>{
         let vaccinationsList = [];
         let containerId = "data-row-" + this.rowCounter;
+        this.vaccinations.sort(function(a, b) {
+            return a.toLowerCase().localeCompare(b.toLowerCase());
+        });
         for(let vaccination of this.vaccinations){
             vaccinationsList.push({id: vaccination, text: vaccination});
         }

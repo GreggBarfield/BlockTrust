@@ -32,4 +32,21 @@ Edit Sales Group {{sales_group['id']}}
     </div>
 </div>
 
+<script>
+    let bypassUnloadCheck = false;
+    let disableUnloadCheck = () =>{
+        bypassUnloadCheck = true;
+    }
+    let enableUnloadCheck = () =>{
+        bypassUnloadCheck = false;
+    }
+    window.addEventListener('beforeunload', function (e) {
+        // Display a custom message or trigger an alert. The message here is often ignored by most modern browsers.
+        const confirmationMessage = 'Are you sure you want to leave this page? Changes you made may not be saved.';
+
+        e.preventDefault(); // Some browsers require calling preventDefault on the event
+        e.returnValue = confirmationMessage; // This sets the message for the confirmation dialog
+        return confirmationMessage; // For some older browsers
+    });
+</script>    
 {% endblock dashboard_content %}
