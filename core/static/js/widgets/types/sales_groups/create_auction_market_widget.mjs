@@ -143,6 +143,7 @@ export class CreateAuctionMarketWidget extends Widget{
                 let auctionMarketInput = document.getElementById(auctionMarketInputId);
                 $(auctionMarketInput).append(newAuctionMarketOption).trigger('change');
                 this.infoModal.close();
+                alert("Please save the Sales Group before navigating away from this webpage");
             }
         });
     }

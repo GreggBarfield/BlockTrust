@@ -283,6 +283,7 @@ export class UploadEIDsForSalesGroupWidget{
 
     closeEidUploadModal = () =>{
         this.infoModal.close();
+        alert("Please save the Sales Group before navigating away from this webpage");
     }
 
     getUploadedEids = () =>{
