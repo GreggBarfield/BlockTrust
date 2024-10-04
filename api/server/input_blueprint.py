@@ -261,7 +261,8 @@ def serve_insert_sales_group():
             weighing_conditions=sales_group_data["weighing_conditions"],
             show_account_carcass_data=1,
             is_api_insert=1,
-            auction_market_id=request_data.get("auction_market_id", None)
+            auction_market_id=request_data.get("auction_market_id", None),
+            upload_file=request_data.get("upload_file", None)
         )
         SalesGroups(g.db).update_sales_group(
             id=sales_group_id, is_paid=request_data.get("is_paid", 1)

@@ -2742,3 +2742,7 @@ CHANGE COLUMN `sire_epd_certified_hereford_beef_index` `sire_epd_certified_heref
 /* Rohan Sureshkumar 9/17/24 */
 ALTER TABLE `accounts` 
 CHANGE COLUMN `generated_paid` `generated_paid` TINYINT(1) GENERATED ALWAYS AS (1) VIRTUAL ;
+
+/* Nisheet Thakur 09/24/2024 */
+ALTER TABLE `sales_groups`
+ADD COLUMN `upload_file` VARCHAR(512) DEFAULT NULL AFTER `payment_id`;
