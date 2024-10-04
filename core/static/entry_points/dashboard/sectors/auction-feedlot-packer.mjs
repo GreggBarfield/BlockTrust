@@ -171,6 +171,13 @@ let addToSalesGroupTable = (table, future) => {
     window.salesGroupsDisplayed = [];
     if (salesGroups) {
         for (let salesGroup of salesGroups) {
+            let uploadedFileLink = "";
+            if(salesGroup.upload_file !== null){
+                uploadedFileLink = `<a class='btn btn-sm btn-info' href= ${salesGroup.upload_file} target='_blank'>Download</a>`
+            }
+            else{
+                uploadedFileLink = "N/A";
+            }
             if (future) {
                 if (Math.floor(Date.now() / 1000) <= salesGroup.sale_date) {
                     window.salesGroupsDisplayed.push(salesGroup);
@@ -184,7 +191,9 @@ let addToSalesGroupTable = (table, future) => {
                         month: "long",
                         day: "numeric"
                     })}</td>
-                    <td><a class='btn btn-sm btn-info' href='/dashboard/sales-groups/view/${salesGroup.id}' target='_blank'>View</a></td></tr>
+                    <td><a class='btn btn-sm btn-info' href='/dashboard/sales-groups/view/${salesGroup.id}' target='_blank'>View</a></td>
+                    <td>${uploadedFileLink}</td>
+                    </tr>
                 `)).draw();
                 }
             }
@@ -201,7 +210,9 @@ let addToSalesGroupTable = (table, future) => {
                         month: "long",
                         day: "numeric"
                     })}</td>
-                    <td><a class='btn btn-sm btn-info' href='/dashboard/sales-groups/view/${salesGroup.id}' target='_blank'>View</a></td></tr>
+                    <td><a class='btn btn-sm btn-info' href='/dashboard/sales-groups/view/${salesGroup.id}' target='_blank'>View</a></td>
+                    <td>${uploadedFileLink}</td>
+                    </tr>
                 `)).draw();
                 }
             }
