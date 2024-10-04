@@ -223,7 +223,8 @@ export class SalesGroupViewer {
                 sendMessageButton.addEventListener("click", () => {
                     promptNewMessage(this.data.account, this.data.account_name);
                 });
-                left.append(sendMessageButton);
+                // Temporarily Disabled on 10/04/2024
+                // left.append(sendMessageButton);
             }
             else{
                 let unarchiveButton = document.createElement("button");
