@@ -103,6 +103,16 @@ def serve_dashboard():
         return dashboard_render("sectors/generic.html", account_params)
 
 
+@bp.route('/dashboard/carcass-data', methods=['GET'])
+@crut.require_user
+def serve_carcass_data():
+    account_params = {
+        "account": g.account,
+        "animal_URL": url_for('dashboard_bp.serve_animal_eid')
+    }
+    return dashboard_render("sectors/generic.html", account_params)
+
+
 @bp.route('/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
 @bp.route('/dashboard/animals/<int:animal_eid>', methods=['GET'])
 @crut.require_paid_account
