@@ -1,0 +1,138 @@
+{% extends "dashboard/standard.html" %}
+
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+
+{% set page_title = account.name()|e %}
+{% set dashboard_locations = [("/dashboard", account.name()|e)] %}
+
+{% block dashboard_content_header %}
+{{ account.name()|e }}
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+<div class="row">
+
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="text-primary">Health</h4>
+                <h6 class="fw-bold">Get an increased premium for your calves by participating in a preconditioning program.</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <img src="/static/images/partners/logos/health_track_new.png">
+                    </div>
+                    <div class="col-md-9">
+                        <p>
+                            Our preferred partner for preconditioning and health programs is Health Track Network, a proven program that has been around for over 24 years. 
+                            Visit their <a href="https://healthtracknetwork.com/" target="_blank">website</a>, or <a href="/dashboard/support" target="_blank">Click Here</a> to request more information.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div>
+                <ul>
+                    <li><a href="/dashboard" target="_blank">Carcass Data</a></li>
+                    <li><a href="https://healthtracknetwork.com/" target="_blank">Health Track Network Website</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="text-primary">Genetics</h4>
+                <h6 class="fw-bold">Feeders will pay more for proven, higher quality, predictable calves.</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <img src="/static/images/partners/logos/neogen_new.png">
+                    </div>
+                    <div class="col-md-9">
+                        <p>
+                            Genetics testing is available through our preferred partner, Neogen. To start genetics testing, please enter your tags here. 
+                            Visit their <a href="https://www.neogen.com/" target="_blank">website</a>, or <a href="/dashboard/support" target="_blank">Click Here</a> to request more information.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div>
+                <ul>
+                    <li><a href="/dashboard" target="_blank">Enter Test Requests</a></li>
+                    <li><a href="https://www.neogen.com/" target="_blank">Neogen Website</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="text-primary">Marketing / Supply Chain</h4>
+                <h6 class="fw-bold">Cattle buyers can't purchase the type of calves they need without knowing where they are.</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <img src="/static/images/partners/logos/markettrust_new.png">
+                    </div>
+                    <div class="col-md-9">
+                        <p>
+                            Enter data on the cattle you selling (as much or as little as you like) into the system so buyers can find them. Also, you may get some carcass data back. 
+                            <a href="/dashboard/support" target="_blank">Click Here</a> to request more information.
+
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div>
+                <ul>
+                    <li><a href="/dashboard/sales-groups" target="_blank">Search MarketTrust</a></li>
+                    <li><a href="/dashboard/sales-groups/manage" target="_blank">Manage Sales Groups</a></li>
+                    <li><a href="/dashboard/sales-groups/new" target="_blank">New Sales Group</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="text-primary">Tag Management</h4>
+                <h6 class="fw-bold">Tag your cattle with EID and possibly get some carcass data back.</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <img src="/static/images/partners/logos/allflex_new.png">
+                    </div>
+                    <div class="col-md-9">
+                        <p>
+                            Tags are available from our preferred partner, Allflex or from several other vendors. If you buy them from us we already have the numbers.
+                            <a href="/shop/tag-store" target="_blank">Visit our tag store</a> or <a href="/dashboard/support" target="_blank">Click Here</a> to request more information.
+
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div>
+                <ul>
+                    <li><a href="/shop/tag-store" target="_blank">Tag Store</a></li>
+                    <li><a href="https://www.allflex.global/na/" target="_blank">Allflex Website</a></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock dashboard_content %}

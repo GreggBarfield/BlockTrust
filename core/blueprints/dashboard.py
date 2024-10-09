@@ -97,6 +97,8 @@ def serve_dashboard():
         return dashboard_render("sectors/auction-feedlot-packer.html", account_params)
     elif g.account.sector_id() == SECTORS_NAME_TO_ID["Buyer"]:
         return dashboard_render("sectors/buyer.html", account_params)
+    elif g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"]:
+        return dashboard_render("sectors/cow-calf.html", account_params)
     else:
         return dashboard_render("sectors/generic.html", account_params)
 
