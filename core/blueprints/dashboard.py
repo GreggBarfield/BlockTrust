@@ -97,8 +97,20 @@ def serve_dashboard():
         return dashboard_render("sectors/auction-feedlot-packer.html", account_params)
     elif g.account.sector_id() == SECTORS_NAME_TO_ID["Buyer"]:
         return dashboard_render("sectors/buyer.html", account_params)
+    elif g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"]:
+        return dashboard_render("sectors/cow-calf.html", account_params)
     else:
         return dashboard_render("sectors/generic.html", account_params)
+
+
+@bp.route('/dashboard/carcass-data', methods=['GET'])
+@crut.require_user
+def serve_carcass_data():
+    account_params = {
+        "account": g.account,
+        "animal_URL": url_for('dashboard_bp.serve_animal_eid')
+    }
+    return dashboard_render("sectors/generic.html", account_params)
 
 
 @bp.route('/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
