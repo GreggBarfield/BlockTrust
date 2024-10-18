@@ -179,6 +179,11 @@
                 <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="edit_account_error_message">Internal error...</p>
             
                 </form>
+                {% if account_row.sector_id() == 5 and account_row.auction_market_id() is not none %}
+                <div class="mt-2 mb-0 alert alert-primary">
+                    <h5>Auction Market ID: {{account_row.auction_market_id()}}</h5>                    
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
