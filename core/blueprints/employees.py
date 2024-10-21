@@ -89,6 +89,16 @@ def serve_employee_create_account_action():
         sector = format_field(required['sector'])
         partner_pays = int(str_to_bool(required['partner_pays']))
         sector, phone, affiliate_id = Accounts(g.db).validate_or_fail_account(sector, partner, affiliate_id, phone, format_field(required['zip_code']), partner_pays)
+        auction_market_id = None
+        if sector == SECTORS_NAME_TO_ID["Auction"]:
+            auction_market_id = AuctionMarkets(g.db).insert_auction_market(
+                name=format_field(required["company"]),
+                address=format_field(required["address"]),
+                city=format_field(required["city"]),
+                state=format_field(required["state"]),
+                zip_code=format_field(required["zip_code"]),
+                phone=format_field(phone)
+            )
 
         # Creating an account without an admin
         account_obj = Accounts(g.db).create_account(
@@ -102,7 +112,8 @@ def serve_employee_create_account_action():
                 state=format_field(required['state']),
                 zip=format_field(required['zip_code']),
                 created_by_employee_id=g.employee.id(),
-                partner_pays=partner_pays
+                partner_pays=partner_pays,
+                auction_market_id=auction_market_id
         )
 
         user_id = Users(g.db).create_pseudo_user(account_obj.id(), False)
