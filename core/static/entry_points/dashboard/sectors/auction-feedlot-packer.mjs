@@ -178,8 +178,11 @@ let addToSalesGroupTable = (table, future) => {
             else{
                 uploadedFileLink = "N/A";
             }
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const epoch = Math.floor(startOfDay.getTime() / 1000);
             if (future) {
-                if (Math.floor(Date.now() / 1000) <= salesGroup.sale_date) {
+                if (epoch <= salesGroup.sale_date) {
                     window.salesGroupsDisplayed.push(salesGroup);
                     table.row.add($(`<tr>
                     <td>${salesGroup.group_name}</td>
@@ -198,7 +201,7 @@ let addToSalesGroupTable = (table, future) => {
                 }
             }
             else {
-                if (Math.floor(Date.now() / 1000) > salesGroup.sale_date) {
+                if (epoch > salesGroup.sale_date) {
                     window.salesGroupsDisplayed.push(salesGroup);
                     table.row.add($(`<tr>
                     <td>${salesGroup.group_name}</td>
