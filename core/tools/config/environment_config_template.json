@@ -31,12 +31,12 @@
     },
     "internal_api": {
         "secret": "gsjg94e8se4w8ahw39gjdsfbhcx8r9b8",
-        "secret_email_key":"blocktrustnetwork",
-        "email_token_salt":"blocktrustnetwork"
+        "secret_email_key": "blocktrustnetwork",
+        "email_token_salt": "blocktrustnetwork"
     },
     "support": {
-        "general_email": "gregg.barfield@ledgerspace.net",
-        "general_tag_store_email": "gregg.barfield@ledgerspace.net "
+        "general_email": "info@blocktrustnetwork.com",
+        "general_tag_store_email": "tags@blocktrustnetwork.com"
     },
     "stripe": {
         "subscription_webhook_secret": "whsec_utnh0X5xZF31SVkedD0zy2dVEcrKuFjR",
@@ -55,14 +55,14 @@
     },
     "flatfile_license": "59cef5be-e3d4-4687-a687-79f0a3e2aaba",
     "blockchain": {
-           "endpoint": "http://ec2-3-129-6-38.us-east-2.compute.amazonaws.com:3000",
-           "upload": true,
-           "batch_size": 10,
-           "cutoff_date_for_uploads": "2024-02-01"
+        "endpoint": "http://ec2-3-129-6-38.us-east-2.compute.amazonaws.com:3000",
+        "upload": true,
+        "batch_size": 10,
+        "cutoff_date_for_uploads": "2024-02-01"
     },
     "recaptcha": {
         "site_key": "6Lc-42odAAAAAAShThEnDs6F86VvQ3ELGPvDW4Gl",
-        "secret_key":"6Lc-42odAAAAAK74WXp2VlG-y6jQ0ShY8pcMR087",
+        "secret_key": "6Lc-42odAAAAAK74WXp2VlG-y6jQ0ShY8pcMR087",
         "min_score": 0.6
     },
     "ipinfo": {
