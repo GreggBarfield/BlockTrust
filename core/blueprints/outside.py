@@ -25,8 +25,8 @@ from ..utilities import token
 from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
 from ..renderers.email import render_email
 from core.config import (
-    SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY,
-    RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE, IPINFO_TOKEN, CHECK_IP, STRIPE_PUBLISHABLE_KEY
+    ROOT as WEBSITE_ROOT, RECAPTCHA_SITE_KEY, RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE, 
+    IPINFO_TOKEN, CHECK_IP, STRIPE_PUBLISHABLE_KEY, ADMIN_EMAIL
 )
 from ..sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
 from json import loads
@@ -274,7 +274,7 @@ def serve_contact_form_response():
             'message': request.json['message'],
             'message_title': "New Contact Us Response"
         }),
-        SUPPORT_TAG_STORE_EMAIL
+        ADMIN_EMAIL
     )
     return {}
 
@@ -386,7 +386,7 @@ def serve_not_auth_to_register():
 @bp.route('/outside/contact-email', methods=['GET'])
 def serve_contact_email():
     return jsonify(
-        contactEmail=SUPPORT_GENERAL_EMAIL
+        contactEmail=ADMIN_EMAIL
     )
 
 

@@ -48,7 +48,7 @@ from ..utilities.email import send_email, send_tag_store_email, send_multiple_ta
 from ..utilities.shop.herdwhistle_api import HerdWhistleAPI
 from ..utilities.general_utilities import str_to_bool
 
-from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
+from core.config import ROOT, ADMIN_EMAIL as WEBSITE_ROOT
 import json
 import stripe
 
@@ -625,7 +625,7 @@ def serve_support_response():
             'message': request.form['message'],
             'message_title': "New Dashboard Support Response"
         }),
-        SUPPORT_GENERAL_EMAIL
+        ADMIN_EMAIL
         )
     return {"redirect": url_for("dashboard_bp.serve_dashboard")}
 

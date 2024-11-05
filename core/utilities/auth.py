@@ -17,7 +17,7 @@ from ..renderers.email import render_email
 from ..utilities.general_utilities import validate_email, format_field
 from ..utilities.email import send_email
 from .constants import SECONDS_IN_ONE_DAY
-from ..config import SUPPORT_GENERAL_EMAIL, ADMIN_EMAIL
+from ..config import ADMIN_EMAIL
 from ..sectors import SECTORS_ID_TO_NAME
 
 from json import loads
@@ -651,7 +651,7 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
                     'user_account': user_account,
                     'partner_account_company': partner_account_company,
                     'sectors_id_to_name': SECTORS_ID_TO_NAME
-                }), SUPPORT_GENERAL_EMAIL
+                }), ADMIN_EMAIL
             )
     else:
         EventLogs(g.db).insert(
