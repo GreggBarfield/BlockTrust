@@ -347,6 +347,8 @@
                 {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] 
                     or dashboard_standard_account.sector_id() == sectors_name_to_id["Seedstock Producer"]%}
                 <li><a href="/dashboard/data-views">Who's viewed your data</a></li>
+                {% elif dashboard_standard_account.sector_id() == sectors_name_to_id["Auction"] %}
+                <li><a href="/dashboard/auction-emails">Email List</a></li>
                 {% endif %}
                 {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] 
                     or dashboard_standard_account.sector_id() == sectors_name_to_id["Stocker/Backgrounder"]%}

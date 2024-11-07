@@ -3,6 +3,7 @@ from flask import (
 )
 
 from core.config import ADMIN_EMAIL, FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY, EMAIL_SENDER
+from core.database.tables.auction_emails import AuctionEmails
 from core.database.tables.matches import Matches
 from core.database.tables.sales_group_searches import SalesGroupSearches
 from ..renderers.dashboard import dashboard_render
@@ -43,7 +44,7 @@ from ..renderers.email import render_email
 
 from ..utilities import crut, auth, csrf
 from ..utilities import token
-from ..utilities.constants import DEFAULT_PASSWORD, HTTP_BAD_REQUEST, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK
+from ..utilities.constants import DEFAULT_PASSWORD, HTTP_BAD_REQUEST, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK
 from ..utilities.email import send_email, send_tag_store_email, send_multiple_tag_store_email
 from ..utilities.shop.herdwhistle_api import HerdWhistleAPI
 from ..utilities.general_utilities import str_to_bool
@@ -1142,3 +1143,25 @@ def serve_genetics_testing():
                 sample_type=genetic_testing_data_row["sample_type"]
             )
         return {"redirect": "/dashboard/genetic-testing"}
+
+
+@bp.route("/dashboard/auction-emails", methods=["GET"])
+@crut.require_account
+def serve_auction_emails():
+    emails = AuctionEmails(g.db).get(account_id=g.account.id())
+    print(emails)
+    return dashboard_render("data/auction-emails.html", {"emails": emails})
+
+
+@bp.route("/dashboard/auction-email", defaults={'id': None},  methods=["POST"])
+@bp.route("/dashboard/auction-email/<id>", methods=["DELETE"])
+@crut.require_account
+def serve_auction_email(id):
+    if request.method == "POST":
+        if AuctionEmails(g.db).get(email=request.form["email"]):
+            raise ExportException("This email cannot be added since it already exists in the list")
+        AuctionEmails(g.db).insert(g.account.id(), request.form["name"], request.form["email"])
+        return Response(status=HTTP_CREATED)
+    elif request.method == "DELETE":
+        AuctionEmails(g.db).delete(id)
+        return Response(status=HTTP_NO_CONTENT)
