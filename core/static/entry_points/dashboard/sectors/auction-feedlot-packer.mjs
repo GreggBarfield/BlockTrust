@@ -28,10 +28,10 @@ window.downloadSalesGroupsDetailedReport = () => {
     for (let salesGroup of window.salesGroupsDisplayed) {
         let salesGroupRow = [];
         let vaccinationsStrings = [];
-        if("vaccinations_and_dates" in salesGroup.reported){
-            for(const vaccination of salesGroup.reported.vaccinations_and_dates){
+        if ("vaccinations_and_dates" in salesGroup.reported) {
+            for (const vaccination of salesGroup.reported.vaccinations_and_dates) {
                 let vaccinationDate = "";
-                if(vaccination.date.length >= 0){
+                if (vaccination.date.length >= 0) {
                     vaccinationDate = new Date(vaccination.date).toDateString()
                 }
                 let vaccinationData = vaccination.vaccination + "(" + vaccinationDate + ")";
@@ -172,10 +172,10 @@ let addToSalesGroupTable = (table, future) => {
     if (salesGroups) {
         for (let salesGroup of salesGroups) {
             let uploadedFileLink = "";
-            if(salesGroup.upload_file !== null){
+            if (salesGroup.upload_file !== null) {
                 uploadedFileLink = `<a class='btn btn-sm btn-info' href= ${salesGroup.upload_file} target='_blank'>Download</a>`
             }
-            else{
+            else {
                 uploadedFileLink = "N/A";
             }
             const now = new Date();
@@ -196,6 +196,7 @@ let addToSalesGroupTable = (table, future) => {
                     })}</td>
                     <td><a class='btn btn-sm btn-info' href='/dashboard/sales-groups/view/${salesGroup.id}' target='_blank'>View</a></td>
                     <td>${uploadedFileLink}</td>
+                    <td><input type='checkbox'></input></td>
                     </tr>
                 `)).draw();
                 }
@@ -215,6 +216,7 @@ let addToSalesGroupTable = (table, future) => {
                     })}</td>
                     <td><a class='btn btn-sm btn-info' href='/dashboard/sales-groups/view/${salesGroup.id}' target='_blank'>View</a></td>
                     <td>${uploadedFileLink}</td>
+                    <td><input type='checkbox'></input></td>
                     </tr>
                 `)).draw();
                 }
