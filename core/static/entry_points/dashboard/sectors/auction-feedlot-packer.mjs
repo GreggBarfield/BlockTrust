@@ -172,8 +172,8 @@ let addToSalesGroupTable = (table, future) => {
     if (salesGroups) {
         for (let salesGroup of salesGroups) {
             let uploadedFileLink = "";
-            if (salesGroup.upload_file !== null) {
-                uploadedFileLink = `<a class='btn btn-sm btn-info' href= ${salesGroup.upload_file} target='_blank'>Download</a>`
+            if (salesGroup.upload_file !== null && salesGroup.upload_file.trim() !== "") {
+                uploadedFileLink = `<a class='btn btn-sm btn-info' href= ${salesGroup.upload_file} target='_blank'>Download</a>`;
             }
             else {
                 uploadedFileLink = "N/A";
