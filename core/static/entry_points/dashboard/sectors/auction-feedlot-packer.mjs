@@ -4,7 +4,7 @@ import { SalesGroupViewer } from "../../../js/sales_groups/view_sales_group.mjs"
 // TODO: Fix printSalesGroup method to print Sales Group Viewer container instead of [object HTMLDivElement]
 window.printSalesGroup = (salesGroupId) => {
     let salesGroup = {};
-    for (let group of window.salesGroupsDisplayed) {
+    for (let group of window.salesGroupsForDownload) {
         if (group.id == parseInt(salesGroupId)) {
             salesGroup = group;
         }
@@ -25,7 +25,7 @@ window.downloadSalesGroupsDetailedReport = () => {
     salesGroupsdDataTableExport.push([tableHeaders]);
     salesGroupsdDataTableExport.push([]);
 
-    for (let salesGroup of window.salesGroupsDisplayed) {
+    for (let salesGroup of window.salesGroupsForDownload) {
         let salesGroupRow = [];
         let vaccinationsStrings = [];
         if ("vaccinations_and_dates" in salesGroup.reported) {
@@ -98,7 +98,7 @@ window.downloadSalesGroupsSummaryReport = () => {
     salesGroupsdDataTableExport.push([tableHeaders]);
     salesGroupsdDataTableExport.push([]);
 
-    for (let salesGroup of window.salesGroupsDisplayed) {
+    for (let salesGroup of window.salesGroupsForDownload) {
         let salesGroupRow = [];
         salesGroupRow.push(
             salesGroup.group_name,
@@ -121,7 +121,6 @@ window.downloadSalesGroupsSummaryReport = () => {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    window.salesGroupsDisplayed = salesGroups;
     let salesGroupsTable = $('#sales-groups-table').DataTable({ pageLength: 50 });
     addToSalesGroupTable(salesGroupsTable, true);
     let dateInput = document.createElement("input");
@@ -168,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 let addToSalesGroupTable = (table, future) => {
-    window.salesGroupsDisplayed = [];
+    window.salesGroupsForDownload = future ? [] : window.salesGroupsForDownload;
     if (salesGroups) {
         for (let salesGroup of salesGroups) {
             let uploadedFileLink = "";
@@ -183,7 +182,7 @@ let addToSalesGroupTable = (table, future) => {
             const epoch = Math.floor(startOfDay.getTime() / 1000);
             if (future) {
                 if (epoch <= salesGroup.sale_date) {
-                    window.salesGroupsDisplayed.push(salesGroup);
+                    window.salesGroupsForDownload.push(salesGroup);
                     table.row.add($(`<tr>
                     <td>${salesGroup.group_name}</td>
                     <td>${salesGroup.reported.count}</td>
@@ -203,7 +202,6 @@ let addToSalesGroupTable = (table, future) => {
             }
             else {
                 if (epoch > salesGroup.sale_date) {
-                    window.salesGroupsDisplayed.push(salesGroup);
                     table.row.add($(`<tr>
                     <td>${salesGroup.group_name}</td>
                     <td>${salesGroup.reported.count}</td>
