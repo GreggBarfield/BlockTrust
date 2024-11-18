@@ -24,7 +24,8 @@ EVENT_TYPE_NAMES_TO_IDS = {
     "Signup Failed By User": 18,
     "Login Failed": 19,
     "User Login": 20,
-    "Account Created By Partner": 21
+    "Account Created By Partner": 21,
+    "Account Deleted": 22
 }
 EVENT_TYPE_IDS_TO_NAMES = {
     value: key
