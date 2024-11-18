@@ -22,6 +22,7 @@ from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG, TEMPOR
 from core.common_exceptions import ExportException
 from core.utilities import auth
 
+from datetime import datetime
 from traceback import format_exc
 
 
@@ -170,7 +171,7 @@ def serve_insert_sales_group():
             "sales_group_name": "",
             "total_animals": 0,
             "zip_code": 0,
-            "sale_date": 0,
+            "sale_date_string": "",
             "end_time": 0,
             "delivery_location_type": "",
             "auction_market": "",
@@ -202,6 +203,11 @@ def serve_insert_sales_group():
                 raise ExportException(sales_group_data_field_name + " should be " + type(sales_group_data_field_value).__name__)
             sales_group_data[sales_group_data_field_name] = request_data[sales_group_data_field_name]
 
+        sale_date_string = sales_group_data["sale_date_string"]
+        sale_date_format = "%m/%d/%Y"
+        sale_date_object = datetime.strptime(sale_date_string, sale_date_format)
+        sale_epoch_time = int(sale_date_object.timestamp())
+
         SalesGroups(g.db).validate_or_fail_sales_group(
             account_id=authenticated_account["id"],
             group_name=sales_group_data["sales_group_name"],
@@ -211,7 +217,7 @@ def serve_insert_sales_group():
             weight=sales_group_data["base_weight"],
             category=sales_group_data["category"],
             breeds=sales_group_data["breeds"],
-            sale_date=sales_group_data["sale_date"],
+            sale_date=sale_epoch_time,
             delivery_location=sales_group_data["delivery_location"],
             auction_market_location=sales_group_data["auction_market"],
             images=[],
@@ -250,7 +256,7 @@ def serve_insert_sales_group():
             published=1,
             zip_code=sales_group_data["zip_code"],
             delivery_location=delivery_location,
-            sale_date=sales_group_data["sale_date"],
+            sale_date=sale_epoch_time,
             auction_sale=None,
             group_name=sales_group_data["sales_group_name"],
             is_archived=0,
