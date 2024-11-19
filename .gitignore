@@ -54,6 +54,7 @@ local/
 *.env
 .vscode/
 venv/
+.venv/
 
 build*
 data_works/
