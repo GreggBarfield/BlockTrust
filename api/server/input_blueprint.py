@@ -8,7 +8,7 @@ from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect, Response
 )
 
-
+from core.database.combinations import convert_auction_market_to_account
 from core.database.tables.error_logs import ErrorLogs 
 from ..database.inserts_model import InsertsModel
 from core.database.tables.accounts import AccountsException
@@ -21,6 +21,7 @@ from core.database.tables.users import Users, UsersException
 from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG, TEMPORARY_SALES_GROUP_API_TOKEN, TEMPORARY_CREATE_ACCOUNT_API_TOKEN
 from core.common_exceptions import ExportException
 from core.utilities import auth
+from core.utilities.field_lists import SALES_GROUP_REPORTED_FIELDS
 
 from datetime import datetime
 from traceback import format_exc
@@ -172,7 +173,6 @@ def serve_insert_sales_group():
             "total_animals": 0,
             "zip_code": 0,
             "sale_date_string": "",
-            "end_time": 0,
             "delivery_location_type": "",
             "auction_market": "",
             "delivery_location": "",
@@ -273,7 +273,7 @@ def serve_insert_sales_group():
         SalesGroups(g.db).update_sales_group(
             id=sales_group_id, is_paid=request_data.get("is_paid", 1)
         )
-        return {"response": "Sales Group Inserted"}, 200
+        return {"response": "Sales Group Inserted", "sales_group_id": sales_group_id}, 200
     except ExportException as e:
         raise e
     except Exception as e:
@@ -357,3 +357,92 @@ def serve_create_new_account():
 def data():
     print(f"Route: {request.path}, Data received: {request.json}")
     return Response(status=HTTPStatus.NO_CONTENT)
+
+
+@bp.route('/api/update_sales_group', methods=["POST"])
+def serve_update_sales_group():
+    try:
+        try:
+            request_data = json.loads(request.data)
+        except json.decoder.JSONDecodeError:
+            return {"error": "Decoding request JSON has failed"}, 400
+        if "token" not in request_data:
+            raise ExportException("Bad request. Missing token.")
+        if "sales_group_id" not in request_data:
+            raise ExportException("Sales Group ID needs to be provided.")
+        if request_data["token"] != TEMPORARY_SALES_GROUP_API_TOKEN:
+            raise ExportException("Invlaid Token provided")
+        original_row = SalesGroups(g.db).get_sales_group_by_id(request_data["sales_group_id"])
+
+        accounts_list = Accounts(g.db).get_accounts(id=original_row["account"])
+        if len(accounts_list) == 0:
+            raise ExportException("Account not found.")
+        else:
+            authenticated_account = accounts_list[0]
+
+        
+        images = []
+        reported = original_row["reported"]
+        SalesGroups(g.db).validate_or_fail_sales_group(
+            account_id=authenticated_account["id"],
+            group_name=request_data.get("group_name", original_row["group_name"]),
+            zip=request_data.get("zip", original_row["zip"]),
+            delivery_location_type=request_data.get("delivery_location_type", original_row["delivery_location_type"]),
+            count=request_data.get("count", reported.get("count", 0)),
+            weight=request_data.get("weight", reported.get("weight", 0)),
+            category=request_data.get("category", original_row["category"]),
+            breeds=request_data.get("breeds", reported.get("breeds", [])),
+            sale_date=request_data.get("sale_date", original_row["sale_date"]),
+            delivery_location=request_data.get("delivery_location", original_row["delivery_location"]),
+            auction_market_location=request_data.get("auction_market", original_row["delivery_location"]),
+            images=images,
+            price=request_data.get("price", original_row["price"]),
+            slide=request_data.get("slide", reported.get("marketing_slide", "")),
+            weighing_conditions=request_data.get("weighing_conditions", reported.get("marketing_weighing_conditions", "")),
+            published=request_data.get("published", original_row["published"])
+        )
+        
+        delivery_location = original_row["delivery_location"]
+        auction_market_id = None
+        if request_data.get("delivery_location_type", None) == "Direct/Off Ranch":
+            delivery_location = request_data.get("delivery_location_type")
+        else:
+            delivery_location = request_data.get("auction_market")
+            if request_data.get("delivery_location_type", None) == "Auction":
+                auction_market_id = request_data.get("auction_market_id")
+                convert_auction_market_to_account(g.db, auction_market_id, request_data.get("group_name", None))
+        partner_pays = False
+        if authenticated_account["partner_account"] and authenticated_account["partner_pays"] == 1:
+            partner_pays = True
+        
+        for reported_field in SALES_GROUP_REPORTED_FIELDS:
+            if reported_field in request_data:
+                reported[reported_field] = request_data[reported_field]
+
+        SalesGroups(g.db).update_sales_group(
+            id=request_data["sales_group_id"],
+            reported=reported,
+            published=request_data.get("published", original_row["published"]),
+            zip_code=request_data.get("zip", original_row["zip"]),
+            delivery_location=delivery_location,
+            auction_market_id=auction_market_id,
+            sale_date=request_data.get("sale_date", original_row["sale_date"]),
+            group_name=request_data.get("group_name", original_row["group_name"]),
+            is_archived=0,
+            delivery_location_type=request_data.get("delivery_location_type", original_row["delivery_location_type"]),
+            price=request_data.get("price", original_row["price"]),
+            category=request_data.get("category", original_row["category"]),
+            breed_comments=request_data.get("breed_comments", original_row["breed_comments"]),
+            weighing_conditions=request_data.get("weighing_conditions", reported.get("marketing_weighing_conditions", "")),
+            show_account_carcass_data=request_data.get("show_account_carcass_data", reported.get("show_account_carcass_data", 1))
+        )
+        uploaded_eids = []
+
+        
+        return {"response": "Sales Group Updated"}, 200
+    except ExportException as e:
+        raise e
+    except Exception as e:
+        print("Create Account API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
