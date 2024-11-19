@@ -2756,3 +2756,34 @@ CREATE TABLE `auction_emails` (
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
+
+/* Rohan 11/15/2024 */
+ALTER TABLE `transactions` 
+DROP FOREIGN KEY `fk_transactions_account_id_id_accounts`;
+ALTER TABLE `transactions` 
+ADD CONSTRAINT `fk_transactions_account_id_id_accounts`
+  FOREIGN KEY (`account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `view_logs` 
+DROP FOREIGN KEY `fk_view_logs_owner_account_id_id_accounts`,
+DROP FOREIGN KEY `fk_view_logs_viewer_account_id_id_accounts`,
+DROP FOREIGN KEY `fk_view_logs_viewer_user_id_id_users`;
+ALTER TABLE `view_logs` 
+ADD CONSTRAINT `fk_view_logs_owner_account_id_id_accounts`
+  FOREIGN KEY (`owner_account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE RESTRICT,
+ADD CONSTRAINT `fk_view_logs_viewer_account_id_id_accounts`
+  FOREIGN KEY (`viewer_account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE RESTRICT,
+ADD CONSTRAINT `fk_view_logs_viewer_user_id_id_users`
+  FOREIGN KEY (`viewer_user_id`)
+  REFERENCES `users` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE RESTRICT;

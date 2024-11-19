@@ -243,7 +243,7 @@ class Reports:
                 self.insert_query(account_id, query)
 
 
-    def get_reports(self, query=NO_VALUE, selectColumns=[]):
+    def get_reports(self, query=NO_VALUE, account_id=NO_VALUE, selectColumns=[]):
         """Generic get report routine
 
         """
@@ -263,6 +263,9 @@ class Reports:
         if query is not NO_VALUE:
             query_conditions.append(" query = CAST(%(query)s AS JSON)")
             query_values["query"] = json.dumps(query)
+        if account_id is not NO_VALUE:
+            query_conditions.append(" account_id = %(account_id)s")
+            query_values["account_id"] = account_id
 
         if len(query_conditions) > 0:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
