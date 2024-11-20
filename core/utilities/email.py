@@ -1,5 +1,38 @@
 from .aws.aws import get_ses_client
 from ..config import EMAIL_SENDER
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+
+
+def send_raw_email(subject, recipients, body, attachment, filename):
+    for recipient in recipients:
+        mime_msg = _format_mime_message(
+            subject, recipient, body, attachment, filename
+        )
+        get_ses_client().send_raw_email(
+            Source=EMAIL_SENDER,
+            Destinations=[recipient],
+            RawMessage={"Data": mime_msg.as_string()},
+        )
+
+
+def _format_mime_message(subject, recipient, html, attachment, filename, charset="utf-8"):
+    msg = MIMEMultipart("mixed")
+    msg["Subject"] = subject
+    msg["From"] = EMAIL_SENDER
+    msg["To"] = recipient
+    msg_body = MIMEMultipart("alternative")
+
+    htmlpart = MIMEText(html.encode(charset), "html", charset)
+
+    msg_body.attach(htmlpart)
+
+    att = MIMEApplication(attachment.encode(charset))
+    att.add_header("Content-Disposition", "attachment", filename=filename)
+    msg.attach(msg_body)
+    msg.attach(att)
+    return msg
 
 
 def send_email(subject, html, to_address):

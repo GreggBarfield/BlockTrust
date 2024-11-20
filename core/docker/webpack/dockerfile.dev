@@ -1,4 +1,4 @@
-FROM node
+FROM node:18.13-buster
 
 # Set default dir
 WORKDIR /home/ubuntu
