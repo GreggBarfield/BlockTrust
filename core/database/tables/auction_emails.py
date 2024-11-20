@@ -2,7 +2,7 @@ from ..no_value import NoValue
 
 NO_VALUE = NoValue()
 
-TABLE_COLUMNS = ("id", "account_id", "name", "emails", "created_timestamp", "last_updated_timestamp")
+TABLE_COLUMNS = ("id", "account_id", "name", "email", "created_timestamp", "last_updated_timestamp")
 
 
 class AuctionEmails:

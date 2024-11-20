@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     $('#sales-groups-table_wrapper .dataTables_filter').append(showPastButton);
     let resetFiltersButton = document.createElement("button");
-    resetFiltersButton.className = "btn btn-sm btn-primary m-1 p-1";
+    resetFiltersButton.className = "btn btn-sm btn-secondary m-1 p-1";
     resetFiltersButton.textContent = "Reset";
     resetFiltersButton.onclick = () => {
         dateInput.value = "";
@@ -163,6 +163,36 @@ document.addEventListener('DOMContentLoaded', function () {
         addToSalesGroupTable(salesGroupsTable, true);
     }
     $('#sales-groups-table_wrapper .dataTables_filter').append(resetFiltersButton);
+    let sendButton = document.createElement("button");
+    sendButton.className = "btn btn-sm btn-primary m-1 p-1";
+    sendButton.innerHTML = "<i class='fa fa-envelope'></i>  Send";
+    sendButton.dataset.toggle = "tooltip";
+    sendButton.dataset.placement = "top";
+    sendButton.title = "Checked sales groups will be sent to all the persons in your email list";
+    sendButton.onclick = async () => {
+        let salesGroupIDs = []
+        for (let box of document.querySelectorAll("td[name='sendMailColumn'] > input")) {
+            if (box.checked) {
+                salesGroupIDs.push(box.value)
+            }
+        }
+        if (salesGroupIDs.length > 0) {
+            let response = await fetch('/dashboard/auction-email/send', {
+                method: 'POST',
+                body: JSON.stringify({ 'ids': salesGroupIDs })
+            })
+            if (response.ok) {
+                alert("Emails sent successfully!")
+            }
+            else {
+                alert("There was an error. Please try again")
+            }
+        }
+        else {
+            alert("Please select at least one sales group before sending.")
+        }
+    }
+    $('#sales-groups-table_wrapper .dataTables_filter').append(sendButton);
 
 });
 
@@ -195,28 +225,33 @@ let addToSalesGroupTable = (table, future) => {
                     })}</td>
                     <td><a class='btn btn-sm btn-info' href='/dashboard/sales-groups/view/${salesGroup.id}' target='_blank'>View</a></td>
                     <td>${uploadedFileLink}</td>
-                    <td><input type='checkbox'></input></td>
+                    <td name='sendMailColumn'><input type='checkbox' value="${salesGroup.id}"></input></td>
                     </tr>
                 `)).draw();
                 }
+                document.getElementsByName("sendMailColumn")[0].style.display = "";
             }
             else {
                 if (epoch > salesGroup.sale_date) {
                     table.row.add($(`<tr>
-                    <td>${salesGroup.group_name}</td>
-                    <td>${salesGroup.reported.count}</td>
-                    <td>${salesGroup.reported.breeds}</td>
-                    <td>${salesGroup.reported.weight}</td>
-                    <td>${new Date(salesGroup.sale_date * 1000).toLocaleString("en-US", {
+                        <td>${salesGroup.group_name}</td>
+                        <td>${salesGroup.reported.count}</td>
+                        <td>${salesGroup.reported.breeds}</td>
+                        <td>${salesGroup.reported.weight}</td>
+                        <td>${new Date(salesGroup.sale_date * 1000).toLocaleString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric"
                     })}</td>
-                    <td><a class='btn btn-sm btn-info' href='/dashboard/sales-groups/view/${salesGroup.id}' target='_blank'>View</a></td>
-                    <td>${uploadedFileLink}</td>
-                    <td><input type='checkbox'></input></td>
-                    </tr>
-                `)).draw();
+                        <td><a class='btn btn-sm btn-info' href='/dashboard/sales-groups/view/${salesGroup.id}' target='_blank'>View</a></td>
+                        <td>${uploadedFileLink}</td>
+                        <td name='sendMailColumn'></td>
+                        </tr>
+                    `)).draw();
+                    const sendColumn = document.getElementsByName("sendMailColumn");
+                    for (let el of sendColumn) {
+                        el.style.display = "none";
+                    }
                 }
             }
         }
