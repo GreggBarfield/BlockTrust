@@ -1,6 +1,11 @@
+import csv
+from datetime import datetime
 from flask import (
     Response, request, Blueprint, g, redirect, url_for, send_from_directory
 )
+from io import StringIO
+import json
+import stripe
 
 from core.config import ADMIN_EMAIL, FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY, EMAIL_SENDER
 from core.database.tables.auction_emails import AuctionEmails
@@ -45,13 +50,11 @@ from ..renderers.email import render_email
 from ..utilities import crut, auth, csrf
 from ..utilities import token
 from ..utilities.constants import DEFAULT_PASSWORD, HTTP_BAD_REQUEST, HTTP_CREATED, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK
-from ..utilities.email import send_email, send_tag_store_email, send_multiple_tag_store_email
+from ..utilities.email import send_email, send_raw_email, send_tag_store_email, send_multiple_tag_store_email
 from ..utilities.shop.herdwhistle_api import HerdWhistleAPI
 from ..utilities.general_utilities import str_to_bool
 
 from core.config import ROOT, ADMIN_EMAIL as WEBSITE_ROOT
-import json
-import stripe
 
 bp = Blueprint('dashboard_bp', __name__)
 
@@ -1149,7 +1152,6 @@ def serve_genetics_testing():
 @crut.require_account
 def serve_auction_emails():
     emails = AuctionEmails(g.db).get(account_id=g.account.id())
-    print(emails)
     return dashboard_render("data/auction-emails.html", {"emails": emails})
 
 
@@ -1165,3 +1167,77 @@ def serve_auction_email(id):
     elif request.method == "DELETE":
         AuctionEmails(g.db).delete(id)
         return Response(status=HTTP_NO_CONTENT)
+
+
+@bp.route("/dashboard/auction-email/send", methods=["POST"])
+@crut.require_account
+def send_auction_mails():
+    data = request.get_json(force=True)
+    if data["ids"]:
+        emails = AuctionEmails(g.db).get(account_id=g.account.id())
+        sales_groups = SalesGroups(g.db).get_sales_groups(ids=[int(id) for id in data['ids']])
+        csv_data = []
+        for sg in sales_groups:
+            item = {
+                'ID': sg['id'],
+                'SALES GROUP NAME': sg['group_name'],
+                "SALE DATE": datetime.utcfromtimestamp(sg['sale_date']).strftime('%d-%m-%Y'), #TODO
+                "ACCOUNT": sg['account'],
+                "PUBLISHED": "Yes",
+                "DELIVERY TYPE": sg['delivery_location_type'],
+                "DELIVERY LOCATION": sg['delivery_location'].replace(",", " "),
+                "PRICE": sg['price'],
+                "CATEGORY": sg['category'],
+                "EPD": sg["reported"]["epd"] if sg["reported"]["epd"] else "N/A",
+                "COUNT": sg["reported"]["count"] if sg["reported"]["count"] else "N/A",
+                "HORNS": sg["reported"]["horns"] if sg["reported"]["horns"] else "N/A",
+                "BREEDS": "/".join(sg["reported"]["breeds"]) if sg["reported"]["breeds"] else "N/A",
+                "WEANED": sg["reported"]["weaned"] if sg["reported"]["weaned"] else "N/A",
+                "BASE WEIGHT": sg["reported"]["weight"] if sg["reported"]["weight"] else "N/A",
+                "WEIGHT VARIANCE": sg["reported"]["weight_variance"] if sg["reported"]["weight_variance"] else "N/A",
+                "WEIGHING CONDITIONS": sg["reported"]["marketing_weighing_conditions"] if sg["reported"]["marketing_weighing_conditions"] else "N/A",
+                "PVP PROGRAM": sg["reported"]["program"] if sg["reported"]["program"] else "N/A",
+                "IMPLANTS":  "/".join(sg["reported"]["implants"]) if sg["reported"]["implants"] else "N/A",
+                "MUSCLING": sg["reported"]["muscling"] if sg["reported"]["muscling"] else "N/A", 
+                "CASTRATED": sg["reported"]["castrated"] if sg["reported"]["castrated"] else "N/A", 
+                "CREEP FEED": sg["reported"]["creep_feed"] if sg["reported"]["creep_feed"] else "N/A", 
+                "VACCINATIONS AND DATES": "/".join(sg["reported"]["vaccinations_and_dates"]) if sg["reported"].get("vaccinations_and_dates") else "N/A",
+                "VERFIFICATION": sg["reported"]["verification"] if sg["reported"]["verification"] else "N/A", 
+                "GENOMIC TESTING": sg["reported"]["genomic_testing"] if sg["reported"]["genomic_testing"] else "N/A", 
+                "MARKETING SLIDE": sg["reported"]["marketing_slide"] if sg["reported"]["marketing_slide"] else "N/A", 
+                "USDA FRAME SIZE": sg["reported"]["usda_frame_size"] if sg["reported"]["usda_frame_size"] else "N/A",
+                "COMINGLED STATUS": sg["reported"]["comingled_status"] if sg["reported"]["comingled_status"] else "N/A",
+                "FEEDING PROGRAMS": sg["reported"]["feeding_programs"] if sg["reported"]["feeding_programs"] else "N/A",
+                "PREGNANCY STATUS": sg["reported"]["pregnancy_status"] if sg["reported"]["pregnancy_status"] else "N/A", 
+                "CERTIFIED THROUGH": sg["reported"]["certified_through"] if sg["reported"]["certified_through"] else "N/A", 
+                "EXPECTED SHIP DATE": sg["reported"]["expected_Ship_date"] if sg["reported"].get("expected_Ship_date") else "N/A", 
+                "PRECON PROGRAM": sg["reported"]["preconditioning_program"] if sg["reported"]["preconditioning_program"] else "N/A",
+                "REPRESENTED BY": sg["reported"]["marketing_represented_by"] if sg["reported"]["marketing_represented_by"] else "N/A", 
+                "BREED PROGRAM CERTIFICATION COMPANY": sg["reported"]["breed_program_certification_co"] if sg["reported"]["breed_program_certification_co"] else "N/A", 
+                "MARKETING COMMENTS": sg["reported"]["marketing_comments"] if sg["reported"]["marketing_comments"] else "N/A", 
+                "CHARACTERISTICS COMMENTS": sg["reported"]["characteristics_comments"] if sg["reported"]["characteristics_comments"] else "N/A", 
+                "MAINTENANCE COMMENTS": sg["reported"]["maintenance_comments"] if sg["reported"]["maintenance_comments"] else "N/A",
+                "GENETICS COMMENTS": sg["reported"]["genetics_comments"] if sg["reported"]["genetics_comments"] else "N/A", 
+                "PROGRAM COMMENTS": sg["reported"]["program_comments"] if sg["reported"]["program_comments"] else "N/A", 
+                "COMMENTS": sg["reported"]["comments"] if sg["reported"]["comments"] else "N/A"
+            }
+            csv_data.append(item)
+
+        with StringIO() as csv_buffer:
+            writer = csv.DictWriter(
+                csv_buffer,
+                csv_data[0].keys(),
+                extrasaction="ignore",
+            )
+            writer.writeheader()
+            writer.writerows(csv_data)
+            csv_items = csv_buffer.getvalue()
+            send_raw_email(
+                f"Detailed Report For Sales Groups Number(s): {', '.join([str(sg['ID']) for sg in csv_data])}",
+                [email['email'] for email in emails],
+                "Please find attached detailed report of the sales groups.",
+                csv_items, "Detailed Report.csv"
+            )
+            return Response(status=HTTP_OK)
+    else:
+        raise ExportException("Bad Request")
