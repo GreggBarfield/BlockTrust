@@ -380,12 +380,11 @@ def serve_update_sales_group():
         else:
             authenticated_account = accounts_list[0]
 
-        
         images = []
         reported = original_row["reported"]
         SalesGroups(g.db).validate_or_fail_sales_group(
             account_id=authenticated_account["id"],
-            group_name=request_data.get("group_name", original_row["group_name"]),
+            group_name=request_data.get("sales_group_name", original_row["group_name"]),
             zip=request_data.get("zip", original_row["zip"]),
             delivery_location_type=request_data.get("delivery_location_type", original_row["delivery_location_type"]),
             count=request_data.get("count", reported.get("count", 0)),
@@ -410,14 +409,19 @@ def serve_update_sales_group():
             delivery_location = request_data.get("auction_market")
             if request_data.get("delivery_location_type", None) == "Auction":
                 auction_market_id = request_data.get("auction_market_id")
-                convert_auction_market_to_account(g.db, auction_market_id, request_data.get("group_name", None))
-        partner_pays = False
-        if authenticated_account["partner_account"] and authenticated_account["partner_pays"] == 1:
-            partner_pays = True
+                convert_auction_market_to_account(g.db, auction_market_id, request_data.get("sales_group_name", None))
         
         for reported_field in SALES_GROUP_REPORTED_FIELDS:
-            if reported_field in request_data:
-                reported[reported_field] = request_data[reported_field]
+            if reported_field["field_name"] in request_data:
+                reported_field_name = reported_field["field_name"]
+                reported_field_default = reported_field["field_default"]
+                if type(request_data[reported_field_name]) == type(reported_field_default):
+                    reported[reported_field_name] = request_data[reported_field_name]
+                else:
+                    field_name = ' '.join(word.capitalize() for word in reported_field_name.split('_'))
+                    field_type = type(reported_field_default).__name__
+                    error_message = "Wrong Data type provided for field: " + field_name + ". Please provide: " + field_type
+                    raise ExportException(error_message)
 
         SalesGroups(g.db).update_sales_group(
             id=request_data["sales_group_id"],
@@ -427,8 +431,8 @@ def serve_update_sales_group():
             delivery_location=delivery_location,
             auction_market_id=auction_market_id,
             sale_date=request_data.get("sale_date", original_row["sale_date"]),
-            group_name=request_data.get("group_name", original_row["group_name"]),
-            is_archived=0,
+            group_name=request_data.get("sales_group_name", original_row["group_name"]),
+            is_archived=request_data.get("is_archived", original_row["is_archived"]),
             delivery_location_type=request_data.get("delivery_location_type", original_row["delivery_location_type"]),
             price=request_data.get("price", original_row["price"]),
             category=request_data.get("category", original_row["category"]),
@@ -436,9 +440,6 @@ def serve_update_sales_group():
             weighing_conditions=request_data.get("weighing_conditions", reported.get("marketing_weighing_conditions", "")),
             show_account_carcass_data=request_data.get("show_account_carcass_data", reported.get("show_account_carcass_data", 1))
         )
-        uploaded_eids = []
-
-        
         return {"response": "Sales Group Updated"}, 200
     except ExportException as e:
         raise e
