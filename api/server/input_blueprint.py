@@ -349,7 +349,7 @@ def serve_create_new_account():
         raise e
     except Exception as e:
         print("Create Account API", e.__class__.__name__ + ": " + str(e), format_exc())
-        ErrorLogs(g.db).insert_error_log("Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Create Account API", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
 
 
@@ -368,6 +368,8 @@ def serve_update_sales_group():
             return {"error": "Decoding request JSON has failed"}, 400
         if "token" not in request_data:
             raise ExportException("Bad request. Missing token.")
+        if request_data["token"] != TEMPORARY_SALES_GROUP_API_TOKEN:
+            raise ExportException("Invlaid Token provided")
         if "sales_group_id" not in request_data:
             raise ExportException("Sales Group ID needs to be provided.")
         if request_data["token"] != TEMPORARY_SALES_GROUP_API_TOKEN:
@@ -444,6 +446,6 @@ def serve_update_sales_group():
     except ExportException as e:
         raise e
     except Exception as e:
-        print("Create Account API", e.__class__.__name__ + ": " + str(e), format_exc())
-        ErrorLogs(g.db).insert_error_log("Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
+        print("Update Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Update Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
