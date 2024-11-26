@@ -54,7 +54,7 @@ Sustainability Scores for {{account_name}}
         let sectorsIdToName = JSON.parse('{{ sectors_id_to_name|tojson }}');
         let partnerName = '{{ partner.company() }}';
         
-        let tableHeaders = ["SECTOR", "ACCOUNT NUMBER", "COMPANY", "TAGS COUNT", "AIR POINTS", "LAND POINTS", "WATER POINTS", "ANIMAL POINTS", "SAFETY POINTS", "EFFICIENCY POINTS", "IMPROVEMENT POINTS", "TOTAL SUSTAINABILITY SCORE", "PRIME", "CHOICE", "SELECT OR LOWER", "STANDARD", "YIELD GRADE 1", "YIELD GRADE 2", "YIELD GRADE 3", "YIELD GRADE 4", "YIELD GRADE 5"];
+        let tableHeaders = ["SECTOR", "ACCOUNT NUMBER", "COMPANY", "TAGS COUNT", "AIR POINTS", "LAND POINTS", "WATER POINTS", "ANIMAL POINTS", "SAFETY POINTS", "EFFICIENCY POINTS", "IMPROVEMENT POINTS", "TOTAL SUSTAINABILITY SCORE", "DATE" , "PRIME", "CHOICE", "SELECT OR LOWER", "STANDARD", "YIELD GRADE 1", "YIELD GRADE 2", "YIELD GRADE 3", "YIELD GRADE 4", "YIELD GRADE 5"];
         let accountsDataTableExport = [];
         accountsDataTableExport.push(["", "", "", "", "", "", "", "", partnerName+ " Supply Chain"]);
         accountsDataTableExport.push([]);
@@ -64,68 +64,72 @@ Sustainability Scores for {{account_name}}
         for(const [sectorId, sectorAccounts] of Object.entries(sectorBasedAccounts)){
             accountsDataTableExport.push([sectorsIdToName[sectorId]]);
             for(const accountData of Object.values(sectorAccounts)){
-                let accountDataRow = [""];
-                let accountSustainabilityData = accountData.account_sustainability_data;
+                let accountSustainabilityData = accountData.account_sustainability_data_complete;
                 // Adding in values for the basic account information and sustainability scores
-                accountDataRow.push(
-                    accountData.account_id,
-                    accountData.account_name,
-                    accountData.count,
-                    accountSustainabilityData !== null ? accountSustainabilityData.air_points : "N/A",
-                    accountSustainabilityData !== null ? accountSustainabilityData.land_points : "N/A",
-                    accountSustainabilityData !== null ? accountSustainabilityData.water_points : "N/A",
-                    accountSustainabilityData !== null ? accountSustainabilityData.animal_points : "N/A",
-                    accountSustainabilityData !== null ? accountSustainabilityData.safety_points : "N/A",
-                    accountSustainabilityData !== null ? accountSustainabilityData.efficiency_points : "N/A",
-                    accountSustainabilityData !== null ? accountSustainabilityData.improvement_points : "N/A",
-                    accountSustainabilityData !== null ? accountSustainabilityData.score : "N/A"
-                );
+                for(let sustainabilityData of accountSustainabilityData){
+                    let accountDataRow = [""];
+                    let createdDate = new Date(sustainabilityData.created_timestamp);
+                    accountDataRow.push(
+                        accountData.account_id,
+                        accountData.account_name,
+                        accountData.count,
+                        sustainabilityData !== null ? sustainabilityData.air_points : "N/A",
+                        sustainabilityData !== null ? sustainabilityData.land_points : "N/A",
+                        sustainabilityData !== null ? sustainabilityData.water_points : "N/A",
+                        sustainabilityData !== null ? sustainabilityData.animal_points : "N/A",
+                        sustainabilityData !== null ? sustainabilityData.safety_points : "N/A",
+                        sustainabilityData !== null ? sustainabilityData.efficiency_points : "N/A",
+                        sustainabilityData !== null ? sustainabilityData.improvement_points : "N/A",
+                        sustainabilityData !== null ? sustainabilityData.score : "N/A",
+                        createdDate.toISOString().split('T')[0]
+                    );
 
-                // Calculating and adding the USDA quality grade percentages if available
-                let USDAQualityGradeDistributionData = accountData.usda_quality_grade_data;
-                if(USDAQualityGradeDistributionData != null){
-                    let USDAQualityGradeDistribution = USDAQualityGradeDistributionData.count_distribution;
-                    if(USDAQualityGradeDistribution != null){
-                        let total = 0;
-                        let qualityGradePercentages = {"Select or Lower": 0, "Choice": 0,"Prime": 0, "Standard": 0};
-                        let selectPercentage = 0;
-                        let primePercentage = 0;
-                        let choicePercentage = 0;
-                        let standardPercentage = 0;
-                        for(let qualityGradeData of USDAQualityGradeDistribution){
-                            total += qualityGradeData.count;
+                    // Calculating and adding the USDA quality grade percentages if available
+                    let USDAQualityGradeDistributionData = accountData.usda_quality_grade_data;
+                    if(USDAQualityGradeDistributionData != null){
+                        let USDAQualityGradeDistribution = USDAQualityGradeDistributionData.count_distribution;
+                        if(USDAQualityGradeDistribution != null){
+                            let total = 0;
+                            let qualityGradePercentages = {"Select or Lower": 0, "Choice": 0,"Prime": 0, "Standard": 0};
+                            let selectPercentage = 0;
+                            let primePercentage = 0;
+                            let choicePercentage = 0;
+                            let standardPercentage = 0;
+                            for(let qualityGradeData of USDAQualityGradeDistribution){
+                                total += qualityGradeData.count;
+                            }
+                            for(let qualityGradeData of USDAQualityGradeDistribution){
+                                qualityGradePercentages[qualityGradeData.data] = (100*qualityGradeData.count/total).toFixed(2) + "%";
+                            }
+                            accountDataRow.push(qualityGradePercentages["Prime"], qualityGradePercentages["Choice"], qualityGradePercentages["Select or Lower"], qualityGradePercentages["Standard"]);
                         }
-                        for(let qualityGradeData of USDAQualityGradeDistribution){
-                            qualityGradePercentages[qualityGradeData.data] = (100*qualityGradeData.count/total).toFixed(2) + "%";
-                        }
-                        accountDataRow.push(qualityGradePercentages["Prime"], qualityGradePercentages["Choice"], qualityGradePercentages["Select or Lower"], qualityGradePercentages["Standard"]);
                     }
-                }
-                else{
-                    accountDataRow.push("N/A", "N/A", "N/A", "N/A");
-                }
-
-                // Calculating and adding the USDA Yield grade percentages if available
-                let USDAYieldGradeDistributionData = accountData.usda_yield_grade_data;
-                if(USDAYieldGradeDistributionData != null){
-                    let USDAYieldGradeDistribution = USDAYieldGradeDistributionData.count_distribution;
-                    if(USDAYieldGradeDistribution != null){
-                        let total = 0;
-                        let yieldGradePercentages = {1:0, 2:0, 3:0, 4:0, 5:0}
-                        for(let yieldgradeData of USDAYieldGradeDistribution){
-                            total += yieldgradeData.count;
-                        }
-                        for(let yieldgradeData of USDAYieldGradeDistribution){
-                            yieldGradePercentages[yieldgradeData.data] = (100*yieldgradeData.count/total).toFixed(2) + "%";
-                        }
-                        accountDataRow.push(yieldGradePercentages[1], yieldGradePercentages[2], yieldGradePercentages[3], yieldGradePercentages[4], yieldGradePercentages[5])
+                    else{
+                        accountDataRow.push("N/A", "N/A", "N/A", "N/A");
                     }
-                }
-                else{
-                    accountDataRow.push("N/A", "N/A", "N/A", "N/A", "N/A");
-                }
 
-                accountsDataTableExport.push(accountDataRow);
+                    // Calculating and adding the USDA Yield grade percentages if available
+                    let USDAYieldGradeDistributionData = accountData.usda_yield_grade_data;
+                    if(USDAYieldGradeDistributionData != null){
+                        let USDAYieldGradeDistribution = USDAYieldGradeDistributionData.count_distribution;
+                        if(USDAYieldGradeDistribution != null){
+                            let total = 0;
+                            let yieldGradePercentages = {1:0, 2:0, 3:0, 4:0, 5:0}
+                            for(let yieldgradeData of USDAYieldGradeDistribution){
+                                total += yieldgradeData.count;
+                            }
+                            for(let yieldgradeData of USDAYieldGradeDistribution){
+                                yieldGradePercentages[yieldgradeData.data] = (100*yieldgradeData.count/total).toFixed(2) + "%";
+                            }
+                            accountDataRow.push(yieldGradePercentages[1], yieldGradePercentages[2], yieldGradePercentages[3], yieldGradePercentages[4], yieldGradePercentages[5])
+                        }
+                    }
+                    else{
+                        accountDataRow.push("N/A", "N/A", "N/A", "N/A", "N/A");
+                    }
+
+                    accountsDataTableExport.push(accountDataRow);
+                }
             }
             accountsDataTableExport.push([]);
         }

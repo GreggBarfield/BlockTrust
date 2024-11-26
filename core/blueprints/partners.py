@@ -215,6 +215,7 @@ def serve_view_partner_accounts_sustainability_data():
                                 account_id=matched_account_id,
                                 questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
                             )
+                            matched_account["account_sustainability_data_complete"] = account_sustainability_responses_data
                             if len(account_sustainability_responses_data) > 0:
                                 account_sustainability_response_data = account_sustainability_responses_data[0]
                                 matched_account["account_sustainability_data"] = account_sustainability_response_data
