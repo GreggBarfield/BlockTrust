@@ -388,6 +388,17 @@ def serve_update_sales_group():
 
         images = []
         reported = original_row["reported"]
+
+        sale_epoch_time = original_row["sale_date"]
+        if "sale_date_string" in request_data and request_data["sale_date_string"] != "":
+            sale_date_string = request_data["sale_date_string"]
+            sale_date_format = "%m/%d/%Y"
+            sale_date_object = datetime.strptime(sale_date_string, sale_date_format)
+            # Localizing to Eastern Timezone
+            ny_tz = ZoneInfo("America/New_York")
+            sale_date_object = sale_date_object.replace(tzinfo=ny_tz)
+            sale_epoch_time = int(sale_date_object.timestamp())
+
         SalesGroups(g.db).validate_or_fail_sales_group(
             account_id=authenticated_account["id"],
             group_name=request_data.get("sales_group_name", original_row["group_name"]),
@@ -397,7 +408,7 @@ def serve_update_sales_group():
             weight=request_data.get("weight", reported.get("weight", 0)),
             category=request_data.get("category", original_row["category"]),
             breeds=request_data.get("breeds", reported.get("breeds", [])),
-            sale_date=request_data.get("sale_date", original_row["sale_date"]),
+            sale_date=sale_epoch_time,
             delivery_location=request_data.get("delivery_location", original_row["delivery_location"]),
             auction_market_location=request_data.get("auction_market", original_row["delivery_location"]),
             images=images,
@@ -436,7 +447,7 @@ def serve_update_sales_group():
             zip_code=request_data.get("zip", original_row["zip"]),
             delivery_location=delivery_location,
             auction_market_id=auction_market_id,
-            sale_date=request_data.get("sale_date", original_row["sale_date"]),
+            sale_date=sale_epoch_time,
             group_name=request_data.get("sales_group_name", original_row["group_name"]),
             is_archived=request_data.get("is_archived", original_row["is_archived"]),
             delivery_location_type=request_data.get("delivery_location_type", original_row["delivery_location_type"]),
