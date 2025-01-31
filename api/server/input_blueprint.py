@@ -25,6 +25,7 @@ from core.utilities.field_lists import SALES_GROUP_REPORTED_FIELDS
 
 from datetime import datetime
 from traceback import format_exc
+from zoneinfo import ZoneInfo
 
 
 bp = Blueprint('input_blueprint', __name__)
@@ -206,6 +207,9 @@ def serve_insert_sales_group():
         sale_date_string = sales_group_data["sale_date_string"]
         sale_date_format = "%m/%d/%Y"
         sale_date_object = datetime.strptime(sale_date_string, sale_date_format)
+        # Localizing to Eastern Timezone
+        ny_tz = ZoneInfo("America/New_York")
+        sale_date_object = sale_date_object.replace(tzinfo=ny_tz)
         sale_epoch_time = int(sale_date_object.timestamp())
 
         SalesGroups(g.db).validate_or_fail_sales_group(
