@@ -157,8 +157,13 @@
 <header class="b-header">
     <div class="b-header-bar">
         <a class="b-header-logo" href="/">
+          {% if partner.partner_private_logo() is not none %}
+            <img class="b-header-logo-desktop"src="{{partner.partner_private_logo()}}"/>
+            <img class="b-header-logo-mobile" src="{{partner.partner_private_logo()}}"/>
+          {% else %}
             <img class="b-header-logo-desktop" src="/static/images/logos/logo-color-light-eps-01.svg"/>
             <img class="b-header-logo-mobile" src="/static/images/logos/logo-color-dark-eps-01.svg"/>
+          {% endif %}
         </a>
     </div>
 
