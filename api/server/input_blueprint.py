@@ -204,8 +204,8 @@ def serve_insert_sales_group():
                 raise ExportException(sales_group_data_field_name + " should be " + type(sales_group_data_field_value).__name__)
             sales_group_data[sales_group_data_field_name] = request_data[sales_group_data_field_name]
 
-        sale_date_string = sales_group_data["sale_date_string"]
-        sale_date_format = "%m/%d/%Y"
+        sale_date_string = sales_group_data["sale_date_string"] + " 12:00"
+        sale_date_format = "%m/%d/%Y %H:%M"
         sale_date_object = datetime.strptime(sale_date_string, sale_date_format)
         # Localizing to Eastern Timezone
         ny_tz = ZoneInfo("America/New_York")
@@ -391,8 +391,8 @@ def serve_update_sales_group():
 
         sale_epoch_time = original_row["sale_date"]
         if "sale_date_string" in request_data and request_data["sale_date_string"] != "":
-            sale_date_string = request_data["sale_date_string"]
-            sale_date_format = "%m/%d/%Y"
+            sale_date_string = request_data["sale_date_string"] + " 12:00"
+            sale_date_format = "%m/%d/%Y %H:%M"
             sale_date_object = datetime.strptime(sale_date_string, sale_date_format)
             # Localizing to Eastern Timezone
             ny_tz = ZoneInfo("America/New_York")
