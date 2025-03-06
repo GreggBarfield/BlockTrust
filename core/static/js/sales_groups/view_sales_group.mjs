@@ -316,10 +316,11 @@ export class SalesGroupViewer {
                 left.append(carcassData);
             }
 
-            let addedDate = document.createElement("div");
-            addedDate.style = "color:black";
-            addedDate.textContent =`Added: ${this.data.created_date}`;
-            left.append(addedDate);
+            // Removed on 03/06/2025 BTN-978
+            // let addedDate = document.createElement("div");
+            // addedDate.style = "color:black";
+            // addedDate.textContent =`Added: ${this.data.created_date}`;
+            // left.append(addedDate);
         }
 
         //Configure market data 
