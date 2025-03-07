@@ -194,7 +194,7 @@ export class SalesGroupViewer {
 
             let salesGroupID = document.createElement("h5");
             salesGroupID.className = "mb-0 d-inline pr-2"
-            salesGroupID.textContent = `Sales Group ${this.data.id}: ${this.data.group_name}`;
+            salesGroupID.textContent = `Sales Group ${this.data.group_name}`;
             left.append(salesGroupID);
             if(currentAccountID == this.data.account && this.data["is_paid"]){
                 let paidIcon = document.createElement("div");
