@@ -85,11 +85,14 @@ def serve_dashboard():
     pending_connection_requests_count = 0
     pending_connection_requests_count = len(Connections(g.db).get_connections(to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Pending"]))
 
+    healthtrack_partner_data = g.db.accounts.get_partners(company=HEALTH_TRACK_PARTNER_COMPANY)[0]
+
     account_params = {
         "account": g.account,
         "unread_notifications_count": unread_notifications_count,
         "pending_connection_requests_count": pending_connection_requests_count,
-        "animal_URL": url_for('dashboard_bp.serve_animal_eid')
+        "animal_URL": url_for('dashboard_bp.serve_animal_eid'),
+        "healthtrack_partner_id": healthtrack_partner_data["id"]
     }
 
     if g.account.sector_id() in (SECTORS_NAME_TO_ID["Auction"], SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"]):

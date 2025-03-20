@@ -19,26 +19,49 @@
                 <h4 style="color:#8B4513">Health</h4>
                 <h6 class="fw-bold">Get an increased premium for your calves by participating in a preconditioning program.</h6>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <img class="mw-100 mh-100" src="/static/images/partners/logos/Purina_Preview_Logo.jpg">
-                    </div>
-                    <div class="col-md-9">
-                        <p>
-                            Our preferred partner for preconditioning and health programs is Purina Animal Nutrition, a proven program that has been helping ranchers for many years. 
-                            Visit their <a href="https://www.purinamills.com/Campaigns-and-Events/Salesforce/Cattle-Feed/Purina-Plus-Producer-Cattle" target="_blank">website</a>, or <a href="/dashboard/support">Click Here</a> to request more information.
-                        </p>
+            {% if account.partner_account_id() == healthtrack_partner_id %}
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <img class="mw-100 mh-100" src="/static/images/partners/logos/health_track_new.png">
+                        </div>
+                        <div class="col-md-9">
+                            <p>
+                                Our preferred partner for preconditioning and health programs is Health Track, a proven program that has been helping ranchers for many years. 
+                                Visit their <a href="https://healthtracknetwork.com" target="_blank">website</a>, or <a href="/dashboard/support">Click Here</a> to request more information.
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <hr>
-            <div>
-                <ul>
-                    <li><a href="/dashboard/carcass-data">Carcass Data</a></li>
-                    <li><a href="https://www.purinamills.com/Campaigns-and-Events/Salesforce/Cattle-Feed/Purina-Plus-Producer-Cattle" target="_blank">Website</a></li>
-                </ul>
-            </div>
+                <hr>
+                <div>
+                    <ul>
+                        <li><a href="/dashboard/carcass-data">Carcass Data</a></li>
+                        <li><a href="https://healthtracknetwork.com" target="_blank">Website</a></li>
+                    </ul>
+                </div>
+            {% else %}
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <img class="mw-100 mh-100" src="/static/images/partners/logos/Purina_Preview_Logo.jpg">
+                        </div>
+                        <div class="col-md-9">
+                            <p>
+                                Our preferred partner for preconditioning and health programs is Purina Animal Nutrition, a proven program that has been helping ranchers for many years. 
+                                Visit their <a href="https://www.purinamills.com/Campaigns-and-Events/Salesforce/Cattle-Feed/Purina-Plus-Producer-Cattle" target="_blank">website</a>, or <a href="/dashboard/support">Click Here</a> to request more information.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div>
+                    <ul>
+                        <li><a href="/dashboard/carcass-data">Carcass Data</a></li>
+                        <li><a href="https://www.purinamills.com/Campaigns-and-Events/Salesforce/Cattle-Feed/Purina-Plus-Producer-Cattle" target="_blank">Website</a></li>
+                    </ul>
+                </div>
+            {% endif %}
         </div>
     </div>
     <div class="col-xl-6">
