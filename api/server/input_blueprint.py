@@ -455,7 +455,8 @@ def serve_update_sales_group():
             category=request_data.get("category", original_row["category"]),
             breed_comments=request_data.get("breed_comments", original_row["breed_comments"]),
             weighing_conditions=request_data.get("weighing_conditions", reported.get("marketing_weighing_conditions", "")),
-            show_account_carcass_data=request_data.get("show_account_carcass_data", reported.get("show_account_carcass_data", 1))
+            show_account_carcass_data=request_data.get("show_account_carcass_data", reported.get("show_account_carcass_data", 1)),
+            upload_file=request_data.get("upload_file", original_row["upload_file"])
         )
         return {"response": "Sales Group Updated"}, 200
     except ExportException as e:
