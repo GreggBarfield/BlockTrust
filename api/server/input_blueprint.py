@@ -419,14 +419,13 @@ def serve_update_sales_group():
         )
         
         delivery_location = original_row["delivery_location"]
-        auction_market_id = None
-        if request_data.get("delivery_location_type", None) == "Direct/Off Ranch":
-            delivery_location = request_data.get("delivery_location_type")
-        else:
-            delivery_location = request_data.get("auction_market")
-            if request_data.get("delivery_location_type", None) == "Auction":
-                auction_market_id = request_data.get("auction_market_id")
-                convert_auction_market_to_account(g.db, auction_market_id, request_data.get("sales_group_name", None))
+        auction_market_id = original_row["auction_market_id"]
+        if "delivery_location_type" in request_data and request_data["delivery_location_type"] == "Direct/Off Ranch":
+            delivery_location = request_data["delivery_location"]
+        elif "delivery_location_type" in request_data and request_data["delivery_location_type"] == "Auction":
+            delivery_location = request_data["auction_market"]
+            auction_market_id = request_data.get("auction_market_id", original_row["auction_market_id"])
+            convert_auction_market_to_account(g.db, auction_market_id, request_data.get("sales_group_name", None))
         
         for reported_field in SALES_GROUP_REPORTED_FIELDS:
             if reported_field["field_name"] in request_data:
