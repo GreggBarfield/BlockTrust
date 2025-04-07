@@ -218,9 +218,6 @@ def serve_get_animal_data():
 def serve_fetch_all_sales_groups_data():
     try:
         sales_groups_data = SalesGroups(g.db).get_sales_groups(is_archived=0)
-        for sales_group in sales_groups_data:
-            if sales_group["reported"] is not None:
-                sales_group["reported"] = json.loads(sales_group["reported"])
         return sales_groups_data
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
@@ -256,12 +253,11 @@ def serve_login():
     try:
         user_id = auth.login(identifier=username, password=password)
         user = g.db.users.get_users(id=user_id)[0]
-        access_token = create_access_token(identity=username)
     except auth.LoginException as e:
         return str(e), HTTP_UNAUTHORISED
     except Exception as e:
         raise ExportException(str(e))
-    return {"user": user["first_name"] + " " + user["last_name"], "token": access_token}
+    return {"user": user["first_name"] + " " + user["last_name"], "token": create_access_token(identity=username)}
 
 
 @bp.route("/fetch-accounts-data", methods=['POST'])

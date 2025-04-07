@@ -656,7 +656,6 @@ class SalesGroups:
         sales_groups = self._db.execute_d(query, query_values)
         if len(sales_groups) > 0:
             for sales_group in sales_groups:
-                if "reported" in sales_group:
-                    sales_group["reported"] = json.loads(sales_group["reported"])
+                sales_group["reported"] = json.loads(sales_group["reported"])
             return sales_groups
         return []
