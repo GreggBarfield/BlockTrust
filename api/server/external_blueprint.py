@@ -226,7 +226,6 @@ def serve_fetch_all_sales_groups_data():
 
 
 @bp.route("/sales-groups/<int:number>", methods=["GET"])
-@jwt_required()
 def sales_groups(number):
     try:
         APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'number': number})
