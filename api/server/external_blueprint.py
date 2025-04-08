@@ -214,7 +214,7 @@ def serve_get_animal_data():
         return {"error": "Internal Server Error"}, 500
 
 
-@bp.route("/fetch-all-sales-groups-data", methods=["POST"])
+@bp.route("/fetch-all-sales-groups-data", methods=["GET"])
 @jwt_required()
 def serve_fetch_all_sales_groups_data():
     try:
