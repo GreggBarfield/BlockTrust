@@ -219,7 +219,7 @@ def serve_get_animal_data():
 def serve_fetch_all_sales_groups_data():
     try:
         APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'user_id': get_jwt_identity()})
-        sales_groups_data = SalesGroups(g.db).get_sales_groups(is_archived=0)
+        sales_groups_data = SalesGroups(g.db).get_sales_groups(is_archived=0, published=int(True))
         return sales_groups_data
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
