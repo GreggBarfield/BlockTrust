@@ -21,8 +21,9 @@ from flask import (
 from flask_jwt_extended import JWTManager
 
 app = Flask(__name__, template_folder=os.path.abspath('core/templates'))
-app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY", "super-secret")
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
+app.config.update(
+    JWT_SECRET_KEY=os.getenv("SECRET_KEY", "super-secret"), JWT_ACCESS_TOKEN_EXPIRES=timedelta(days=7), JWT_HEADER_TYPE=''
+)
 jwt = JWTManager(app)
 
 
