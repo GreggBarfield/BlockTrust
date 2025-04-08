@@ -2,7 +2,7 @@ from datetime import datetime
 from flask import (
     request, Blueprint, g
 )
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 import json
 from traceback import format_exc
 from core.database.combinations import send_connection_request_email_to_admin_users
@@ -14,7 +14,7 @@ from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.matches import Matches
-from core.database.tables.sales_groups import SalesGroups, SalesGroupsException
+from core.database.tables.sales_groups import SalesGroups
 from core.database.tables.sustainability_responses import SustainabilityResponses
 from core.database.tables.view_logs import ViewLogs, DATA_TYPE_NAME_TO_ID
 from core.config import MYSQL_CONFIG
@@ -25,7 +25,7 @@ from core.utilities.constants import HTTP_UNAUTHORISED
 from core.utilities.general_utilities import str_to_bool
 from core.utilities import auth
 
-bp = Blueprint('external_blueprint', __name__)
+bp = Blueprint('external_blueprint', __name__, url_prefix='/api')
 
 NO_VALUE = NoValue()
 
@@ -215,8 +215,10 @@ def serve_get_animal_data():
 
 
 @bp.route("/fetch-all-sales-groups-data", methods=["POST"])
+@jwt_required()
 def serve_fetch_all_sales_groups_data():
     try:
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'user_id': get_jwt_identity()})
         sales_groups_data = SalesGroups(g.db).get_sales_groups(is_archived=0)
         return sales_groups_data
     except Exception as e:
@@ -226,9 +228,10 @@ def serve_fetch_all_sales_groups_data():
 
 
 @bp.route("/sales-groups/<int:number>", methods=["GET"])
+@jwt_required()
 def sales_groups(number):
     try:
-        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'number': number})
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'user_id': get_jwt_identity()})
         sales_group = {}
         if len(sales_groups := SalesGroups(g.db).get_sales_groups(
             id=number, is_archived=int(False), published=int(True)
@@ -247,16 +250,13 @@ def sales_groups(number):
 
 @bp.route("/login", methods=["POST"])
 def serve_login():
-    username = request.json["username"]
-    password = request.json["password"]
     try:
-        user_id = auth.login(identifier=username, password=password)
-        user = g.db.users.get_users(id=user_id)[0]
+        id=auth.login(identifier=request.json["username"], password=request.json["password"])
     except auth.LoginException as e:
         return str(e), HTTP_UNAUTHORISED
     except Exception as e:
         raise ExportException(str(e))
-    return {"user": user["first_name"] + " " + user["last_name"], "token": create_access_token(identity=username)}
+    return {"access_token": create_access_token(identity=id)}
 
 
 @bp.route("/fetch-accounts-data", methods=['POST'])
