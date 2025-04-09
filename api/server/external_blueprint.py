@@ -220,11 +220,16 @@ def serve_fetch_all_sales_groups_data():
     try:
         APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'user_id': get_jwt_identity()})
         sales_groups_data = SalesGroups(g.db).get_sales_groups(is_archived=0, published=int(True))
+        for sales_group in sales_groups_data:
+            account = g.db.accounts.get_accounts(id=sales_group["account"])[0]
+            sales_group["owner"] = account["company"]
+            del sales_group["account"]
+        sales_groups_data = list(map(lambda x: {k: v for k, v in x.items() if k != "account"}, sales_groups_data))
         return sales_groups_data
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Sales Group Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
-        return {"error": "Internal Server Error"}, 500
+        return {"message": "Internal Server Error"}, 500
 
 
 @bp.route("/sales-groups/<int:number>", methods=["GET"])
@@ -239,13 +244,14 @@ def sales_groups(number):
             sales_group = sales_groups[0]
             account = g.db.accounts.get_accounts(id=sales_group["account"])[0]
             sales_group["owner"] = account["company"]
-            for key in ("account", "created_timestamp", "last_updated_timestamp"):
-                del sales_group[key]
-        return sales_group
+            del sales_group["account"]
+            return sales_group
+        else:
+            return {"message": "Sales Group not found"}, 404
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Sales Group Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
-        return "Internal Server Error", 500
+        return {"message": "Internal Server Error"}, 500
 
 
 @bp.route("/login", methods=["POST"])
