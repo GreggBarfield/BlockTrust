@@ -2787,3 +2787,15 @@ ADD CONSTRAINT `fk_view_logs_viewer_user_id_id_users`
   REFERENCES `users` (`id`)
   ON DELETE NO ACTION
   ON UPDATE RESTRICT;
+
+/* Nisheet Thakur BTN-984 4/7/2025 */
+CREATE TABLE `sales_group_files` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `sales_group_id` INT NOT NULL,
+  `name` VARCHAR(128) DEFAULT NULL,
+  `link` VARCHAR(512) DEFAULT NULL,
+  `file_id` INT DEFAULT NULL,
+  `is_archived` INT DEFAULT 0,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
