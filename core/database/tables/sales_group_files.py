@@ -149,5 +149,3 @@ class SalesGroupFiles:
                 raise ExportException("Sales Group File link cannot be blank")
             if len(link.strip()) > 511:
                 raise ExportException("Sales Group File link cannot exceed 512 characters")
-
-            
