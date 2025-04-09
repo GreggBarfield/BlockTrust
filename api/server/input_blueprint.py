@@ -477,7 +477,6 @@ def serve_update_sales_group():
                     name=file.get("file_name", None),
                     link=file.get("file_link", None)
                 )
-                print(existing_file)
                 if len(existing_file) == 0:
                     SalesGroupFiles(g.db).insert_sales_group_files(
                         sales_group_id=request_data["sales_group_id"],

@@ -3,7 +3,7 @@ from ...common_exceptions import ExportException
 
 NO_VALUE = NoValue()
 
-sales_group_files_cols = ("sales_group_id", "name", "link", "file_id")
+sales_group_files_cols = ("sales_group_id", "name", "link", "file_id", "is_archived")
 
 class SalesGroupFiles:
 
@@ -12,7 +12,7 @@ class SalesGroupFiles:
 
     def insert_sales_group_files(self, sales_group_id, name, link, file_id=None):
         """
-        Inserts a new sales group file
+        Inserts a new sales group file row
 
         Params:
             sales_group_id: The ID of the sales group
@@ -40,11 +40,12 @@ class SalesGroupFiles:
         Gets the sales group file rows based on the provided parameters
 
         Params:
-            sales_group_files_id: The ID of the sales group file row
+            id: The ID of the sales group file row
             sales_group_id: The ID of the sales group
             name: Name of the uploaded file
             link: Link to download the file
             file_id: File ID if the file has been uploaded to S3
+            is_archived: Whether the file has been marked as archived
         
         Returns:
             A list of sales group files rows or an empty list.
@@ -91,11 +92,12 @@ class SalesGroupFiles:
         Updates the sales group file row based on the provided parameters
 
         Params:
-            sales_group_files_id: The ID of the sales group file row
+            id: The ID of the sales group file row
             sales_group_id: The ID of the sales group
             name: Name of the uploaded file
             link: Link to download the file
             file_id: File ID if the file has been uploaded to S3
+            is_archived: Whether the file has been marked as archived
         """
         base_query = "UPDATE sales_group_files "
 
@@ -132,7 +134,7 @@ class SalesGroupFiles:
             link: Link to download the file
         
         Returns: 
-
+            ExportExcpetion with related message
         """
         if sales_group_id is not NO_VALUE:
             if sales_group_id is None:
