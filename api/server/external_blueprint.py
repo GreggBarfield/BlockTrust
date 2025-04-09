@@ -2,7 +2,7 @@ from datetime import datetime
 from flask import (
     request, Blueprint, g
 )
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 import json
 from traceback import format_exc
 from core.database.combinations import send_connection_request_email_to_admin_users
@@ -14,7 +14,7 @@ from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.matches import Matches
-from core.database.tables.sales_groups import SalesGroups, SalesGroupsException
+from core.database.tables.sales_groups import SalesGroups
 from core.database.tables.sustainability_responses import SustainabilityResponses
 from core.database.tables.view_logs import ViewLogs, DATA_TYPE_NAME_TO_ID
 from core.config import MYSQL_CONFIG
@@ -25,7 +25,7 @@ from core.utilities.constants import HTTP_UNAUTHORISED
 from core.utilities.general_utilities import str_to_bool
 from core.utilities import auth
 
-bp = Blueprint('external_blueprint', __name__)
+bp = Blueprint('external_blueprint', __name__, url_prefix='/api')
 
 NO_VALUE = NoValue()
 
@@ -214,21 +214,29 @@ def serve_get_animal_data():
         return {"error": "Internal Server Error"}, 500
 
 
-@bp.route("/fetch-all-sales-groups-data", methods=["POST"])
+@bp.route("/fetch-all-sales-groups-data", methods=["GET"])
+@jwt_required()
 def serve_fetch_all_sales_groups_data():
     try:
-        sales_groups_data = SalesGroups(g.db).get_sales_groups(is_archived=0)
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'user_id': get_jwt_identity()})
+        sales_groups_data = SalesGroups(g.db).get_sales_groups(is_archived=0, published=int(True))
+        for sales_group in sales_groups_data:
+            account = g.db.accounts.get_accounts(id=sales_group["account"])[0]
+            sales_group["owner"] = account["company"]
+            del sales_group["account"]
+        sales_groups_data = list(map(lambda x: {k: v for k, v in x.items() if k != "account"}, sales_groups_data))
         return sales_groups_data
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Sales Group Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
-        return {"error": "Internal Server Error"}, 500
+        return {"message": "Internal Server Error"}, 500
 
 
 @bp.route("/sales-groups/<int:number>", methods=["GET"])
+@jwt_required()
 def sales_groups(number):
     try:
-        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'number': number})
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'user_id': get_jwt_identity()})
         sales_group = {}
         if len(sales_groups := SalesGroups(g.db).get_sales_groups(
             id=number, is_archived=int(False), published=int(True)
@@ -236,27 +244,25 @@ def sales_groups(number):
             sales_group = sales_groups[0]
             account = g.db.accounts.get_accounts(id=sales_group["account"])[0]
             sales_group["owner"] = account["company"]
-            for key in ("account", "created_timestamp", "last_updated_timestamp"):
-                del sales_group[key]
-        return sales_group
+            del sales_group["account"]
+            return sales_group
+        else:
+            return {"message": "Sales Group not found"}, 404
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Sales Group Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
-        return "Internal Server Error", 500
+        return {"message": "Internal Server Error"}, 500
 
 
 @bp.route("/login", methods=["POST"])
 def serve_login():
-    username = request.json["username"]
-    password = request.json["password"]
     try:
-        user_id = auth.login(identifier=username, password=password)
-        user = g.db.users.get_users(id=user_id)[0]
+        id=auth.login(identifier=request.json["username"], password=request.json["password"])
     except auth.LoginException as e:
         return str(e), HTTP_UNAUTHORISED
     except Exception as e:
         raise ExportException(str(e))
-    return {"user": user["first_name"] + " " + user["last_name"], "token": create_access_token(identity=username)}
+    return {"access_token": create_access_token(identity=id)}
 
 
 @bp.route("/fetch-accounts-data", methods=['POST'])
