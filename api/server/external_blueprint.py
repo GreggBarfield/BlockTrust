@@ -220,6 +220,10 @@ def serve_fetch_all_sales_groups_data():
     try:
         APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'user_id': get_jwt_identity()})
         sales_groups_data = SalesGroups(g.db).get_sales_groups(is_archived=0, published=int(True))
+        for sales_group in sales_groups_data:
+            account = g.db.accounts.get_accounts(id=sales_group["account"])[0]
+            sales_group["owner"] = account["company"]
+            del sales_group["account"]
         sales_groups_data = list(map(lambda x: {k: v for k, v in x.items() if k != "account"}, sales_groups_data))
         return sales_groups_data
     except Exception as e:
