@@ -218,7 +218,7 @@ def serve_get_animal_data():
 @jwt_required()
 def serve_fetch_all_sales_groups_data():
     try:
-        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'user_id': get_jwt_identity()})
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, employee_id=get_jwt_identity())
         sales_groups_data = SalesGroups(g.db).get_sales_groups(is_archived=0, published=int(True))
         for sales_group in sales_groups_data:
             account = g.db.accounts.get_accounts(id=sales_group["account"])[0]
@@ -236,7 +236,7 @@ def serve_fetch_all_sales_groups_data():
 @jwt_required()
 def sales_groups(number):
     try:
-        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'user_id': get_jwt_identity()})
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, employee_id=get_jwt_identity())
         sales_group = {}
         if len(sales_groups := SalesGroups(g.db).get_sales_groups(
             id=number, is_archived=int(False), published=int(True)
@@ -257,9 +257,9 @@ def sales_groups(number):
 @bp.route("/login", methods=["POST"])
 def serve_login():
     try:
-        id=auth.login(identifier=request.json["username"], password=request.json["password"])
+        id=auth.employee_login(identifier=request.json["username"], password=request.json["password"], load=False)
     except auth.LoginException as e:
-        return str(e), HTTP_UNAUTHORISED
+        return {"message":str(e)}, HTTP_UNAUTHORISED
     except Exception as e:
         raise ExportException(str(e))
     return {"access_token": create_access_token(identity=id)}
