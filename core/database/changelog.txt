@@ -2787,3 +2787,20 @@ ADD CONSTRAINT `fk_view_logs_viewer_user_id_id_users`
   REFERENCES `users` (`id`)
   ON DELETE NO ACTION
   ON UPDATE RESTRICT;
+
+/* Rohan 4/10/25 */
+ALTER TABLE `api_data_requests` 
+ADD COLUMN `employee_id` INT NULL DEFAULT NULL AFTER `account_id`;
+ALTER TABLE `api_data_requests` 
+ADD CONSTRAINT `fk_api_data_requests_account_id_id_accounts`
+  FOREIGN KEY (`account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE RESTRICT,
+ADD CONSTRAINT `fk_api_data_requests_employee_id_id_employees`
+  FOREIGN KEY (`employee_id`)
+  REFERENCES `employees` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE RESTRICT
+ALTER TABLE `api_data_requests` 
+CHANGE COLUMN `request_data` `request_data` JSON NULL DEFAULT NULL ;
