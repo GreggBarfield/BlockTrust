@@ -28,13 +28,11 @@ def respond(code, short, exception=None):
     """
 
     if request.method in ('POST', 'PUT'):
-        # Return as an api response
         return {
             'message': short,
             'code': code,
             'exception': type(exception).__name__ if exception is not None else None
         }, code
-
     else:
         return render_template(
             'outside/error.html',

@@ -24,6 +24,7 @@ from core.sectors import SECTORS_NAME_TO_ID
 from core.utilities.constants import HTTP_UNAUTHORISED
 from core.utilities.general_utilities import str_to_bool
 from core.utilities import auth
+from mysql.connector import IntegrityError
 
 bp = Blueprint('external_blueprint', __name__, url_prefix='/api')
 
@@ -245,9 +246,28 @@ def sales_groups(number):
             account = g.db.accounts.get_accounts(id=sales_group["account"])[0]
             sales_group["owner"] = account["company"]
             del sales_group["account"]
-            return sales_group
-        else:
-            return {"message": "Sales Group not found"}, 404
+        return sales_group
+    except Exception as e:
+        print("API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Sales Group Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"message": "Internal Server Error"}, 500
+
+
+@bp.route("/sales-groups/auction-market/<int:auction_market_id>", methods=["GET"])
+@jwt_required()
+def sales_groups_by_auction_market(auction_market_id):
+    try:
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, employee_id=get_jwt_identity())
+        sales_groups = SalesGroups(g.db).get_sales_groups(
+            auction_market_id=auction_market_id, delivery_location_type="Auction", is_archived=int(False), published=int(True)
+        )
+        for sales_group in sales_groups:
+            account = g.db.accounts.get_accounts(id=sales_group["account"])[0]
+            sales_group["owner"] = account["company"]
+            del sales_group["account"]
+        return sales_groups
+    except IntegrityError as ie:
+        return {"message": "Invalid Token"}, HTTP_UNAUTHORISED
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Sales Group Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())

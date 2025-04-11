@@ -2801,6 +2801,6 @@ ADD CONSTRAINT `fk_api_data_requests_employee_id_id_employees`
   FOREIGN KEY (`employee_id`)
   REFERENCES `employees` (`id`)
   ON DELETE NO ACTION
-  ON UPDATE RESTRICT
+  ON UPDATE RESTRICT;
 ALTER TABLE `api_data_requests` 
 CHANGE COLUMN `request_data` `request_data` JSON NULL DEFAULT NULL ;
