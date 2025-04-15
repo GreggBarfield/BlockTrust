@@ -4,6 +4,7 @@ from blockchain import run_bc_tasks
 from reports import run_report_tasks
 from emails import run_email_tasks
 from partners import run_partner_tasks
+from scheduled_jobs.sales_groups_files_retrieval import run_sales_groups_files_retrieval
 from sales_groups_search_summary_emails import run_sales_group_search_summary_emails
 from tag_store import run_tag_store_tasks
 import payments
@@ -25,7 +26,8 @@ try:
         "Partners": "partners.py|run_partner_tasks",
         "Tag Store": "tag_store.py|run_tag_store_tasks",
         "Payments": (payments, payments.run_payment_tasks),
-        "Sales Groups Search Summary Emails": "sales_group_search_summary_emails.py|run_sales_group_search_summary_emails"
+        "Sales Groups Search Summary Emails": "sales_group_search_summary_emails.py|run_sales_group_search_summary_emails",
+        "Sales Groups Files Retrieval": "sales_group_files_retrieval.py|run_sales_groups_files_retrieval"
     }
     print("Executing main.py")
     db = Database(MYSQL_CONFIG)
@@ -113,6 +115,19 @@ try:
                 threads.append(t)
                 print('Main: appended thread Sales Groups Search Summary Emails', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
+        # this will run once between 6 and 7 AM
+        if datetime.time(0, 0, 0) <= current_time < datetime.time(23, 0, 0):
+            if not any(t.getName() == "Tag Store" for t in threads):
+                job_run_id = JobRuns(db).insert(
+                    "Sales Groups Files Retrieval",
+                    scheduled_jobs["Sales Groups Files Retrieval"].split('|')[0],
+                    scheduled_jobs["Sales Groups Files Retrieval"].split('|')[1]
+                )
+                t = Thread(target=run_sales_groups_files_retrieval, name="Sales Groups Files Retrieval", args=[job_run_id, Database(MYSQL_CONFIG)])
+                t.start()
+                threads.append(t)
+                print('Main: appended thread Sales Groups Files Retrieval', 'Total number of threads:', len(threads), 'Current time:', current_time)
+        
         print("Main: Sleeping for 60 mins. Current_time:", datetime.datetime.today().strftime('%Y-%m-%d'), current_time)
         time.sleep(3600)
 except Exception as e:

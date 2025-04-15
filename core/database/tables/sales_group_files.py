@@ -149,3 +149,19 @@ class SalesGroupFiles:
                 raise ExportException("Sales Group File link cannot be blank")
             if len(link.strip()) > 511:
                 raise ExportException("Sales Group File link cannot exceed 512 characters")
+    
+    def get_sales_group_files_pending_upload(self):
+        """
+        Get sales group files to be uploaded
+
+        Params:
+        
+        Returns: 
+            ExportExcpetion with related message
+        """
+        unuploaded_files = self._db.execute_d(
+            """
+            SELECT * from sales_group_files WHERE file_id is NULL AND is_archived = 0
+            """,{}
+        )
+        return unuploaded_files
