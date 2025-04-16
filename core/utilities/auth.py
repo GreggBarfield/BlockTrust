@@ -496,7 +496,7 @@ def login(identifier, password=""):
         raise LoginException("other exception")
 
 
-def employee_login(identifier, password=""):
+def employee_login(identifier, password="", load=True):
     """Performs a employee login.
 
     Params:
@@ -509,7 +509,6 @@ def employee_login(identifier, password=""):
     Returns:
         An User object on success.
     """
-
     try:
         if password is None:
             raise LoginException("password is None")
@@ -564,7 +563,9 @@ def employee_login(identifier, password=""):
         if not bcrypt.checkpw(password.encode("utf-8"), employee_row["password"].encode("utf-8")):
             raise LoginException(generic_error)
 
-        load_employee(employee_row["id"])
+        if load:
+            load_employee(employee_row["id"])
+        return employee_row["id"]
     except LoginException as e:
         raise e
     except Exception as e:
