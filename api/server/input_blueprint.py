@@ -476,9 +476,9 @@ def serve_update_sales_group():
             for file in sales_group_files:
                 SalesGroups(g.db).validate_sales_group_file(name=file.get("file_name", None), link=file.get("file_link", None))
                 existing_file = Files(g.db).get_files(
-                    name=file.get("file_name", None),
+                    name=file["file_name"],
                     sales_group_id=request_data["sales_group_id"],
-                    external_link=file.get("file_link", None)
+                    external_link=file["file_link"]
                 )
                 if len(existing_file) == 0:
                     SalesGroups(g.db).upload_sales_group_file(

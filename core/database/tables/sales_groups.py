@@ -671,7 +671,7 @@ class SalesGroups:
             link: Link to download the file
         
         Returns: 
-            ExportExcpetion with related message
+            ExportException with related message
         """
         if sales_group_id is not NO_VALUE:
             if sales_group_id is None:
@@ -697,7 +697,7 @@ class SalesGroups:
             link: Link to download the file
         
         Returns: 
-            ExportExcpetion with related message
+            ExportException with related message
         """
         file_response = requests.get(file_link)
         if file_response.ok:
