@@ -2806,13 +2806,7 @@ ALTER TABLE `api_data_requests`
 CHANGE COLUMN `request_data` `request_data` JSON NULL DEFAULT NULL ;
 
 /* Nisheet Thakur BTN-984 4/7/2025 */
-CREATE TABLE `sales_group_files` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `sales_group_id` INT NOT NULL,
-  `name` VARCHAR(128) DEFAULT NULL,
-  `link` VARCHAR(512) DEFAULT NULL,
-  `file_id` INT DEFAULT NULL,
-  `is_archived` TINYINT DEFAULT 0,
-  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`));
+ALTER TABLE `files`
+ADD COLUMN `sales_group_id` INT NULL DEFAULT NULL,
+ADD COLUMN `external_link` VARCHAR(512) DEFAULT NULL,
+ADD COLUMN `is_archived` TINYINT DEFAULT 0;

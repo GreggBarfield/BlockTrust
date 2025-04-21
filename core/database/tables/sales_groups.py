@@ -1,8 +1,9 @@
 import json
+import requests
 from time import time
 from core.database.no_value import NoValue
 from core.database.tables.auction_sales import AuctionSales
-from core.database.tables.files import Files
+from core.database.tables.files import Files, SALES_GROUP_FILES_S3_PATH
 from core.utilities.constants import SECONDS_IN_ONE_DAY
 from core.utilities.data.zip_codes_data import ZIP_CODES
 from core.utilities.zip_codes import get_locations, zips_nearby_zip
@@ -659,3 +660,61 @@ class SalesGroups:
                 sales_group["reported"] = json.loads(sales_group["reported"])
             return sales_groups
         return []
+    
+    def validate_sales_group_file(self, sales_group_id=NO_VALUE, name=NO_VALUE, link=NO_VALUE):
+        """
+        Validates the sales group file data
+
+        Params:
+            sales_group_id: The ID of the sales group
+            name: Name of the uploaded file
+            link: Link to download the file
+        
+        Returns: 
+            ExportExcpetion with related message
+        """
+        if sales_group_id is not NO_VALUE:
+            if sales_group_id is None:
+                raise ExportException("Sales Group ID cannot be blank")
+        if name is not NO_VALUE:
+            if name is None or len(name.strip()) == 0:
+                raise ExportException("Sales Group File name cannot be blank")
+            if len(name.strip()) > 250:
+                raise ExportException("Sales Group File name cannot exceed 250 characters")
+        if link is not NO_VALUE:
+            if link is None or len(link.strip()) == 0:
+                raise ExportException("Sales Group File link cannot be blank")
+            if len(link.strip()) > 511:
+                raise ExportException("Sales Group File link cannot exceed 512 characters")
+
+    def upload_sales_group_file(self, sales_group_id=NO_VALUE, account_id=NO_VALUE, file_name=NO_VALUE, file_link=NO_VALUE):
+        """
+        Upload file associated to sales group to S3
+
+        Params:
+            sales_group_id: The ID of the sales group
+            name: Name of the uploaded file
+            link: Link to download the file
+        
+        Returns: 
+            ExportExcpetion with related message
+        """
+        file_response = requests.get(file_link)
+        if file_response.ok:
+            file_id, file_config = Files(self._db).insert_file_and_get_post_configuration(
+                file_name=file_name,
+                user_id=None,
+                account_id=account_id,
+                employee_id=None,
+                sales_group_id=sales_group_id,
+                external_link=file_link,
+                file_s3_path=SALES_GROUP_FILES_S3_PATH
+            )
+            file_upload_fields = file_config["fields"]
+            file_upload_fields["file"] = file_response.content
+            file_upload_to_s3 = requests.post(
+                file_config["url"],
+                files=file_upload_fields
+            )
+            if not file_upload_to_s3.ok:
+                raise ExportException(file_upload_to_s3.text)

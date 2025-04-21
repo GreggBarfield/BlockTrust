@@ -2,6 +2,7 @@
 import gzip
 from http import HTTPStatus
 import json
+import requests
 
 
 from flask import (
@@ -16,8 +17,8 @@ from core.database.database import Database
 from core.database.tables.account_users import AccountUsers
 from core.database.tables.accounts import Accounts
 from core.database.tables.error_logs import ErrorLogs
+from core.database.tables.files import Files, SALES_GROUP_FILES_S3_PATH
 from core.database.tables.sales_groups import SalesGroups
-from core .database.tables.sales_group_files import SalesGroupFiles
 from core.database.tables.users import Users, UsersException
 from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG, TEMPORARY_SALES_GROUP_API_TOKEN, TEMPORARY_CREATE_ACCOUNT_API_TOKEN
 from core.common_exceptions import ExportException
@@ -282,12 +283,14 @@ def serve_insert_sales_group():
         if "sales_group_files" in request_data:
             sales_group_files = request_data["sales_group_files"]
             for file in sales_group_files:
-                SalesGroupFiles(g.db).validate_sales_group_file(name=file.get("file_name", None), link=file.get("file_link", None))
-                SalesGroupFiles(g.db).insert_sales_group_files(
+                SalesGroups(g.db).validate_sales_group_file(name=file.get("file_name", None), link=file.get("file_link", None))
+                SalesGroups(g.db).upload_sales_group_file(
                     sales_group_id=sales_group_id,
-                    name=file["file_name"],
-                    link=file["file_link"]
+                    account_id=authenticated_account["id"],
+                    file_name=file["file_name"],
+                    file_link=file["file_link"]
                 )
+
         return {"response": "Sales Group Inserted", "sales_group_id": sales_group_id}, 200
     except ExportException as e:
         raise e
@@ -471,24 +474,18 @@ def serve_update_sales_group():
         if "sales_group_files" in request_data:
             sales_group_files = request_data["sales_group_files"]
             for file in sales_group_files:
-                SalesGroupFiles(g.db).validate_sales_group_file(name=file.get("file_name", None), link=file.get("file_link", None))
-                existing_file = SalesGroupFiles(g.db).get_sales_group_files(
-                    sales_group_id=request_data["sales_group_id"],
+                SalesGroups(g.db).validate_sales_group_file(name=file.get("file_name", None), link=file.get("file_link", None))
+                existing_file = Files(g.db).get_files(
                     name=file.get("file_name", None),
-                    link=file.get("file_link", None)
+                    sales_group_id=request_data["sales_group_id"],
+                    external_link=file.get("file_link", None)
                 )
                 if len(existing_file) == 0:
-                    SalesGroupFiles(g.db).insert_sales_group_files(
+                    SalesGroups(g.db).upload_sales_group_file(
                         sales_group_id=request_data["sales_group_id"],
-                        name=file["file_name"],
-                        link=file["file_link"]
-                    )
-                else:
-                    existing_file_id = existing_file[0]["id"]
-                    SalesGroupFiles(g.db).update_sales_group_files(
-                        id=existing_file_id,
-                        name=file["file_name"],
-                        link=file["file_link"]
+                        account_id=authenticated_account["id"],
+                        file_name=file["file_name"],
+                        file_link=file["file_link"]
                     )
         return {"response": "Sales Group Updated"}, 200
     except ExportException as e:
