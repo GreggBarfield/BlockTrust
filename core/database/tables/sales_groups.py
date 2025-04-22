@@ -661,7 +661,7 @@ class SalesGroups:
             return sales_groups
         return []
     
-    def validate_sales_group_file(self, sales_group_id=NO_VALUE, name=NO_VALUE, link=NO_VALUE):
+    def validate_sales_group_file(self, name, link):
         """
         Validates the sales group file data
 
@@ -670,22 +670,17 @@ class SalesGroups:
             name: Name of the uploaded file
             link: Link to download the file
         
-        Returns: 
+        Returns:
             ExportException with related message
         """
-        if sales_group_id is not NO_VALUE:
-            if sales_group_id is None:
-                raise ExportException("Sales Group ID cannot be blank")
-        if name is not NO_VALUE:
-            if name is None or len(name.strip()) == 0:
-                raise ExportException("Sales Group File name cannot be blank")
-            if len(name.strip()) > 250:
-                raise ExportException("Sales Group File name cannot exceed 250 characters")
-        if link is not NO_VALUE:
-            if link is None or len(link.strip()) == 0:
-                raise ExportException("Sales Group File link cannot be blank")
-            if len(link.strip()) > 511:
-                raise ExportException("Sales Group File link cannot exceed 512 characters")
+        if name is None or len(name.strip()) == 0:
+            raise ExportException("Sales Group File name cannot be blank")
+        if len(name.strip()) > 250:
+            raise ExportException("Sales Group File name cannot exceed 250 characters")
+        if link is None or len(link.strip()) == 0:
+            raise ExportException("Sales Group File link cannot be blank")
+        if len(link.strip()) > 511:
+            raise ExportException("Sales Group File link cannot exceed 512 characters")
 
     def upload_sales_group_file(self, sales_group_id=NO_VALUE, account_id=NO_VALUE, file_name=NO_VALUE, file_link=NO_VALUE):
         """
