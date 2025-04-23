@@ -2804,3 +2804,9 @@ ADD CONSTRAINT `fk_api_data_requests_employee_id_id_employees`
   ON UPDATE RESTRICT;
 ALTER TABLE `api_data_requests` 
 CHANGE COLUMN `request_data` `request_data` JSON NULL DEFAULT NULL ;
+
+/* Nisheet Thakur BTN-984 4/7/2025 */
+ALTER TABLE `files`
+ADD COLUMN `sales_group_id` INT NULL DEFAULT NULL,
+ADD COLUMN `external_link` VARCHAR(512) DEFAULT NULL,
+ADD COLUMN `is_archived` TINYINT DEFAULT 0;
