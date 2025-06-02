@@ -8,6 +8,7 @@ import requests
 from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect, Response
 )
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from core.database.combinations import convert_auction_market_to_account
 from core.database.tables.error_logs import ErrorLogs 
@@ -46,6 +47,7 @@ def serve_index():
 
 
 @bp.route('/api', methods=["POST"])
+@jwt_required()
 def serve_api():
     try:
         # Decode the data
@@ -77,8 +79,6 @@ def serve_api():
         account = g.db.accounts.get_account_by_id(data["account"])
         if account is None:
             raise ExportException("Bad account ID")
-        if account.token() != data["token"]:
-            raise ExportException("Bad token")
 
         # Check for bad syntax
 
