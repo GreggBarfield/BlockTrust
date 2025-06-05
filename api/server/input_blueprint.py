@@ -47,7 +47,6 @@ def serve_index():
 
 
 @bp.route('/api', methods=["POST"])
-# @jwt_required()
 def serve_api():
     try:
         # Decode the data
@@ -179,6 +178,7 @@ def serve_api_v2():
         else:
             data = json.loads(request.data)
 
+        print(data)
         # Check target
         assert data["target"] == "BlockTrust Network Ingestion API"
 
@@ -269,7 +269,6 @@ def serve_api_v2():
 @bp.route('/api/insert_sales_group', methods=["POST"])
 def serve_insert_sales_group():
     try:
-        print(request.data)
         try:
             request_data = json.loads(request.data)
         except json.decoder.JSONDecodeError:
