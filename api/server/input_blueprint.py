@@ -47,8 +47,119 @@ def serve_index():
 
 
 @bp.route('/api', methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def serve_api():
+    try:
+        # Decode the data
+
+        data = None
+        if request.headers.get('content-encoding', None) is not None:
+            print("decompressing")
+            gzip_data = gzip.decompress(request.data)
+            print("decoding")
+            gzip_data_decoded = gzip_data.decode()
+            print("freeing gzip_data")
+            gzip_data = None
+            print("loading json")
+            data = json.loads(gzip_data_decoded)
+            print("freeing gzip_data_decoded")
+            gzip_data_decoded = None
+
+        else:
+            data = json.loads(request.data)
+
+        # Check target
+        assert data["target"] == "BlockTrust Network Ingestion API"
+
+        # Check version
+        version = list(map(int, data["version"].split('.')))
+        assert version[0] == 1
+
+        # Check account
+        account = g.db.accounts.get_account_by_id(data["account"])
+        if account is None:
+            raise ExportException("Bad account ID")
+        if account.token() != data["token"]:
+            raise ExportException("Bad token")
+
+        # Check for bad syntax
+
+        for action in data["actions"]:
+            rows = action["data"]["values"]
+
+            for row in rows:
+                if len(action["data"]["fields"]) != len(row):
+                    raise ExportException("Fields & row length mismatch")
+
+        # Execute actions
+
+        for action in data["actions"]:
+            rows = action["data"]["values"]
+            left = 0
+            size = 5000
+            right = 0
+            while left < len(rows):
+                right = left + size
+                if right > len(rows):
+                    right = len(rows)
+
+                ss = []
+
+                for row in rows[left:right]:
+                    fields = {
+                        key: value for key, value in zip(
+                            action["data"]["fields"],
+                            row
+                        )
+                    }
+                    ss += (
+                        data["account"],
+                        action["data"]["namespace"],
+                        action["data"]["type"],
+                        json.dumps(fields)
+                    )
+
+                sql = (
+                    "INSERT INTO api_inserts (account, namespace, type, fields) VALUES " +
+                    ",".join(["(%s, %s, %s, %s)" for i in range(right - left)])
+                )
+
+                # TODO: remove once we have a separate dev and prod server for API
+                server = data.get("server", "production")
+
+                if server == "development":
+                    g.dev_db.execute(
+                        sql, ss
+                    )
+                elif server == "both":
+                    g.dev_db.execute(
+                        sql, ss
+                    )
+                    g.db.execute(
+                        sql, ss
+                    )
+                else:
+                    g.db.execute(
+                        sql, ss
+                    )
+
+                left = right
+
+
+        # All-good
+        print("api good")
+        return "", 200
+    except ExportException as e:
+        raise e
+    except Exception as e:
+        print("Input API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Input API", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
+
+
+@bp.route('/api/v2', methods=["POST"])
+@jwt_required()
+def serve_api_v2():
     try:
         # Decode the data
 
@@ -158,6 +269,7 @@ def serve_api():
 @bp.route('/api/insert_sales_group', methods=["POST"])
 def serve_insert_sales_group():
     try:
+        print(request.data)
         try:
             request_data = json.loads(request.data)
         except json.decoder.JSONDecodeError:
