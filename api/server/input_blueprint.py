@@ -178,7 +178,6 @@ def serve_api_v2():
         else:
             data = json.loads(request.data)
 
-        print(data)
         # Check target
         assert data["target"] == "BlockTrust Network Ingestion API"
 
