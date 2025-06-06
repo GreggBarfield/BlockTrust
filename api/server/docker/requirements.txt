@@ -3,5 +3,6 @@ mysql-connector-python
 boto3
 bcrypt
 pyzipcode
+PyJWT==2.9.0
 flask-jwt-extended
 requests
