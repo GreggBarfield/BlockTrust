@@ -8,15 +8,17 @@ from traceback import format_exc
 from core.database.combinations import send_connection_request_email_to_admin_users
 from core.database.database import Database
 from core.database.no_value import NoValue
-from core.database.tables.accounts import Accounts
+from core.database.tables.accounts import Accounts, NATIONAL_BEEF_COMPANY
 from core.database.tables.animals import Animals
 from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.employees import Employees
 from core.database.tables.error_logs import ErrorLogs
+from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from core.database.tables.matches import Matches
 from core.database.tables.sales_groups import SalesGroups
 from core.database.tables.sustainability_responses import SustainabilityResponses
+from core.database.tables.users import Users
 from core.database.tables.view_logs import ViewLogs, DATA_TYPE_NAME_TO_ID
 from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
@@ -345,4 +347,36 @@ def serve_get_latest_login():
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Fetch Login Evnet", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
+
+
+@bp.route("/national-beef/get-latest-logins", methods=["GET"])
+@jwt_required()
+def serve_get_latest_national_beef_logins():
+    try:
+        national_beef_partner = Accounts(g.db).get_partners(company=NATIONAL_BEEF_COMPANY)[0]
+        national_beef_partner_accounts = Accounts(g.db).get_accounts(partner_account=national_beef_partner["id"])
+        latest_login_data = []
+        for account in national_beef_partner_accounts:
+            account_login_events = EventLogs(g.db).get(
+                account_id=account["id"],
+                event_type_id=EVENT_TYPE_NAMES_TO_IDS["User Login"],
+                event_logs_order_by="created_timestamp",
+                event_logs_sort_by="DESC"
+            )
+            if len(account_login_events) > 0:
+                account_latest_login = account_login_events[0]
+                account_user = Users(g.db).get_user_by_id(account_latest_login["user_id"])
+                if account_user is not None:
+                    account_login_data = {
+                        "email": account_user.email(),
+                        "created_timestamp": account["created_timestamp"],
+                        "latest_login_timestamp": account_latest_login["created_timestamp"]
+                    }
+                    latest_login_data.append(account_login_data)
+
+        return {"latest_login_data": latest_login_data}
+    except Exception as e:
+        print("API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Fetch Latest Login Data", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
