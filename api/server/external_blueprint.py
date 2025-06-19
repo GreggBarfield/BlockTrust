@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import (
-    request, Blueprint, g, url_for
+    request, Blueprint, g
 )
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 import json
@@ -12,7 +12,6 @@ from core.database.tables.accounts import Accounts, NATIONAL_BEEF_COMPANY
 from core.database.tables.animals import Animals
 from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from core.database.tables.api_data_requests import APIDataRequests
-from core.database.tables.employees import Employees
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from core.database.tables.matches import Matches
@@ -314,39 +313,6 @@ def serve_fetch_account_data():
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Accounts Data Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
-        return {"error": "Internal Server Error"}, 500
-
-
-@bp.route("/get-latest-login", methods=["GET"])
-def serve_get_latest_login():
-    try:
-        try:
-            request_data = json.loads(request.data)
-        except json.decoder.JSONDecodeError:
-            return {"error": "Decoding request JSON has failed"}, 400
-        
-        email_validation = validate_email(request_data["email"])
-        if email_validation["success"]:
-            employee = Employees(g.db).get_by_email(request_data["email"])
-            if employee is not None:
-                employee_id = employee.id()
-                employee_logins = APIDataRequests(g.db).get(
-                    employee_id=employee_id,
-                    api_route=url_for("external_blueprint.serve_login")
-                )
-                if len(employee_logins) > 0:
-                    employee_latest_login = employee_logins[0]
-                    return {"latest_login_timestamp": employee_latest_login["created_timestamp"]}
-                else:
-                    return {"error": "No Login Record found for Employee"}, 400
-            else:
-                return {"error": "Employee record not found."}, 400
-        else:
-            return {"error": email_validation["message"]}, 400
-        
-    except Exception as e:
-        print("API", e.__class__.__name__ + ": " + str(e), format_exc())
-        ErrorLogs(g.db).insert_error_log("Fetch Login Evnet", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
 
 
