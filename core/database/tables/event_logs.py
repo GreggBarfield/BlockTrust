@@ -32,6 +32,7 @@ EVENT_TYPE_IDS_TO_NAMES = {
     for key, value in EVENT_TYPE_NAMES_TO_IDS.items()
 }
 
+event_log_cols = ("id", "account_id", "user_id", "event_type_id", "details", "created_timestamp", "last_updated_timestamp")
 
 class EventLogs:
 
@@ -39,7 +40,7 @@ class EventLogs:
         self._db = db
 
     def get(self, id=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, event_type_id=NO_VALUE,
-                       details=NO_VALUE):
+                       details=NO_VALUE, event_logs_order_by=NO_VALUE, event_logs_sort_by=NO_VALUE):
         """
         Gets the event logs based on provided parameters
 
@@ -80,6 +81,16 @@ class EventLogs:
             combined_query_condition = ""
 
         query = base_query + combined_query_condition
+
+        if event_logs_order_by is not NO_VALUE:
+            if event_logs_order_by not in event_log_cols:
+                raise Exception("event_logs_order_by column doesn't exist")
+            order_by_clause = " ORDER BY " + event_logs_order_by
+            if event_logs_sort_by is not NO_VALUE:
+                if event_logs_sort_by not in ("ASC", "DESC"):
+                    raise Exception("Incorrect value for event_logs_sort_by")
+                order_by_clause += " " + event_logs_sort_by
+            query = query + order_by_clause
 
         event_rows = self._db.execute_d(query, query_values)
         if len(event_rows) > 0:
