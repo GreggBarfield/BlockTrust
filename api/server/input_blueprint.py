@@ -17,6 +17,7 @@ from core.database.tables.accounts import AccountsException
 from core.database.database import Database
 from core.database.tables.account_users import AccountUsers
 from core.database.tables.accounts import Accounts
+from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.files import Files, SALES_GROUP_FILES_S3_PATH
 from core.database.tables.sales_groups import SalesGroups
@@ -253,7 +254,7 @@ def serve_api_v2():
 
                 left = right
 
-
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, employee_id=get_jwt_identity())
         # All-good
         print("api good")
         return "", 200
