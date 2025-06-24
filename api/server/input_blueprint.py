@@ -8,7 +8,7 @@ import requests
 from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect, Response
 )
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt
 
 from core.database.combinations import convert_auction_market_to_account
 from core.database.tables.error_logs import ErrorLogs 
@@ -254,7 +254,7 @@ def serve_api_v2():
 
                 left = right
 
-        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, employee_id=get_jwt_identity())
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, user_id=get_jwt().get("user_id"), account_id=get_jwt().get("account_id"), employee_id=get_jwt().get("employee_id"))
         # All-good
         print("api good")
         return "", 200
