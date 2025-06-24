@@ -2,7 +2,7 @@ from datetime import datetime
 from flask import (
     request, Blueprint, g
 )
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt
 import json
 from traceback import format_exc
 from core.database.combinations import send_connection_request_email_to_admin_users
@@ -24,7 +24,7 @@ from core.common_exceptions import ExportException
 from core.match_types import MATCH_TYPES_NAME_TO_ID
 from core.sectors import SECTORS_NAME_TO_ID
 from core.utilities.constants import HTTP_UNAUTHORISED
-from core.utilities.general_utilities import str_to_bool, validate_email
+from core.utilities.general_utilities import str_to_bool
 from core.utilities import auth
 from mysql.connector import IntegrityError
 
@@ -221,7 +221,7 @@ def serve_get_animal_data():
 @jwt_required()
 def serve_fetch_all_sales_groups_data():
     try:
-        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, employee_id=get_jwt_identity())
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, user_id=get_jwt().get("user_id"), account_id=get_jwt().get("account_id"), employee_id=get_jwt().get("employee_id"))
         sales_groups_data = SalesGroups(g.db).get_sales_groups(is_archived=0, published=int(True))
         for sales_group in sales_groups_data:
             account = g.db.accounts.get_accounts(id=sales_group["account"])[0]
@@ -239,7 +239,7 @@ def serve_fetch_all_sales_groups_data():
 @jwt_required()
 def sales_groups(number):
     try:
-        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, employee_id=get_jwt_identity())
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, user_id=get_jwt().get("user_id"), account_id=get_jwt().get("account_id"), employee_id=get_jwt().get("employee_id"))
         sales_group = {}
         if len(sales_groups := SalesGroups(g.db).get_sales_groups(
             id=number, is_archived=int(False), published=int(True)
@@ -259,7 +259,7 @@ def sales_groups(number):
 @jwt_required()
 def sales_groups_by_auction_market(auction_market_id):
     try:
-        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, employee_id=get_jwt_identity())
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, user_id=get_jwt().get("user_id"), account_id=get_jwt().get("account_id"), employee_id=get_jwt().get("employee_id"))
         sales_groups = SalesGroups(g.db).get_sales_groups(
             auction_market_id=auction_market_id, delivery_location_type="Auction", is_archived=int(False), published=int(True)
         )
@@ -276,8 +276,8 @@ def sales_groups_by_auction_market(auction_market_id):
         return {"message": "Internal Server Error"}, 500
 
 
-@bp.route("/login", methods=["POST"])
-def serve_login():
+@bp.route("/employee/login", methods=["POST"])
+def serve_employee_login():
     try:
         id=auth.employee_login(identifier=request.json["username"], password=request.json["password"], load=False)
         APIDataRequests(g.db).insert_api_data_request(api_route=request.path, employee_id=id)
@@ -285,7 +285,20 @@ def serve_login():
         return {"message":str(e)}, HTTP_UNAUTHORISED
     except Exception as e:
         raise ExportException(str(e))
-    return {"access_token": create_access_token(identity=id)}
+    return {"access_token": create_access_token(identity=id, additional_claims={'employee_id': id})}
+
+
+@bp.route("/login", methods=["POST"])
+def serve_login():
+    try:
+        id=auth.login(identifier=request.json["username"], password=request.json["password"])
+        user = Users(g.db).get_users_and_accounts(user_id=id)[0]
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, user_id=id, account_id=user["account_id"])
+    except auth.LoginException as e:
+        return {"message":str(e)}, HTTP_UNAUTHORISED
+    except Exception as e:
+        raise ExportException(str(e))
+    return {"access_token": create_access_token(identity=id, additional_claims={'user_id': id, 'account_id':user["account_id"]})}
 
 
 @bp.route("/fetch-accounts-data", methods=['POST'])

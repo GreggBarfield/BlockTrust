@@ -50,7 +50,6 @@ def before_request():
 
     - Loads user from session
     """
-    # Database
     if getattr(g, "db", None) is None:
         g.db = Database(MYSQL_CONFIG)
     if "iframe" in request.path:

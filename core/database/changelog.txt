@@ -2810,3 +2810,15 @@ ALTER TABLE `files`
 ADD COLUMN `sales_group_id` INT NULL DEFAULT NULL,
 ADD COLUMN `external_link` VARCHAR(512) DEFAULT NULL,
 ADD COLUMN `is_archived` TINYINT DEFAULT 0;
+
+/* Rohan Sureshkumar 6/23/25 */
+ALTER TABLE `api_data_requests` 
+ADD COLUMN `user_id` INT NULL AFTER `account_id`,
+ADD INDEX `fk_api_data_requests_user_id_id_users_idx` (`user_id` ASC) VISIBLE;
+;
+ALTER TABLE `api_data_requests` 
+ADD CONSTRAINT `fk_api_data_requests_user_id_id_users`
+  FOREIGN KEY (`user_id`)
+  REFERENCES `users` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
