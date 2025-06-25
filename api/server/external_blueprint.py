@@ -10,8 +10,9 @@ from core.database.database import Database
 from core.database.no_value import NoValue
 from core.database.tables.accounts import Accounts, NATIONAL_BEEF_COMPANY
 from core.database.tables.animals import Animals
-from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from core.database.tables.api_data_requests import APIDataRequests
+from core.database.tables.api_inserts import ApiInserts
+from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from core.database.tables.matches import Matches
@@ -358,4 +359,43 @@ def serve_get_latest_national_beef_logins():
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Fetch Latest Login Data", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
+
+
+@bp.route("/fetch-packer-carcass-data", methods=["POST"])
+def serve_fetch_packer_carcass_data():
+    try:
+        try:
+            request_data = json.loads(request.data)
+        except json.decoder.JSONDecodeError:
+            return {"error": "Decoding request JSON has failed"}, 400
+
+        packer_account_id = request_data.get("account_id", None)
+        if packer_account_id is None:
+            return {"error": "Please provide a Packer Account ID (account_id)."}
+        packer_account_data = Accounts(g.db).get_account_by_id(packer_account_id)
+        if packer_account_data.sector_id() != SECTORS_NAME_TO_ID["Packer"]:
+            return {"error": "Provided account is not a Packer."}
+
+        start_timestamp = request_data.get("start_timestamp", None)
+        if start_timestamp is None:
+            return {"error": "Please provide a starting timestamp to fetch records from (start_timestamp)."}
+
+
+        start_timestamp_format = "%m/%d/%Y T:%H:%M:%S"
+        start_timestamp_object = datetime.strptime(start_timestamp, start_timestamp_format)
+        start_timestamp_string = start_timestamp_object.strftime('%Y-%m-%d %H:%M:%S')
+
+        packer_api_inserts = ApiInserts(g.db).get_api_inserts(account=packer_account_id)
+
+        packer_api_insert_ids = [packer_api_insert["id"] for packer_api_insert in packer_api_inserts]
+
+        packer_animals = Animals(g.db).get_animals_by_packer_insert_ids(
+            packer_insert_ids=packer_api_insert_ids,
+            last_updated_start_time=start_timestamp_string
+        )
+        return {"packer_animals": packer_animals}, 200
+    except Exception as e:
+        print("API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Packer Carcass Data Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
