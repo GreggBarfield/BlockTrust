@@ -362,7 +362,7 @@ def serve_get_latest_national_beef_logins():
         return {"error": "Internal Server Error"}, 500
 
 
-@bp.route("/fetch-packer-carcass-data", methods=["POST"])
+@bp.route("/fetch-packer-carcass-data", methods=["GET"])
 def serve_fetch_packer_carcass_data():
     try:
         try:

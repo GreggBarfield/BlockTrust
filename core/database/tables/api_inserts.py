@@ -53,7 +53,7 @@ class ApiInserts:
 
 
     def get_api_inserts(self, id=NO_VALUE, account=NO_VALUE, namespace=NO_VALUE, type=NO_VALUE, row=NO_VALUE,
-                        block=NO_VALUE, status=NO_VALUE, last_updated_start_time=NO_VALUE):
+                        block=NO_VALUE, status=NO_VALUE):
         
         """
         Returns the list API inserts based on attributes provided
@@ -95,9 +95,6 @@ class ApiInserts:
         if status is not NO_VALUE:
             query_conditions.append("status = %(status)s")
             query_values["status"] = status
-        if last_updated_start_time is not NO_VALUE:
-            query_conditions.append("last_updated_timestamp BETWEEN %(last_updated_start_time)s AND '" + time.strftime('%Y-%m-%d %H:%M:%S') + "'")
-            query_values["last_updated_start_time"] = last_updated_start_time
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)

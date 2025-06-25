@@ -369,6 +369,10 @@ class Animals:
             """
             Get animals by the packer insert ID values specified.
 
+            Params:
+                last_updated_start_time: The start timestamp from where all updated records need to be fetched
+                packer_insert_ids: A lisy of IDs from api_inserts table representing the Packer Inserts
+
             Returns:
                 A list of animal row(s) if found else []
             """
