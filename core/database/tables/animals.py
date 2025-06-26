@@ -1,4 +1,5 @@
 from ..no_value import NoValue
+import time
 
 NO_VALUE = NoValue()
 
@@ -362,3 +363,29 @@ class Animals:
             self._db.execute(query, query_values)
         else:
             raise Exception("No values set to update Animal")
+
+
+    def get_animals_by_packer_insert_ids(self, last_updated_start_time=NO_VALUE, packer_insert_ids=NO_VALUE):
+            """
+            Get animals by the packer insert ID values specified.
+
+            Params:
+                last_updated_start_time: The start timestamp from where all updated records need to be fetched
+                packer_insert_ids: A lisy of IDs from api_inserts table representing the Packer Inserts
+
+            Returns:
+                A list of animal row(s) if found else []
+            """
+            query_values = {}
+            base_query = "SELECT * FROM animals WHERE packer_api_insert_id in "
+            packer_insert_ids_condition = "(" + ",".join(str(packer_insert_id) for packer_insert_id in packer_insert_ids) + ")"
+            last_updated_since_condition = "last_updated_timestamp BETWEEN %(last_updated_start_time)s AND '" + time.strftime('%Y-%m-%d %H:%M:%S') + "'"
+            query_values["last_updated_start_time"] = last_updated_start_time
+
+            query = base_query + packer_insert_ids_condition + " AND " + last_updated_since_condition
+
+            animal_rows = self._db.execute_d(query, query_values)
+            if len(animal_rows) > 0:
+                return animal_rows
+            else:
+                return []

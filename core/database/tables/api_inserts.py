@@ -1,4 +1,8 @@
 import json
+import time
+from ..no_value import NoValue
+
+NO_VALUE = NoValue()
 
 class ApiInserts:
 
@@ -47,3 +51,59 @@ class ApiInserts:
         )
         return latest_api_inserts_count[0]["api_inserts_count"]
 
+
+    def get_api_inserts(self, id=NO_VALUE, account=NO_VALUE, namespace=NO_VALUE, type=NO_VALUE, row=NO_VALUE,
+                        block=NO_VALUE, status=NO_VALUE):
+        
+        """
+        Returns the list API inserts based on attributes provided
+
+        Params:
+            id: ID of the insert
+            account: Account ID of account performing the insert
+            namespace: Insert namespace
+            type: Type of Insert
+            status: Status of Insert
+
+        Returns:
+            List of API inserts
+        """
+        
+        base_query = "SELECT * FROM api_inserts"
+
+        query_conditions = []
+        query_values = {}
+
+        if id is not NO_VALUE:
+            query_conditions.append("id = %(id)s")
+            query_values["id"] = id
+        if account is not NO_VALUE:
+            query_conditions.append("account = %(account)s")
+            query_values["account"] = account
+        if namespace is not NO_VALUE:
+            query_conditions.append("namespace = %(namespace)s")
+            query_values["namespace"] = namespace
+        if type is not NO_VALUE:
+            query_conditions.append("type = %(type)s")
+            query_values["type"] = type
+        if row is not NO_VALUE:
+            query_conditions.append("row = %(row)s")
+            query_values["row"] = row
+        if block is not NO_VALUE:
+            query_conditions.append("block = %(block)s")
+            query_values["block"] = block
+        if status is not NO_VALUE:
+            query_conditions.append("status = %(status)s")
+            query_values["status"] = status
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        api_insert_rows = self._db.execute_d(query, query_values)
+        if len(api_insert_rows) > 0:
+            return api_insert_rows
+        else:
+            return []
