@@ -177,7 +177,7 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="form-group mt-2 mb-3">
-                                <div class="custom-control custom-switch" title="{{'Partner cannot make payments since this account has no partner'}}">
+                                <div class="custom-control custom-switch">
                                     <input type="checkbox" class="custom-control-input" id="has_api_access"
                                     {{'checked' if account_row.has_api_access() else ''}}>
                                     <label class="custom-control-label" for="has_api_access">
@@ -224,7 +224,7 @@
                                     {% endfor %}
                                     {% else %}
                                     <tr class="text-center">
-                                        <td colspan="3">No account users</td>
+                                        <td colspan="2">No account users</td>
                                     </tr>
                                     {% endif %}
                                 </tbody>
