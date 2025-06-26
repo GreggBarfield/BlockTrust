@@ -293,6 +293,8 @@ def serve_login():
     try:
         id=auth.login(identifier=request.json["username"], password=request.json["password"])
         user = Users(g.db).get_users_and_accounts(user_id=id)[0]
+        if not user["has_api_access"]:
+            raise auth.LoginException(f"You do not have permission to perform this action. Please contact your account: {user['company']}'s administrator")
         APIDataRequests(g.db).insert_api_data_request(api_route=request.path, user_id=id, account_id=user["account_id"])
     except auth.LoginException as e:
         return {"message":str(e)}, HTTP_UNAUTHORISED

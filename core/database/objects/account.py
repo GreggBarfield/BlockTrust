@@ -129,6 +129,9 @@ class Account:
 
     def per_head_fee(self):
         return self._row["per_head_fee"]
+    
+    def has_api_access(self):
+        return self._row["has_api_access"]
 
     def add_user(self, user, is_admin=0):
         """Add a user to this account.

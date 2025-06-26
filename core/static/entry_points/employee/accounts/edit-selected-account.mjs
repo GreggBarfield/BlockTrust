@@ -1,11 +1,11 @@
-import {AsyncForm} from '/static/global/async_form.mjs';
+import { AsyncForm } from '/static/global/async_form.mjs';
 
 document.getElementById("edit_state").value = account_state;
-document.getElementById("edit_partner").value = account_partner != "None"? account_partner: "";
-if(account_affiliate_id === "None"){
+document.getElementById("edit_partner").value = account_partner != "None" ? account_partner : "";
+if (account_affiliate_id === "None") {
     document.getElementById("edit_affiliate_id").value = "";
 }
-else{
+else {
     document.getElementById("edit_affiliate_id").value = account_affiliate_id;
 }
 
@@ -24,7 +24,8 @@ let state = editAccountForm.find("#edit_state");
 let zip_code = editAccountForm.find("#edit_zip");
 let per_head_fee = editAccountForm.find("#per_head_fee");
 let partner_pays = editAccountForm.find("#partner_pays");
-let action_route = "/employee/dashboard/edit-account/"+account_id;
+let has_api_access = editAccountForm.find("#has_api_access");
+let action_route = "/employee/dashboard/edit-account/" + account_id;
 
 let form = new AsyncForm({
     action: action_route,
@@ -44,8 +45,9 @@ let form = new AsyncForm({
             city: city.val(),
             state: state.val(),
             zip_code: zip_code.val(),
-            per_head_fee:per_head_fee.val(),
-            partner_pays: partner_pays.is(":checked")
+            per_head_fee: per_head_fee.val(),
+            partner_pays: partner_pays.is(":checked"),
+            has_api_access: has_api_access.is(":checked")
         }
     }
 });

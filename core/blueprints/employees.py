@@ -288,20 +288,23 @@ def serve_edit_selected_account(account_id):
             is_partner=1,
             is_partner_used_for_signup=1
         )
-        return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row, "partners": partners})
+        users = Users(g.db).get_users(account_users__account=account_id, is_system_generated=int(False))
+        return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row, "partners": partners, "users": users})
     if request.method == "POST":
-        Accounts(g.db).modify_account(
-            account_id=account_id,
-            company=format_field(request.form["company"]),
-            phone=format_field(request.form["phone"]),
-            address=format_field(request.form["address"]),
-            city=format_field(request.form["city"]),
-            state=format_field(request.form["state"]),
-            zip=format_field(request.form["zip_code"]),
-            partner_pays=int(str_to_bool(request.form["partner_pays"])),
-            per_head_fee=format_field(request.form["per_head_fee"])
-        )
-        return {"redirect": "/employee/dashboard"}
+        vars = {"account_id":account_id,
+            "company":format_field(request.form["company"]),
+            "phone":format_field(request.form["phone"]),
+            "address":format_field(request.form["address"]),
+            "city":format_field(request.form["city"]),
+            "state":format_field(request.form["state"]),
+            "zip":format_field(request.form["zip_code"]),
+            "partner_pays":int(str_to_bool(request.form["partner_pays"])),
+            "has_api_access":int(str_to_bool(request.form["has_api_access"]))
+        }
+        if request.form.get("per_head_fee"):
+            vars["per_head_fee"]= format_field(request.form.get("per_head_fee"))
+        Accounts(g.db).modify_account(**vars)
+        return {"redirect": f"/employee/dashboard/edit-account/{account_id}"}
 
 
 @bp.route("/employee/dashboard/edit-partner/<int:partner_id>", methods=["GET", "POST"])
