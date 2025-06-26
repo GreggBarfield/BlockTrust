@@ -363,6 +363,7 @@ def serve_get_latest_national_beef_logins():
 
 
 @bp.route("/fetch-packer-carcass-data", methods=["GET"])
+@jwt_required()
 def serve_fetch_packer_carcass_data():
     try:
         try:
@@ -394,7 +395,7 @@ def serve_fetch_packer_carcass_data():
             packer_insert_ids=packer_api_insert_ids,
             last_updated_start_time=start_timestamp_string
         )
-        return {"packer_animals": packer_animals}, 200
+        return {"packer_carcass_data": packer_animals}, 200
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Packer Carcass Data Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
