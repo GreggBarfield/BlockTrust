@@ -611,7 +611,7 @@ class Accounts:
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
                        subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, can_partner_login=NO_VALUE,
-                       partner_pays=NO_VALUE, per_head_fee=NO_VALUE):
+                       partner_pays=NO_VALUE, per_head_fee=NO_VALUE, has_api_access=NO_VALUE):
         """
         Transform, validate and updates an account.
         """
@@ -639,7 +639,7 @@ class Accounts:
             retail_name=retail_name, retail_description=retail_description,
             subscription_start_date=subscription_start_date, subscription_end_date=subscription_end_date,
             show_real_name=show_real_name, can_partner_login=can_partner_login, partner_pays=partner_pays,
-            per_head_fee=per_head_fee
+            per_head_fee=per_head_fee, has_api_access=has_api_access
         )
 
     def update_account(self, account_id, company=NO_VALUE, name=NO_VALUE, address=NO_VALUE, city=NO_VALUE,
@@ -648,7 +648,7 @@ class Accounts:
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
                        subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, can_partner_login=NO_VALUE, 
-                       partner_pays=NO_VALUE, per_head_fee=NO_VALUE):
+                       partner_pays=NO_VALUE, per_head_fee=NO_VALUE, has_api_access=NO_VALUE):
         """
         Updates an account.
 
@@ -744,6 +744,9 @@ class Accounts:
         if per_head_fee is not NO_VALUE:
             query_conditions.append("per_head_fee = %(per_head_fee)s")
             query_values["per_head_fee"] = per_head_fee
+        if has_api_access is not NO_VALUE:
+            query_conditions.append("has_api_access = %(has_api_access)s")
+            query_values["has_api_access"] = has_api_access
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE a.id=%(id)s"
