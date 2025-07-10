@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import (
-    request, Blueprint, g
+    request, Blueprint, g, jsonify
 )
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt
 import json
@@ -364,7 +364,7 @@ def serve_get_latest_national_beef_logins():
                 }
                 latest_login_data.append(account_login_data)
 
-        return {"latest_login_data": latest_login_data}
+        return jsonify({"latest_login_data": latest_login_data})
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Fetch Latest Login Data", e.__class__.__name__ + ": " + str(e), format_exc())
