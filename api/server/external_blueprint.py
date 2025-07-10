@@ -345,6 +345,7 @@ def serve_get_latest_national_beef_logins():
         national_beef_partner_accounts = Accounts(g.db).get_accounts(partner_account=national_beef_partner["id"])
         latest_login_data = []
         for account in national_beef_partner_accounts:
+            account_latest_login_timestamp = None
             account_login_events = EventLogs(g.db).get(
                 account_id=account["id"],
                 event_type_id=EVENT_TYPE_NAMES_TO_IDS["User Login"],
@@ -353,14 +354,15 @@ def serve_get_latest_national_beef_logins():
             )
             if len(account_login_events) > 0:
                 account_latest_login = account_login_events[0]
-                account_user = Users(g.db).get_user_by_id(account_latest_login["user_id"])
-                if account_user is not None:
-                    account_login_data = {
-                        "email": account_user.email(),
-                        "created_timestamp": account["created_timestamp"],
-                        "latest_login_timestamp": account_latest_login["created_timestamp"]
-                    }
-                    latest_login_data.append(account_login_data)
+                account_latest_login_timestamp = account_latest_login["created_timestamp"]
+            account_user = Users(g.db).get_user_by_id(account_latest_login["user_id"])
+            if account_user is not None:
+                account_login_data = {
+                    "email": account_user.email(),
+                    "created_timestamp": account["created_timestamp"],
+                    "latest_login_timestamp": account_latest_login_timestamp
+                }
+                latest_login_data.append(account_login_data)
 
         return {"latest_login_data": latest_login_data}
     except Exception as e:
