@@ -360,12 +360,13 @@ def serve_get_latest_national_beef_logins():
                 account_latest_login_timestamp = account_latest_login["created_timestamp"]
             if len(account_user) > 0:
                 user = Users(g.db).get_user_by_id(account_user[0]["user"])
-                account_login_data = {
-                    "email": user.email(),
-                    "created_timestamp": account["created_timestamp"],
-                    "latest_login_timestamp": account_latest_login_timestamp
-                }
-                latest_login_data.append(account_login_data)
+                if user.email() is not None:
+                    account_login_data = {
+                        "email": user.email(),
+                        "created_timestamp": account["created_timestamp"],
+                        "latest_login_timestamp": account_latest_login_timestamp
+                    }
+                    latest_login_data.append(account_login_data)
 
         return jsonify({"latest_login_data": latest_login_data})
     except Exception as e:
