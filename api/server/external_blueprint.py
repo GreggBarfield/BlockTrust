@@ -9,6 +9,7 @@ from core.database.combinations import send_connection_request_email_to_admin_us
 from core.database.database import Database
 from core.database.no_value import NoValue
 from core.database.tables.accounts import Accounts, NATIONAL_BEEF_COMPANY
+from core.database.tables.account_users import AccountUsers
 from core.database.tables.animals import Animals
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.api_inserts import ApiInserts
@@ -346,6 +347,8 @@ def serve_get_latest_national_beef_logins():
         latest_login_data = []
         for account in national_beef_partner_accounts:
             account_latest_login_timestamp = None
+            account_user = AccountUsers(g.db).get_account_users(account=account["id"])
+
             account_login_events = EventLogs(g.db).get(
                 account_id=account["id"],
                 event_type_id=EVENT_TYPE_NAMES_TO_IDS["User Login"],
@@ -355,10 +358,10 @@ def serve_get_latest_national_beef_logins():
             if len(account_login_events) > 0:
                 account_latest_login = account_login_events[0]
                 account_latest_login_timestamp = account_latest_login["created_timestamp"]
-            account_user = Users(g.db).get_user_by_id(account_latest_login["user_id"])
-            if account_user is not None:
+            if len(account_user) > 0:
+                user = Users(g.db).get_user_by_id(account_user[0]["user"])
                 account_login_data = {
-                    "email": account_user.email(),
+                    "email": user.email(),
                     "created_timestamp": account["created_timestamp"],
                     "latest_login_timestamp": account_latest_login_timestamp
                 }
