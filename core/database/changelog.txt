@@ -2824,3 +2824,10 @@ ADD CONSTRAINT `fk_api_data_requests_user_id_id_users`
   ON UPDATE RESTRICT;
 ALTER TABLE `accounts` 
 ADD COLUMN `has_api_access` TINYINT NULL DEFAULT 0 AFTER `created_by_user_id`;
+
+/* Nisheet Thakur 07/22/2025 */
+ALTER TABLE `animals`
+ADD COLUMN `over_30` INT NULL AFTER `sire_epd_marbling`,
+ADD COLUMN `hard_bone` INT NULL AFTER `over_30`,
+ADD COLUMN `dark_cutter` INT NULL AFTER `hard_bone`,
+ADD COLUMN `average_lot_live` FLOAT NULL AFTER `dark_cutter`;
