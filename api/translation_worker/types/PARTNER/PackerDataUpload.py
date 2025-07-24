@@ -63,5 +63,9 @@ def handle(db: Database, insert):
         calculated_live_weight=fields.get("calculated_live_weight", None),
         total_gain=fields.get("total_gain", None),
         days_on_test=fields.get("days_on_test", None),
-        average_daily_gain=fields.get("average_daily_gain", None)
+        average_daily_gain=fields.get("average_daily_gain", None),
+        over_30=fields.get("over_30", None),
+        hard_bone=fields.get("hard_bone", None),
+        dark_cutter=fields.get("dark_cutter", None),
+        average_lot_live=fields.get("Avg_Lot_Live", None)
     )
