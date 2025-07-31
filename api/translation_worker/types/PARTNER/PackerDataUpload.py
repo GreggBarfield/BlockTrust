@@ -5,7 +5,7 @@ from core.database.database import Database
 
 def _check_format(insert):
     keys = [
-        "eid", "packer_account_number"
+        "eid"
     ]
     for key in keys:
         if key not in insert['fields']:
@@ -23,9 +23,18 @@ def handle(db: Database, insert):
     eid = int(fields["eid"])
     api_insert = insert["id"]
 
-    packer = db.accounts.get_accounts(id=fields["packer_account_number"])[0]
-    packer_account_link_id = db.account_links.get_account_links(account_id=packer["id"])[0]["id"]
-    # if packer is not None:
+    if "plant_id" in fields:
+        if fields["plant_id"].isdigit():
+            fields["plant_id"] =  fields["plant_id"].strip("0")
+        packer_account_link = db.account_links.get_account_links(partner_account, fields["plant_id"])[0]        
+        packer = db.accounts.get_accounts(id=packer_account_link["account"])[0]
+        packer_account_link_id = packer_account_link["id"]
+    elif "packer_account_number" in fields:
+        packer = db.accounts.get_accounts(id=fields["packer_account_number"])[0]
+        packer_account_link_id = db.account_links.get_account_links(account_id=packer["id"])[0]["id"]
+    else:
+        raise Exception("Both plant_id and packer_account_number missing")
+
     zipcode = str(packer["zip"])
     if len(zipcode) >= 5:
         f5 = zipcode[0:5]
