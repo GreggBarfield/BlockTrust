@@ -1,6 +1,7 @@
 from api.translation_worker.types.helper import process_grades_and_weight, process_packer_data, process_sighting
 from ...exceptions import ExecutionException
 from core.database.database import Database
+from remapper import remap
 
 
 def _check_format(insert):
@@ -16,9 +17,9 @@ def handle(db: Database, insert):
     """Handle a Packer insert from Employee to create matches and add account links (if necessary)
     """
     _check_format(insert)
-
-    fields = insert['fields']
-
+    insert["fields"] = fields = remap(insert["fields"], {
+        "HotWt": "hot_weight"
+    })
     partner_account = insert["account"]
     eid = int(fields["eid"])
     api_insert = insert["id"]
@@ -57,7 +58,7 @@ def handle(db: Database, insert):
         packer_account_link_id=packer_account_link_id,
         yield_grade=fields.get("yield_grade", None),
         quality_grade=fields.get("quality_grade", None),
-        carcass_weight=fields.get("carcass_weight", None),
+        carcass_weight=fields.get("hot_weight", None),
         packer_account_id=packer["id"] if packer else None
     )
 
