@@ -369,7 +369,7 @@ def serve_insert_sales_group():
         if sales_group_data["delivery_location_type"] == "Direct/Off Ranch":
             delivery_location = sales_group_data["delivery_location"]
         elif request_data["delivery_location_type"] == "Auction":
-            if "auction_market_id" in request_data and request_data["austion_market_id"] is not None:
+            if "auction_market_id" in request_data and request_data["auction_market_id"] is not None:
                 auction_market_id = request_data["auction_market_id"]
             else:
                 auction_market_id, new_auction_market_created = AuctionMarkets(g.db).check_and_create_new_auction_market(
@@ -566,7 +566,7 @@ def serve_update_sales_group():
         if "delivery_location_type" in request_data and request_data["delivery_location_type"] == "Direct/Off Ranch":
             delivery_location = request_data["delivery_location"]
         elif "delivery_location_type" in request_data and request_data["delivery_location_type"] == "Auction":
-            if "auction_market_id" in request_data and request_data["austion_market_id"] is not None:
+            if "auction_market_id" in request_data and request_data["auction_market_id"] is not None:
                 auction_market_id = request_data.get("auction_market_id", original_row["auction_market_id"])
             else:
                 auction_market_id, new_auction_market_created = AuctionMarkets(g.db).check_and_create_new_auction_market(
