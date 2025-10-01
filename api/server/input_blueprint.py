@@ -18,6 +18,7 @@ from core.database.database import Database
 from core.database.tables.account_users import AccountUsers
 from core.database.tables.accounts import Accounts
 from core.database.tables.api_data_requests import APIDataRequests
+from core.database.tables.auction_markets import AuctionMarkets
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.files import Files, SALES_GROUP_FILES_S3_PATH
 from core.database.tables.sales_groups import SalesGroups
@@ -288,7 +289,7 @@ def serve_insert_sales_group():
             "zip_code": 0,
             "sale_date_string": "",
             "delivery_location_type": "",
-            "auction_market": "",
+            "auction_market_name": "",
             "delivery_location": "",
             "category": "",
             "breeds": [],
@@ -336,7 +337,7 @@ def serve_insert_sales_group():
             breeds=sales_group_data["breeds"],
             sale_date=sale_epoch_time,
             delivery_location=sales_group_data["delivery_location"],
-            auction_market_location=sales_group_data["auction_market"],
+            auction_market_location=sales_group_data["auction_market_name"],
             images=[],
             price=sales_group_data["price"],
             slide=sales_group_data["slide"],
@@ -363,10 +364,20 @@ def serve_insert_sales_group():
             "videos": []
         }
         delivery_location = ""
+        auction_market_id = None
+        new_auction_market_created = False
         if sales_group_data["delivery_location_type"] == "Direct/Off Ranch":
             delivery_location = sales_group_data["delivery_location"]
-        else:
-            delivery_location = sales_group_data["auction_market"]
+        elif request_data["delivery_location_type"] == "Auction":
+            if "auction_market_id" in request_data and request_data["austion_market_id"] is not None:
+                auction_market_id = request_data["auction_market_id"]
+            else:
+                auction_market_id, new_auction_market_created = AuctionMarkets(g.db).check_and_create_new_auction_market(
+                    name=sales_group_data["auction_market_name"],
+                    city=request_data.get("auction_market_city", None),
+                    state=request_data.get("auction_market_state", None)
+                )
+            delivery_location = sales_group_data["auction_market_name"]
         sales_group_id = SalesGroups(g.db).insert_sales_group(
             account=authenticated_account["id"],
             reported=reported_data,
@@ -384,7 +395,7 @@ def serve_insert_sales_group():
             weighing_conditions=sales_group_data["weighing_conditions"],
             show_account_carcass_data=1,
             is_api_insert=1,
-            auction_market_id=request_data.get("auction_market_id", None),
+            auction_market_id=auction_market_id,
             upload_file=request_data.get("upload_file", None)
         )
         SalesGroups(g.db).update_sales_group(
@@ -401,7 +412,13 @@ def serve_insert_sales_group():
                     file_name=file["file_name"],
                     file_link=file["file_link"]
                 )
-
+        if new_auction_market_created:
+            convert_auction_market_to_account(g.db, auction_market_id, sales_group_data["sales_group_name"])
+            return {
+                "response": "Sales Group Inserted. New Auction Market Created.",
+                "sales_group_id": sales_group_id,
+                "auction_market_id": auction_market_id
+            }, 200
         return {"response": "Sales Group Inserted", "sales_group_id": sales_group_id}, 200
     except ExportException as e:
         raise e
