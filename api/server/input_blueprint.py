@@ -625,7 +625,7 @@ def serve_update_sales_group():
                     )
         if new_auction_market_created:
             return {
-                "response": "Sales Group Inserted. New Auction Market Created.",
+                "response": "Sales Group Updated. New Auction Market Created.",
                 "sales_group_id": request_data["sales_group_id"],
                 "auction_market_id": auction_market_id
             }, 200
