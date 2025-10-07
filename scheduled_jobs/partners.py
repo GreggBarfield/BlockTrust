@@ -1,9 +1,9 @@
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.job_runs import JobRuns
 from core.database.tables.api_inserts import ApiInserts
-from core.database.tables.accounts import RED_ANGUS_PARTNER_COMPANY
+from core.database.tables.accounts import RED_ANGUS_PARTNER_COMPANY, NATIONAL_BEEF_COMPANY
 from core.utilities.email import send_email
-from core.config import ADMIN_EMAIL, RUN_NOTIFY_IF_NO_DATA_RECEIVED_FROM_PARTNER
+from core.config import ADMIN_EMAIL, RUN_NOTIFY_IF_NO_DATA_RECEIVED_FROM_PARTNER, RUN_NOTIFY_OF_DAILY_NATIONAL_BEEF_INSERTS
 import traceback
 import datetime
 import time
@@ -20,6 +20,14 @@ def notify_admin_if_no_data_received_from_partner(db):
             send_email(email_subject, email_body, ADMIN_EMAIL)
 
 
+def notify_admin_if_data_received_from_national_beef_partner(db):
+    partner = NATIONAL_BEEF_COMPANY
+    api_insert_count = ApiInserts(db).get_partner_api_inserts_count(partner_company_name=partner, interval=1)
+    email_subject = "National Beef API Update"
+    email_body = "API data received in the last day for account: " + partner + ". Number of Inserts: " + str(api_insert_count)
+    send_email(email_subject, email_body, ADMIN_EMAIL)
+
+
 def run_partner_tasks(job_run_id, db):
     try:
         log = {}
@@ -27,6 +35,11 @@ def run_partner_tasks(job_run_id, db):
             notify_admin_if_no_data_received_from_partner(db)
         else:
             log["RUN_NOTIFY_IF_NO_DATA_RECEIVED_FROM_PARTNER"] = False
+        
+        if RUN_NOTIFY_OF_DAILY_NATIONAL_BEEF_INSERTS:
+            notify_admin_if_data_received_from_national_beef_partner(db)
+        else:
+            log["RUN_NOTIFY_OF_DAILY_NATIONAL_BEEF_INSERTS"] = False
         JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"), log if log else None)
         print(Path(__file__).stem.capitalize() + " Job Exiting. Current time: ", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
     except Exception as e:

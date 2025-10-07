@@ -71,6 +71,7 @@
     },
     "run_jobs": {
         "notify_admin_if_no_data_received_from_partner": false,
+        "notify_admin_of_daily_national_beef_inserts": true,
         "payments": false
     },
     "herdwhistle": {
