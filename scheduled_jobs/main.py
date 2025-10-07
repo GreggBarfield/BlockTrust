@@ -80,7 +80,7 @@ try:
         #         print('Main: appended thread Payments', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         # this will run once between 9 and 10 AM
-        if datetime.time(0, 0, 0) <= current_time < datetime.time(23, 0, 0):
+        if datetime.time(9, 0, 0) <= current_time < datetime.time(10, 0, 0):
             if not any(t.getName() == "Partners" for t in threads):
                 job_run_id = JobRuns(db).insert("Partners", scheduled_jobs["Partners"].split('|')[0], scheduled_jobs["Partners"].split('|')[1])
                 t = Thread(target=run_partner_tasks, name="Partners", args=[job_run_id, Database(MYSQL_CONFIG)])
