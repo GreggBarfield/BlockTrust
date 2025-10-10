@@ -1,5 +1,4 @@
 FROM python:3.9-buster
-ENV PYTHONUNBUFFERED=1
 RUN apt update -y && apt upgrade -y
 WORKDIR /home/ubuntu/install
 COPY scheduled_jobs/docker/requirements.txt .
@@ -8,4 +7,5 @@ COPY core /home/ubuntu/blocktrust/core
 COPY scheduled_jobs /home/ubuntu/blocktrust/scheduled_jobs
 WORKDIR /home/ubuntu/blocktrust
 ENV PYTHONPATH /home/ubuntu/blocktrust
+ENV PYTHONUNBUFFERED=1
 CMD exec python3 scheduled_jobs/main.py
