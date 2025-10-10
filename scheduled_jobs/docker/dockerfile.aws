@@ -1,23 +1,11 @@
 FROM python:3.9-buster
-
-# Install stuff
+ENV PYTHONUNBUFFERED=1
 RUN apt update -y && apt upgrade -y
-
-# Set temporary install dir
 WORKDIR /home/ubuntu/install
-
-# Finish installing
 COPY scheduled_jobs/docker/requirements.txt .
 RUN python3 -m pip install -r requirements.txt
-
 COPY core /home/ubuntu/blocktrust/core
 COPY scheduled_jobs /home/ubuntu/blocktrust/scheduled_jobs
-
-# Set app dir
 WORKDIR /home/ubuntu/blocktrust
-
-# Help Python with local imports
 ENV PYTHONPATH /home/ubuntu/blocktrust
-
-# Run
 CMD exec python3 scheduled_jobs/main.py
