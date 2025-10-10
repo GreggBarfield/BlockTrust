@@ -5,12 +5,12 @@ from remapper import remap
 
 
 def _check_format(insert):
-    keys = [
-        "eid"
-    ]
-    for key in keys:
-        if key not in insert['fields']:
-            raise ExecutionException("Key missing: " + key)
+    eid_present = False
+    if "eid" in insert["fields"] or "EID" in insert["fields"]:
+        eid_present = True
+    if not eid_present:
+        raise ExecutionException("Key missing: EID")
+
 
 
 def handle(db: Database, insert):
@@ -21,7 +21,11 @@ def handle(db: Database, insert):
         "HotWt": "hot_weight"
     })
     partner_account = insert["account"]
-    eid = int(fields["eid"])
+    eid = 0
+    if "eid" in fields:
+        eid = int(fields["eid"])
+    elif "EID" in fields:
+        eid = int(fields["EID"])
     api_insert = insert["id"]
 
     if "plant_id" in fields:
