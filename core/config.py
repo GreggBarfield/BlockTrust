@@ -113,6 +113,7 @@ IPINFO_TOKEN = config_file["ipinfo"]["token"]
 CHECK_IP = config_file["ipinfo"]["check_ip"]
 
 RUN_NOTIFY_IF_NO_DATA_RECEIVED_FROM_PARTNER = config_file["run_jobs"]["notify_admin_if_no_data_received_from_partner"]
+RUN_NOTIFY_OF_DAILY_NATIONAL_BEEF_INSERTS = config_file["run_jobs"]["notify_admin_of_daily_national_beef_inserts"]
 PAYMENTS = config_file["run_jobs"]["payments"]
 
 HERDWHISTLE_API_KEY = config_file["herdwhistle"]["api_key"]
