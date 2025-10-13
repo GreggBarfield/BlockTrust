@@ -3,21 +3,11 @@ from core.database.tables.job_runs import JobRuns
 from core.database.tables.api_inserts import ApiInserts
 from core.database.tables.accounts import RED_ANGUS_PARTNER_COMPANY, NATIONAL_BEEF_COMPANY
 from core.utilities.email import send_email
-from core.config import ADMIN_EMAIL, RUN_NOTIFY_IF_NO_DATA_RECEIVED_FROM_PARTNER, RUN_NOTIFY_OF_DAILY_NATIONAL_BEEF_INSERTS
+from core.config import ADMIN_EMAIL, RUN_NOTIFY_OF_DAILY_NATIONAL_BEEF_INSERTS
 import traceback
 import datetime
 import time
 from pathlib import Path
-
-
-def notify_admin_if_no_data_received_from_partner(db):
-    partners = [RED_ANGUS_PARTNER_COMPANY]
-    for partner in partners:
-        api_insert_count = ApiInserts(db).get_partner_api_inserts_count(partner_company_name=partner, interval=7)
-        if api_insert_count == 0:
-            email_subject = "API Update"
-            email_body = "No API data received in the last 1 week for account: " + partner
-            send_email(email_subject, email_body, ADMIN_EMAIL)
 
 
 def notify_admin_if_data_received_from_national_beef_partner(db):
@@ -31,11 +21,6 @@ def notify_admin_if_data_received_from_national_beef_partner(db):
 def run_partner_tasks(job_run_id, db):
     try:
         log = {}
-        if RUN_NOTIFY_IF_NO_DATA_RECEIVED_FROM_PARTNER:
-            notify_admin_if_no_data_received_from_partner(db)
-        else:
-            log["RUN_NOTIFY_IF_NO_DATA_RECEIVED_FROM_PARTNER"] = False
-        
         if RUN_NOTIFY_OF_DAILY_NATIONAL_BEEF_INSERTS:
             notify_admin_if_data_received_from_national_beef_partner(db)
         else:
