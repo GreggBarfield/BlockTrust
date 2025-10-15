@@ -13,8 +13,8 @@ import stripe
 from ..blueprints.stripe import serve_stripe_price
 from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
 from ..database.tables.account_users import AccountUsers
-from ..database.tables.api_inserts import ApiInserts
-from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
+from ..database.tables.api_inserts import ApiInserts, STATUS_NAMES_TO_IDS
+from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts, NATIONAL_BEEF_COMPANY
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import Advertisements, ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
 from ..database.tables.auction_markets import AuctionMarkets
@@ -1185,3 +1185,35 @@ def serve_send_custom_emails():
             else:
                 return {"error": email_validation["message"]}
         return {"redirect": "/employee/dashboard/emails"}
+
+
+@bp.route('/employee/dashboard/national-beef-api-inserts-report', methods=["GET"])
+@crut.require_employee
+def serve_national_beef_api_inserts_report():
+    national_beef_account_id = None
+    national_beef_account_data = Accounts(g.db).get_partners(company=NATIONAL_BEEF_COMPANY)[0]
+    national_beef_account_id = national_beef_account_data["id"]
+
+    return employee_render("/employee/external-api-reports/national-beef.html", {"national_beef_account_id": 610}) # national_beef_account_id})
+
+
+@bp.route('/employee/fetch-api-inserts-report-by-account', methods=["POST"])
+@crut.require_employee
+def serve_fetch_api_inserts_report_by_account():
+    request_data = json.loads(request.data)
+    account_id  = request_data.get("account_id", None)
+    daily_api_inserts_counts = []
+    if account_id is not None:
+        daily_api_inserts_counts = ApiInserts(g.db).get_daily_api_inserts_count_for_account(account=account_id)
+        daily_processed_api_inserts_counts = ApiInserts(g.db).get_daily_api_inserts_count_for_account(
+            account=account_id,
+            status=STATUS_NAMES_TO_IDS["Done"]
+        )
+        daily_processed_api_inserts_counts_dict = {}
+        for processed_count in daily_processed_api_inserts_counts:
+            daily_processed_api_inserts_counts_dict[processed_count["inserts_date"]] = processed_count["inserts_count"]
+        for insert_count in daily_api_inserts_counts:
+            insert_count["processed_inserts_count"] = daily_processed_api_inserts_counts_dict.get(insert_count["inserts_date"], 0)
+            insert_count["inserts_date"] = insert_count["inserts_date"].strftime('%m-%d-%Y')
+
+    return {"daily_api_inserts_counts": daily_api_inserts_counts}, 200
