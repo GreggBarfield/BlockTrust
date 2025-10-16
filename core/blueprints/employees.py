@@ -1193,8 +1193,7 @@ def serve_national_beef_api_inserts_report():
     national_beef_account_id = None
     national_beef_account_data = Accounts(g.db).get_partners(company=NATIONAL_BEEF_COMPANY)[0]
     national_beef_account_id = national_beef_account_data["id"]
-
-    return employee_render("/employee/external-api-reports/national-beef.html", {"national_beef_account_id": 610}) # national_beef_account_id})
+    return employee_render("/employee/external-api-reports/national-beef.html", {"national_beef_account_id": national_beef_account_id})
 
 
 @bp.route('/employee/fetch-api-inserts-report-by-account', methods=["POST"])
