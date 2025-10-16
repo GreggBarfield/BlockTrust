@@ -122,7 +122,7 @@ class ApiInserts:
 
     def get_daily_api_inserts_count_for_account(self, account=NO_VALUE, status=NO_VALUE):
         """
-        Returns the list daily API inserts count based on attributes provided
+        Returns the list of daily API inserts count based on attributes provided
 
         Params:
             account: Account ID of account inserting the records
