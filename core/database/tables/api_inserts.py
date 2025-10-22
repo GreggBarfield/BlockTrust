@@ -4,6 +4,18 @@ from ..no_value import NoValue
 
 NO_VALUE = NoValue()
 
+STATUS_IDS_TO_NAMES = {
+    0: "Pending",
+    1: "Done",
+    2: "Blocked",
+    3: "Running",
+    4: "Bad Namespace",
+    5: "Bad Type",
+    6: "Exception",
+    7: "Duplicate"
+}
+STATUS_NAMES_TO_IDS = {b: a for a, b in STATUS_IDS_TO_NAMES.items()}
+
 class ApiInserts:
 
     def __init__(self, db):
@@ -108,5 +120,42 @@ class ApiInserts:
         api_insert_rows = self._db.execute_d(query, query_values)
         if len(api_insert_rows) > 0:
             return api_insert_rows
+        else:
+            return []
+
+    def get_daily_api_inserts_count_for_account(self, account=NO_VALUE, status=NO_VALUE):
+        """
+        Returns the list of daily API inserts count based on attributes provided
+
+        Params:
+            account: Account ID of account inserting the records
+            status: Processing status of the Records  
+
+        Returns:
+            A list of API inserts count aggregated by date of insertion  
+        """
+        base_query = "SELECT DATE(created) as inserts_date, count(*) as inserts_count from api_inserts"
+
+        query_conditions = []
+        query_values = {}
+
+        if account is not NO_VALUE:
+            query_conditions.append("account = %(account)s")
+            query_values["account"] = account
+        if status is not NO_VALUE:
+            query_conditions.append("status = %(status)s")
+            query_values["status"] = status
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        group_by_clause = " group by DATE(created)"
+
+        query = base_query + combined_query_condition + group_by_clause
+        api_insert_counts = self._db.execute_d(query, query_values)
+        if len(api_insert_counts) > 0:
+            return api_insert_counts
         else:
             return []

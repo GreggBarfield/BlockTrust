@@ -1,0 +1,24 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "National Beef API Report" %}
+{% set employee_locations = [("/employee/dashboard", "Dashboard")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+<div class="card col-md-12 d-inline-block">
+    <div class="card-header">
+        <h5>National Beef API Report</h5>
+    </div>
+    <div class="card-body">
+        <table class="table" id="api-report-table"></table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    let national_beef_account_id = '{{ national_beef_account_id }}';    
+</script>
+<script type="module" src="/static/entry_points/employee/external-api-reports/national-beef.mjs"></script>
+{% endblock employee_content %}
