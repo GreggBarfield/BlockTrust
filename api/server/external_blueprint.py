@@ -400,14 +400,25 @@ def serve_fetch_packer_carcass_data():
         start_timestamp_object = datetime.strptime(start_timestamp, start_timestamp_format)
         start_timestamp_string = start_timestamp_object.strftime('%Y-%m-%d %H:%M:%S')
 
-        packer_api_inserts = ApiInserts(g.db).get_api_inserts(account=packer_account_id)
+        packer_api_inserts = ApiInserts(g.db).get_api_inserts(
+            account=packer_account_id,
+            created_start_time=start_timestamp_string
+        )
 
         packer_api_insert_ids = [packer_api_insert["id"] for packer_api_insert in packer_api_inserts]
 
         packer_animals = Animals(g.db).get_animals_by_packer_insert_ids(
-            packer_insert_ids=packer_api_insert_ids,
-            last_updated_start_time=start_timestamp_string
+            packer_insert_ids=packer_api_insert_ids
         )
+        for packer_animal in packer_animals:
+            eid_matches = Matches(g.db).get_animal_by_eid(packer_animal["eid"])
+            for eid_match in eid_matches.matches:
+                if eid_match["type"] == MATCH_TYPES_NAME_TO_ID["Hot Weight"]:
+                    packer_animal["hot_weight"] = eid_match["data"]
+                elif eid_match["type"] == MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"]:
+                    packer_animal["quality_grade"] = eid_match["data"]
+                elif eid_match["type"] == MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"]:
+                    packer_animal["yield_grade"] = eid_match["data"]
         return {"packer_carcass_data": packer_animals}, 200
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())

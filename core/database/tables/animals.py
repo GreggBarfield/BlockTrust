@@ -384,7 +384,7 @@ class Animals:
             raise Exception("No values set to update Animal")
 
 
-    def get_animals_by_packer_insert_ids(self, last_updated_start_time=NO_VALUE, packer_insert_ids=NO_VALUE):
+    def get_animals_by_packer_insert_ids(self, packer_insert_ids=NO_VALUE):
             """
             Get animals by the packer insert ID values specified.
 
@@ -398,10 +398,8 @@ class Animals:
             query_values = {}
             base_query = "SELECT * FROM animals WHERE packer_api_insert_id in "
             packer_insert_ids_condition = "(" + ",".join(str(packer_insert_id) for packer_insert_id in packer_insert_ids) + ")"
-            last_updated_since_condition = "last_updated_timestamp BETWEEN %(last_updated_start_time)s AND '" + time.strftime('%Y-%m-%d %H:%M:%S') + "'"
-            query_values["last_updated_start_time"] = last_updated_start_time
 
-            query = base_query + packer_insert_ids_condition + " AND " + last_updated_since_condition
+            query = base_query + packer_insert_ids_condition
 
             animal_rows = self._db.execute_d(query, query_values)
             if len(animal_rows) > 0:
