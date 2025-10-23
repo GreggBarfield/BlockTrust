@@ -65,7 +65,7 @@ class ApiInserts:
 
 
     def get_api_inserts(self, id=NO_VALUE, account=NO_VALUE, namespace=NO_VALUE, type=NO_VALUE, row=NO_VALUE,
-                        block=NO_VALUE, status=NO_VALUE):
+                        block=NO_VALUE, status=NO_VALUE, created_start_time=NO_VALUE):
         
         """
         Returns the list API inserts based on attributes provided
@@ -107,6 +107,9 @@ class ApiInserts:
         if status is not NO_VALUE:
             query_conditions.append("status = %(status)s")
             query_values["status"] = status
+        if created_start_time is not NO_VALUE:
+            query_conditions.append("created > %(created_start_time)s")
+            query_values["created_start_time"] = created_start_time
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
