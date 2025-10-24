@@ -419,6 +419,8 @@ def serve_fetch_packer_carcass_data():
                     packer_animal["quality_grade"] = eid_match["data"]
                 elif eid_match["type"] == MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"]:
                     packer_animal["yield_grade"] = eid_match["data"]
+                elif eid_match["type"] == MATCH_TYPES_NAME_TO_ID["Died"]:
+                    packer_animal["kill_date"] = eid_match["data"]
         return {"packer_carcass_data": packer_animals}, 200
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())

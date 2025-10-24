@@ -1,4 +1,4 @@
-from api.translation_worker.types.helper import process_grades_and_weight, process_packer_data, process_sighting
+from api.translation_worker.types.helper import process_grades_and_weight, process_packer_data, process_sighting, process_kill_date
 from ...exceptions import ExecutionException
 from core.database.database import Database
 from remapper import remap
@@ -83,3 +83,10 @@ def handle(db: Database, insert):
         dark_cutter=fields.get("dark_cutter", None),
         average_lot_live=fields.get("Avg_Lot_Live", None)
     )
+
+    if fields.get("kill_date", None) is not None:
+        process_kill_date(
+            db, eid=eid, partner_account=partner_account, api_insert_id=api_insert,
+            packer_account_link_id=packer_account_link_id,
+            kill_date=fields.get("kill_date", None)
+        )

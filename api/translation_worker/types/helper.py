@@ -373,3 +373,16 @@ def process_grades_and_weight(
                     account_link=packer_account_link_id,
                     api_insert=api_insert_id
                 )
+
+
+def process_kill_date(db, eid, partner_account, api_insert_id, packer_account_link_id, kill_date):
+    time = all_to_unix(kill_date)
+    Matches(db).types.insert_died(
+        eid=eid,
+        time=time,
+        partner_account=partner_account,
+        data=kill_date,
+        reason=None,
+        account_link=packer_account_link_id,
+        api_insert=api_insert_id
+    )
