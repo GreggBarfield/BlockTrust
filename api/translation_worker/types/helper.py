@@ -384,8 +384,7 @@ def process_kill_date(db, eid, partner_account, api_insert_id, packer_account_li
             eid=eid,
             time=time,
             partner_account=partner_account,
-            data=kill_date,
-            reason=None,
+            reason=kill_date,
             account_link=packer_account_link_id,
             api_insert=api_insert_id
         )
