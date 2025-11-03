@@ -395,6 +395,8 @@ class Animals:
             Returns:
                 A list of animal row(s) if found else []
             """
+            if len(packer_insert_ids) == 0:
+                return []
             query_values = {}
             base_query = "SELECT * FROM animals WHERE packer_api_insert_id in "
             packer_insert_ids_condition = "(" + ",".join(str(packer_insert_id) for packer_insert_id in packer_insert_ids) + ")"
