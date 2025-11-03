@@ -245,12 +245,6 @@ class ApiInserts:
         Returns:
             List of API inserts
         """
-        
-        query = "SELECT count(*) as total_count FROM api_inserts"
-        query = """
-
-            select count(*) as total_inserts from api_inserts where account=905 and created > '2025-10-30' and created < '2025-11-1';
-        """
         total_inserts_rows = self._db.execute_d("""
             SELECT count(*) as total_inserts from api_inserts 
             where account=%(account)s and created > %(created_start_time)s and created < %(created_end_time)s
