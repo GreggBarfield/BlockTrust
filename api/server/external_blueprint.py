@@ -510,6 +510,8 @@ def serve_fetch_paginated_packer_carcass_data():
             return {"error": "Please provide a page number for the records(page_number)."}
         
         OFFSET = (page_number - 1) * API_INSERTS_PAGINATION_LIMIT
+        if OFFSET < 0:
+            return {"error": "Please provide a valid page number for the records(page_number)."}
 
         packer_api_inserts = ApiInserts(g.db).get_api_inserts_with_offset_and_limit(
             account=packer_account_id,
