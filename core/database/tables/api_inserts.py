@@ -16,6 +16,8 @@ STATUS_IDS_TO_NAMES = {
 }
 STATUS_NAMES_TO_IDS = {b: a for a, b in STATUS_IDS_TO_NAMES.items()}
 
+API_INSERTS_PAGINATION_LIMIT = 1000
+
 class ApiInserts:
 
     def __init__(self, db):
@@ -159,3 +161,105 @@ class ApiInserts:
             return api_insert_counts
         else:
             return []
+        
+
+    def get_api_inserts_with_offset_and_limit(self, id=NO_VALUE, account=NO_VALUE, namespace=NO_VALUE, type=NO_VALUE,
+                                              row=NO_VALUE, block=NO_VALUE, status=NO_VALUE, created_start_time=NO_VALUE,
+                                              created_end_time=NO_VALUE, offset=NO_VALUE):
+        
+        """
+        Returns the list API inserts based on attributes provided
+
+        Params:
+            id: ID of the insert
+            account: Account ID of account performing the insert
+            namespace: Insert namespace
+            type: Type of Insert
+            status: Status of Insert
+
+        Returns:
+            List of API inserts
+        """
+        
+        base_query = "SELECT * FROM api_inserts"
+
+        query_conditions = []
+        query_values = {}
+
+        if id is not NO_VALUE:
+            query_conditions.append("id = %(id)s")
+            query_values["id"] = id
+        if account is not NO_VALUE:
+            query_conditions.append("account = %(account)s")
+            query_values["account"] = account
+        if namespace is not NO_VALUE:
+            query_conditions.append("namespace = %(namespace)s")
+            query_values["namespace"] = namespace
+        if type is not NO_VALUE:
+            query_conditions.append("type = %(type)s")
+            query_values["type"] = type
+        if row is not NO_VALUE:
+            query_conditions.append("row = %(row)s")
+            query_values["row"] = row
+        if block is not NO_VALUE:
+            query_conditions.append("block = %(block)s")
+            query_values["block"] = block
+        if status is not NO_VALUE:
+            query_conditions.append("status = %(status)s")
+            query_values["status"] = status
+        if created_start_time is not NO_VALUE:
+            query_conditions.append("created > %(created_start_time)s")
+            query_values["created_start_time"] = created_start_time
+        if created_end_time is not NO_VALUE:
+            query_conditions.append("created < %(created_end_time)s")
+            query_values["created_end_time"] = created_end_time
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        limit_and_offset = " LIMIT " + str(API_INSERTS_PAGINATION_LIMIT)
+        if offset:
+            limit_and_offset += " OFFSET " + str(offset)
+
+        query = base_query + combined_query_condition + limit_and_offset
+        print(query)
+        api_insert_rows = self._db.execute_d(query, query_values)
+        if len(api_insert_rows) > 0:
+            return api_insert_rows
+        else:
+            return []        
+
+    def get_api_inserts_total_pages(self, account=NO_VALUE, created_start_time=NO_VALUE, created_end_time=NO_VALUE):
+        
+        """
+        Returns the list API inserts based on attributes provided
+
+        Params:
+            id: ID of the insert
+            account: Account ID of account performing the insert
+            namespace: Insert namespace
+            type: Type of Insert
+            status: Status of Insert
+
+        Returns:
+            List of API inserts
+        """
+        
+        query = "SELECT count(*) as total_count FROM api_inserts"
+        query = """
+
+            select count(*) as total_inserts from api_inserts where account=905 and created > '2025-10-30' and created < '2025-11-1';
+        """
+        total_inserts_rows = self._db.execute_d("""
+            SELECT count(*) as total_inserts from api_inserts 
+            where account=%(account)s and created > %(created_start_time)s and created < %(created_end_time)s
+        """, {
+            "account": account,
+            "created_start_time": created_start_time,
+            "created_end_time": created_end_time
+        })
+        total_inserts = total_inserts_rows[0]["total_inserts"]
+        total_pages = (total_inserts // API_INSERTS_PAGINATION_LIMIT) + 1
+        return total_pages
