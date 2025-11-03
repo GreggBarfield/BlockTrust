@@ -224,12 +224,11 @@ class ApiInserts:
             limit_and_offset += " OFFSET " + str(offset)
 
         query = base_query + combined_query_condition + limit_and_offset
-        print(query)
         api_insert_rows = self._db.execute_d(query, query_values)
         if len(api_insert_rows) > 0:
             return api_insert_rows
         else:
-            return []        
+            return []     
 
     def get_api_inserts_total_pages(self, account=NO_VALUE, created_start_time=NO_VALUE, created_end_time=NO_VALUE):
         
