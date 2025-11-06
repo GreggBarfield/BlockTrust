@@ -65,7 +65,7 @@ def handle(db: Database, insert):
         carcass_weight=fields.get("hot_weight", None),
         packer_account_id=packer["id"] if packer else None
     )
-    print(fields)
+
     process_packer_data(
         db=db, eid=eid, api_insert_id=api_insert,
         harvest_date=fields.get("harvest_date", None),
