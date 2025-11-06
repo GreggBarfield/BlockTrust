@@ -264,7 +264,8 @@ def process_feeder_data(db, input_data, eid, api_insert_id, timezone=None):
 def process_packer_data(db, eid, api_insert_id, harvest_date=None, program_certification=None,
                         marbling_score=None, marbling_score_code=None, ribeye_area=None, fat_thickness=None,
                         calculated_live_weight=None, total_gain=None, days_on_test=None, average_daily_gain=None,
-                        over_30=None, hard_bone=None, dark_cutter=None, average_lot_live=None,  timezone=None):
+                        over_30=None, hard_bone=None, dark_cutter=None, average_lot_live=None,  timezone=None,
+                        back_fat=None):
     packer_data = {}
     if harvest_date and harvest_date.strip():
         packer_data["harvest_date"] = (
@@ -297,6 +298,8 @@ def process_packer_data(db, eid, api_insert_id, harvest_date=None, program_certi
         packer_data["dark_cutter"] = int(dark_cutter)
     if average_lot_live and average_lot_live.strip():
         packer_data["average_lot_live"] = float(average_lot_live)
+    if back_fat and back_fat.strip():
+        packer_data["back_fat"] = back_fat.strip()
 
     if packer_data:
         try:

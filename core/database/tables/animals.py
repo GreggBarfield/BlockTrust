@@ -35,7 +35,7 @@ class Animals:
                               sire_epd_wean_weight=None, sire_epd_yearling_weight=None, sire_epd_dry_matter_intake=None,
                               sire_epd_carcass_weight=None, sire_epd_rib_fat=None, sire_epd_ribeye_area=None,
                               sire_epd_certified_hereford_beef_index=None, sire_epd_marbling=None,
-                              over_30=None, hard_bone=None, dark_cutter=None, average_lot_live=None):
+                              over_30=None, hard_bone=None, dark_cutter=None, average_lot_live=None, back_fat=None):
         """
         Validates and inserts a new animal record
 
@@ -58,7 +58,7 @@ class Animals:
             calculated_live_weight, total_gain, days_on_test, average_daily_gain, packer_api_insert_id,
             feeder_api_insert_id, is_paid, sire_epd_wean_weight, sire_epd_yearling_weight, sire_epd_dry_matter_intake,
             sire_epd_carcass_weight, sire_epd_rib_fat, sire_epd_ribeye_area, sire_epd_certified_hereford_beef_index,
-            sire_epd_marbling, over_30, hard_bone, dark_cutter, average_lot_live
+            sire_epd_marbling, over_30, hard_bone, dark_cutter, average_lot_live, back_fat
         )
 
     def insert_animal(self, eid, visual_id=None, breed=None, calf_registration_number=None,
@@ -73,7 +73,8 @@ class Animals:
                       packer_api_insert_id=None, feeder_api_insert_id=None, is_paid=None, sire_epd_wean_weight=None,
                       sire_epd_yearling_weight=None, sire_epd_dry_matter_intake=None, sire_epd_carcass_weight=None,
                       sire_epd_rib_fat=None, sire_epd_ribeye_area=None, sire_epd_certified_hereford_beef_index=None,
-                      sire_epd_marbling=None, over_30=None, hard_bone=None, dark_cutter=None, average_lot_live=None):
+                      sire_epd_marbling=None, over_30=None, hard_bone=None, dark_cutter=None, average_lot_live=None,
+                      back_fat=None):
         """
         Inserts a new animal record
 
@@ -93,7 +94,8 @@ class Animals:
                     fat_thickness, calculated_live_weight, total_gain, days_on_test, average_daily_gain,
                     packer_api_insert_id, feeder_api_insert_id, is_paid, sire_epd_wean_weight, sire_epd_yearling_weight,
                     sire_epd_dry_matter_intake, sire_epd_carcass_weight, sire_epd_rib_fat, sire_epd_ribeye_area,
-                    sire_epd_certified_hereford_beef_index, sire_epd_marbling, over_30, hard_bone, dark_cutter, average_lot_live
+                    sire_epd_certified_hereford_beef_index, sire_epd_marbling, over_30, hard_bone, dark_cutter, average_lot_live,
+                    back_fat
                 )
                 VALUES (
                     %(eid)s, %(visual_id)s, %(breed)s, %(calf_registration_number)s, %(sire_registration_number)s,
@@ -108,7 +110,7 @@ class Animals:
                     %(sire_epd_wean_weight)s, %(sire_epd_yearling_weight)s, %(sire_epd_dry_matter_intake)s,
                     %(sire_epd_carcass_weight)s, %(sire_epd_rib_fat)s, %(sire_epd_ribeye_area)s,
                     %(sire_epd_certified_hereford_beef_index)s, %(sire_epd_marbling)s, %(over_30)s, %(hard_bone)s, 
-                    %(dark_cutter)s, %(average_lot_live)s
+                    %(dark_cutter)s, %(average_lot_live)s, %(back_fat)s
                 )
             """,
             {
@@ -161,7 +163,8 @@ class Animals:
                 "over_30": over_30,
                 "hard_bone": hard_bone,
                 "dark_cutter": dark_cutter,
-                "average_lot_live": average_lot_live
+                "average_lot_live": average_lot_live,
+                "back_fat": back_fat
             }
         )
         return self._db.last_row_id()
@@ -215,7 +218,7 @@ class Animals:
                       sire_epd_dry_matter_intake=NO_VALUE, sire_epd_carcass_weight=NO_VALUE, sire_epd_rib_fat=NO_VALUE,
                       sire_epd_ribeye_area=NO_VALUE, sire_epd_certified_hereford_beef_index=NO_VALUE,
                       sire_epd_marbling=NO_VALUE, over_30=NO_VALUE, hard_bone=NO_VALUE, dark_cutter=NO_VALUE,
-                      average_lot_live=NO_VALUE):
+                      average_lot_live=NO_VALUE, back_fat=NO_VALUE):
         """
         Updates an animal.
         """
@@ -375,6 +378,9 @@ class Animals:
         if average_lot_live is not NO_VALUE:
             query_conditions.append("average_lot_live = %(average_lot_live)s")
             query_values["average_lot_live"] = average_lot_live
+        if back_fat is not NO_VALUE:
+            query_conditions.append("back_fat = %(back_fat)s")
+            query_values["back_fat"] = back_fat
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE eid=%(eid)s"

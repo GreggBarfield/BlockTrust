@@ -65,7 +65,7 @@ def handle(db: Database, insert):
         carcass_weight=fields.get("hot_weight", None),
         packer_account_id=packer["id"] if packer else None
     )
-
+    print(fields)
     process_packer_data(
         db=db, eid=eid, api_insert_id=api_insert,
         harvest_date=fields.get("harvest_date", None),
@@ -81,7 +81,8 @@ def handle(db: Database, insert):
         over_30=fields.get("over_30", None),
         hard_bone=fields.get("hard_bone", None),
         dark_cutter=fields.get("dark_cutter", None),
-        average_lot_live=fields.get("Avg_Lot_Live", None)
+        average_lot_live=fields.get("Avg_Lot_Live", None),
+        back_fat=fields.get("back_fat", None)
     )
 
     if fields.get("kill_date", None) is not None:
