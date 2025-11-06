@@ -85,11 +85,7 @@ export class InvoiceWidget extends Widget {
         orderConfirmationText.textContent = "Order Confirmation:";
         orderConfirmationContainer.append(orderConfirmationText);
         let subText = document.createElement("h5");
-        subText.textContent = "Thank you for your order.If you have any questions please ";
-        let contactUsLink = document.createElement("a");
-        contactUsLink.textContent = "contact us.";
-        contactUsLink.href = "/about-us/contact-us";
-        subText.appendChild(contactUsLink);
+        subText.textContent = "Thank you for your order";
         orderConfirmationContainer.append(subText);
         return orderConfirmationContainer;
     }

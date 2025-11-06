@@ -1,5 +1,5 @@
 from flask import (
-    jsonify, request, Blueprint, g, redirect, url_for, send_from_directory, Response
+    jsonify, request, Blueprint, g, redirect, url_for, send_from_directory, Response, abort
 )
 
 from ..renderers.outside import outside_render
@@ -216,6 +216,8 @@ def serve_signup_action():
 def serve_about_us(path):
     if '.' in path:
         return "Error accessing " + path + ": '.' should not be included"
+    if "contact-us" in path:
+        abort(404)
     return outside_render('about-us/' + path + '.html')
 
 
@@ -262,21 +264,21 @@ def serve_favicon():
     return redirect("/static/favicon.ico")
 
 
-@bp.route('/outside/contact_response', methods=['POST'])
-def serve_contact_form_response():
-    send_email(
-        "New Contact Us Response",
-        render_email("contact_us_response.html", {
-            'first': request.json['first'],
-            'last': request.json['last'],
-            'phone': request.json['phone'],
-            'email': request.json['email'],
-            'message': request.json['message'],
-            'message_title': "New Contact Us Response"
-        }),
-        ADMIN_EMAIL
-    )
-    return {}
+# @bp.route('/outside/contact_response', methods=['POST'])
+# def serve_contact_form_response():
+#     send_email(
+#         "New Contact Us Response",
+#         render_email("contact_us_response.html", {
+#             'first': request.json['first'],
+#             'last': request.json['last'],
+#             'phone': request.json['phone'],
+#             'email': request.json['email'],
+#             'message': request.json['message'],
+#             'message_title': "New Contact Us Response"
+#         }),
+#         ADMIN_EMAIL
+#     )
+#     return {}
 
 # Request a password reset
 
