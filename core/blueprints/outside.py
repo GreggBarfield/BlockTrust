@@ -148,15 +148,17 @@ def serve_signup_action():
             raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
     if int(request.form["are_auction_markets_used_by_account"]) == 1 and len(loads(request.form["auction_markets"])) == 0:
         raise ExportException("Please Select Auction Market(s)")
-
+    if request.form['ip_country'] and request.form['ip_country'] not in ('IN', 'US', 'USA'):
+        RejectedRegistrations(g.db).insert_rejected_registration(required, {'country': request.form['ip_country']})
+        return {"redirect": "/not-authorized-to-register"}
     if request.form.get('token', None) is not None:
         data = {
             "secret": RECAPTCHA_SECRET_KEY,
             "response": request.form['token']
         }
-        verification_response = post("https://www.google.com/recaptcha/api/siteverify", data=data)
-        verification_response_json = verification_response.json()
-        if verification_response_json['success']  and verification_response_json['score'] >= RECAPTCHA_MIN_SCORE:
+        response = post("https://www.google.com/recaptcha/api/siteverify", data=data)
+        resp_json = response.json()
+        if resp_json['success']  and resp_json['score'] >= RECAPTCHA_MIN_SCORE:
             # Sign up
             try:
                 auth.signup(
@@ -176,7 +178,7 @@ def serve_signup_action():
                     state=required['state'],
                     zip_code=required['zip_code'],
                     personal_phone=request.form['personal_phone'],
-                    recaptcha_score=verification_response_json['score'],
+                    recaptcha_score=resp_json['score'],
                     ip_address=request.form['ip_address'],
                     ip_country=request.form['ip_country'],
                     auction_markets_used=loads(request.form["auction_markets"]),
@@ -203,7 +205,7 @@ def serve_signup_action():
             )
             return {"redirect": "/email_not_verified"}
         else:
-            RejectedRegistrations(g.db).insert_rejected_registration(required, verification_response_json)
+            RejectedRegistrations(g.db).insert_rejected_registration(required, resp_json)
             return {"redirect": "/not-authorized-to-register"}
     else:
         raise ExportException("There was an error verifying your registration. Please try again or write to us at info@blocktrustnetwork.com")
