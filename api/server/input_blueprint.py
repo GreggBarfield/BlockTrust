@@ -20,13 +20,14 @@ from core.database.tables.accounts import Accounts
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.auction_markets import AuctionMarkets
 from core.database.tables.error_logs import ErrorLogs
+from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from core.database.tables.files import Files, SALES_GROUP_FILES_S3_PATH
 from core.database.tables.sales_groups import SalesGroups
 from core.database.tables.users import Users, UsersException
 from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG, TEMPORARY_SALES_GROUP_API_TOKEN, TEMPORARY_CREATE_ACCOUNT_API_TOKEN
 from core.common_exceptions import ExportException
 from core.utilities import auth
-from core.utilities.field_lists import SALES_GROUP_REPORTED_FIELDS
+from core.utilities.field_lists import SALES_GROUP_REPORTED_FIELDS, CARCASS_DATA_ACCEPTED_FIELDS
 
 from datetime import datetime
 from traceback import format_exc
@@ -159,7 +160,7 @@ def serve_api():
 
 
 @bp.route('/api/v2', methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def serve_api_v2():
     try:
         # Decode the data
@@ -208,6 +209,19 @@ def serve_api_v2():
             left = 0
             size = 5000
             right = 0
+            received_fields = action["data"]["fields"]
+            for field in received_fields:
+                if field not in CARCASS_DATA_ACCEPTED_FIELDS:
+                    details = {
+                        "api_action": action["action"],
+                        "api_action_type": action["data"]["type"],
+                        "unknown_field_name": field
+                    }
+                    EventLogs(g.db).insert(
+                        event_type_id=EVENT_TYPE_NAMES_TO_IDS["Unknown Field in API request"],
+                        account_id=data["account"],
+                        details=details
+                    )
             while left < len(rows):
                 right = left + size
                 if right > len(rows):
@@ -255,7 +269,7 @@ def serve_api_v2():
 
                 left = right
 
-        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, user_id=get_jwt().get("user_id"), account_id=get_jwt().get("account_id"), employee_id=get_jwt().get("employee_id"))
+#         APIDataRequests(g.db).insert_api_data_request(api_route=request.path, user_id=get_jwt().get("user_id"), account_id=get_jwt().get("account_id"), employee_id=get_jwt().get("employee_id"))
         # All-good
         print("api good")
         return "", 200

@@ -1,0 +1,24 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Unknown API Fields Logs" %}
+{% set employee_locations = [("/employee/dashboard", "Dashboard")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+<div class="card col-md-12 d-inline-block">
+    <div class="card-header">
+        <h5>Unknown API Fields Logs</h5>
+    </div>
+    <div class="card-body">
+        <table class="table" id="unknown-api-fields-table"></table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var unknownFieldsEventLogs = JSON.parse('{{ unknown_fields_event_logs|tojson }}');
+</script>
+<script type="module" src="/static/entry_points/employee/external-api-reports/unknown-api-fields-logs.mjs"></script>
+{% endblock employee_content %}

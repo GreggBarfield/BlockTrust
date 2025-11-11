@@ -25,7 +25,8 @@ EVENT_TYPE_NAMES_TO_IDS = {
     "Login Failed": 19,
     "User Login": 20,
     "Account Created By Partner": 21,
-    "Account Deleted": 22
+    "Account Deleted": 22,
+    "Unknown Field in API request": 23
 }
 EVENT_TYPE_IDS_TO_NAMES = {
     value: key

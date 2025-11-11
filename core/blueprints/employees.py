@@ -1216,3 +1216,16 @@ def serve_fetch_api_inserts_report_by_account():
             insert_count["inserts_date"] = insert_count["inserts_date"].strftime('%m-%d-%Y')
 
     return {"daily_api_inserts_counts": daily_api_inserts_counts}, 200
+
+
+@bp.route('/employee/dashboard/unknown-api-fields-logs', methods=["GET"])
+@crut.require_employee
+def serve_unknown_api_fields_logs():
+    unknown_fields_event_logs = EventLogs(g.db).get(
+        event_type_id=EVENT_TYPE_NAMES_TO_IDS["Unknown Field in API request"],
+        event_logs_order_by="created_timestamp",
+        event_logs_sort_by="DESC"
+    )
+    return employee_render("/employee/external-api-reports/unknown-api-fields-logs.html", {
+        "unknown_fields_event_logs": unknown_fields_event_logs
+    })
