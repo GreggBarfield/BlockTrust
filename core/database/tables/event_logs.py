@@ -1,5 +1,5 @@
 from ..no_value import NoValue
-from json import dumps, loads
+from json import dumps
 
 NO_VALUE = NoValue()
 
