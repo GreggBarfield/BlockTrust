@@ -1,5 +1,5 @@
 from ..no_value import NoValue
-from json import dumps
+from json import dumps, loads
 
 NO_VALUE = NoValue()
 
@@ -95,6 +95,8 @@ class EventLogs:
 
         event_rows = self._db.execute_d(query, query_values)
         if len(event_rows) > 0:
+            for event_log in event_rows:
+                event_log["details"] = loads(event_log["details"])
             return event_rows
         else:
             return []

@@ -160,7 +160,7 @@ def serve_api():
 
 
 @bp.route('/api/v2', methods=["POST"])
-# @jwt_required()
+@jwt_required()
 def serve_api_v2():
     try:
         # Decode the data
@@ -269,7 +269,7 @@ def serve_api_v2():
 
                 left = right
 
-#         APIDataRequests(g.db).insert_api_data_request(api_route=request.path, user_id=get_jwt().get("user_id"), account_id=get_jwt().get("account_id"), employee_id=get_jwt().get("employee_id"))
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, user_id=get_jwt().get("user_id"), account_id=get_jwt().get("account_id"), employee_id=get_jwt().get("employee_id"))
         # All-good
         print("api good")
         return "", 200

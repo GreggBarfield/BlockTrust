@@ -13,12 +13,29 @@
         <h5>Unknown API Fields Logs</h5>
     </div>
     <div class="card-body">
-        <table class="table" id="unknown-api-fields-table"></table>
+        <table class="table" id="unknown-api-fields-table">
+            <thead>
+                <th>Account ID</th>
+                <th>Date</th>
+                <th>Details</th>
+            </thead>
+            <tbody>
+                {% for unknown_field_log in unknown_fields_event_logs %}
+                <tr>
+                    <td>{{ unknown_field_log.account_id }}</td>
+                    <td>{{ unknown_field_log.created_timestamp.strftime("%m/%d/%Y at %H:%M") }}</td>
+                    <td>
+                        <ul>
+                            <li>API Action: {{ unknown_field_log.details.api_action }}</li>
+                            <li>API Action Type: {{ unknown_field_log.details.api_action_type }}</li>
+                            <li>Unknown Field: {{ unknown_field_log.details.unknown_field_name }}</li>
+                        </ul>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
-
-<script type="text/javascript">
-    var unknownFieldsEventLogs = JSON.parse('{{ unknown_fields_event_logs|tojson }}');
-</script>
 <script type="module" src="/static/entry_points/employee/external-api-reports/unknown-api-fields-logs.mjs"></script>
 {% endblock employee_content %}
