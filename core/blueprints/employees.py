@@ -1226,6 +1226,9 @@ def serve_unknown_api_fields_logs():
         event_logs_order_by="created_timestamp",
         event_logs_sort_by="DESC"
     )
+    for event in unknown_fields_event_logs:
+        if event["details"] is not None:
+            event["details"] = json.loads(event["details"])
     return employee_render("/employee/external-api-reports/unknown-api-fields-logs.html", {
         "unknown_fields_event_logs": unknown_fields_event_logs
     })
