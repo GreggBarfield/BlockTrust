@@ -544,7 +544,7 @@ def serve_fetch_paginated_packer_carcass_data():
 
 
 @bp.route("/fetch-packer-carcass-data-total-pages-v2", methods=["GET"])
-# @jwt_required()
+@jwt_required()
 def serve_fetch_packer_carcass_data_total_pages_v2():
     try:
         try:
@@ -588,7 +588,7 @@ def serve_fetch_packer_carcass_data_total_pages_v2():
 
 
 @bp.route("/fetch-paginated-packer-carcass-data-v2", methods=["GET"])
-# @jwt_required()
+@jwt_required()
 def serve_fetch_packer_carcass_data_v2():
     try:
         try:
