@@ -3,6 +3,7 @@ import time
 
 NO_VALUE = NoValue()
 
+ANIMALS_PAGINATION_LIMIT = 1000
 
 class AnimalsException(Exception):
     """Animal exception."""
@@ -395,7 +396,6 @@ class Animals:
             Get animals by the packer insert ID values specified.
 
             Params:
-                last_updated_start_time: The start timestamp from where all updated records need to be fetched
                 packer_insert_ids: A lisy of IDs from api_inserts table representing the Packer Inserts
 
             Returns:
@@ -414,3 +414,62 @@ class Animals:
                 return animal_rows
             else:
                 return []
+    
+
+    def get_animals_by_packer_api_insert_ids(self, account_id, created_start_time, created_end_time, offset):
+            """
+            Get animals by the packer insert ID values specified.
+
+            Params:
+                account_id: Account Id of packer for carcass data
+                created_start_time: Start time from when records are to be searched
+                created_end_time: End time to which records are to be searched
+
+            Returns:
+                A list of animal row(s) if found else []
+            """
+            query_values = {}
+            query_values["account_id"] = account_id
+            query_values["created_start_time"] = created_start_time
+            query_values["created_end_time"] = created_end_time
+            query_values["limit"] = ANIMALS_PAGINATION_LIMIT
+            query_values["offset"] = offset
+            query = """
+                SELECT * FROM animals WHERE packer_api_insert_id in 
+                (SELECT id FROM api_inserts where account=%(account_id)s and created > %(created_start_time)s and created < %(created_end_time)s)
+                ORDER BY id DESC LIMIT %(limit)s OFFSET %(offset)s
+            """
+            animal_rows = self._db.execute_d(query, query_values)
+            if len(animal_rows) > 0:
+                return animal_rows
+            else:
+                return []
+            
+
+    def get_animals_total_pages(self, account_id=NO_VALUE, created_start_time=NO_VALUE, created_end_time=NO_VALUE):
+        
+        """
+        Returns the list API inserts based on attributes provided
+
+        Params:
+            id: ID of the insert
+            account: Account ID of account performing the insert
+            namespace: Insert namespace
+            type: Type of Insert
+            status: Status of Insert
+
+        Returns:
+            List of API inserts
+        """
+        total_animals_rows = self._db.execute_d("""
+            SELECT count(*) as total_animals FROM animals WHERE packer_api_insert_id in 
+            (SELECT id FROM api_inserts where account=%(account_id)s and created > %(created_start_time)s and created < %(created_end_time)s)
+            ORDER BY id
+        """, {
+            "account_id": account_id,
+            "created_start_time": created_start_time,
+            "created_end_time": created_end_time
+        })
+        total_animals = total_animals_rows[0]["total_animals"]
+        total_pages = (total_animals // ANIMALS_PAGINATION_LIMIT) + 1
+        return total_pages
