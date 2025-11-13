@@ -2835,3 +2835,7 @@ ADD COLUMN `average_lot_live` FLOAT NULL AFTER `dark_cutter`;
 /* Nisheet Thakur 11/06/2025 */
 ALTER TABLE `animals`
 ADD COLUMN `back_fat` VARCHAR(128) NULL AFTER `average_lot_live`;
+
+/* Nisheet Thakur 11/12/2025 BTN-1017 */
+ALTER TABLE `animals` 
+ADD INDEX `fk_animals_packer_api_insert_id_idx` (`packer_api_insert_id` DESC) VISIBLE;
