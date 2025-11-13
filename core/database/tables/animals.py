@@ -395,7 +395,6 @@ class Animals:
             Get animals by the packer insert ID values specified.
 
             Params:
-                last_updated_start_time: The start timestamp from where all updated records need to be fetched
                 packer_insert_ids: A lisy of IDs from api_inserts table representing the Packer Inserts
 
             Returns:
@@ -414,3 +413,33 @@ class Animals:
                 return animal_rows
             else:
                 return []
+    
+
+    def get_animals_by_packer_api_insert_ids(self, account_id, created_start_time, created_end_time):
+            """
+            Get animals by the packer insert ID values specified.
+
+            Params:
+                account_id: Account Id of packer for carcass data
+                created_start_time: Start time from when records are to be searched
+                created_end_time: End time to which records are to be searched
+
+            Returns:
+                A list of animal row(s) if found else []
+            """
+            query_values = {}
+            query_values["account_id"] = account_id
+            query_values["created_start_time"] = created_start_time
+            query_values["created_end_time"] = created_end_time
+            query = """
+                SELECT * FROM animals WHERE packer_api_insert_id in 
+                (SELECT id FROM api_inserts where account=%(account_id)s and created > %(created_start_time)s and created < %(created_end_time)s)
+                ORDER BY id DESC
+            """
+            
+            animal_rows = self._db.execute_d(query, query_values)
+            if len(animal_rows) > 0:
+                return animal_rows
+            else:
+                return []
+            

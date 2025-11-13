@@ -541,3 +541,59 @@ def serve_fetch_paginated_packer_carcass_data():
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Paginated Packer Carcass Data Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
+
+
+
+@bp.route("/fetch-packer-carcass-data-v2", methods=["GET"])
+@jwt_required()
+def serve_fetch_packer_carcass_data_v2():
+    try:
+        try:
+            request_data = json.loads(request.data)
+        except json.decoder.JSONDecodeError:
+            return {"error": "Decoding request JSON has failed"}, 400
+
+        packer_account_id = request_data.get("account_id", None)
+        if packer_account_id is None:
+            return {"error": "Please provide a Packer Account ID (account_id)."}
+        packer_account_data = Accounts(g.db).get_account_by_id(packer_account_id)
+        if packer_account_data.sector_id() != SECTORS_NAME_TO_ID["Packer"]:
+            return {"error": "Provided account is not a Packer."}
+
+        start_timestamp = request_data.get("start_timestamp", None)
+        if start_timestamp is None:
+            return {"error": "Please provide a starting timestamp to fetch records from (start_timestamp)."}
+
+        start_timestamp_format = "%m/%d/%Y T:%H:%M:%S"
+        start_timestamp_object = datetime.strptime(start_timestamp, start_timestamp_format)
+        start_timestamp_string = start_timestamp_object.strftime('%Y-%m-%d %H:%M:%S')
+        
+        end_timestamp = request_data.get("end_timestamp", None)
+        if end_timestamp is None:
+            return {"error": "Please provide an ending timestamp to fetch records to (end_timestamp)."}
+
+        end_timestamp_format = "%m/%d/%Y T:%H:%M:%S"
+        end_timestamp_object = datetime.strptime(end_timestamp, end_timestamp_format)
+        end_timestamp_string = end_timestamp_object.strftime('%Y-%m-%d %H:%M:%S')
+
+        packer_animals = Animals(g.db).get_animals_by_packer_api_insert_ids(
+            account_id=packer_account_id,
+            created_start_time=start_timestamp_string,
+            created_end_time=end_timestamp_string
+        )
+        for packer_animal in packer_animals:
+            eid_matches = Matches(g.db).get_animal_by_eid(packer_animal["eid"])
+            for eid_match in eid_matches.matches:
+                if eid_match["type"] == MATCH_TYPES_NAME_TO_ID["Hot Weight"]:
+                    packer_animal["hot_weight"] = eid_match["data"]
+                elif eid_match["type"] == MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"]:
+                    packer_animal["quality_grade"] = eid_match["data"]
+                elif eid_match["type"] == MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"]:
+                    packer_animal["yield_grade"] = eid_match["data"]
+                elif eid_match["type"] == MATCH_TYPES_NAME_TO_ID["Died"]:
+                    packer_animal["kill_date"] = eid_match["data"]
+        return {"packer_carcass_data": packer_animals}, 200
+    except Exception as e:
+        print("API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Paginated Packer Carcass Data Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
