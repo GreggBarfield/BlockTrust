@@ -767,9 +767,6 @@ def serve_upload_ranch_accounts_test(partner_id):
 @crut.require_employee
 def serve_view_all_accounts_event_logs():
     event_logs = EventLogs(g.db).get()
-    for event in event_logs:
-        if event["details"] is not None:
-            event["details"] = json.loads(event["details"])
     return employee_render("/employee/accounts/view-all-accounts-event-logs.html", {
         "event_logs": event_logs,
         "event_type_ids_to_names": EVENT_TYPE_IDS_TO_NAMES
@@ -1003,9 +1000,6 @@ def serve_sales_group_payments():
 @crut.require_employee
 def serve_view_account_event_logs(account_id):
     account_event_logs = EventLogs(g.db).get(account_id=account_id)
-    for event in account_event_logs:
-        if event["details"] is not None:
-            event["details"] = json.loads(event["details"])
     return employee_render("/employee/accounts/view-account-event-logs.html", {
         "account_event_logs": account_event_logs,
         "event_type_ids_to_names": EVENT_TYPE_IDS_TO_NAMES
@@ -1226,9 +1220,6 @@ def serve_unknown_api_fields_logs():
         event_logs_order_by="created_timestamp",
         event_logs_sort_by="DESC"
     )
-    for event in unknown_fields_event_logs:
-        if event["details"] is not None:
-            event["details"] = json.loads(event["details"])
     return employee_render("/employee/external-api-reports/unknown-api-fields-logs.html", {
         "unknown_fields_event_logs": unknown_fields_event_logs
     })
