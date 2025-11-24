@@ -1,6 +1,9 @@
 from api.translation_worker.types.helper import process_grades_and_weight, process_packer_data, process_sighting, process_kill_date
 from ...exceptions import ExecutionException
 from core.database.database import Database
+from core.database.tables.api_inserts_unknown_fields import APIInsertsUnknownFields
+from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
+from core.utilities.field_lists import CARCASS_DATA_ACCEPTED_FIELDS
 from remapper import remap
 
 
@@ -56,6 +59,19 @@ def handle(db: Database, insert):
                     "created_by_operation": "Partner Packer Upload", "eid": eid, "api_insert": api_insert
                 }
             )
+
+    
+    for field in fields.keys():
+        if field not in CARCASS_DATA_ACCEPTED_FIELDS:
+            unknown_field_rows = APIInsertsUnknownFields(db).get(unknown_field_name=field)
+            if len(unknown_field_rows) == 0:
+                APIInsertsUnknownFields(db).insert(
+                    account_id=partner_account,
+                    api_action="Insert",
+                    api_action_type=insert["type"],
+                    unknown_field_name=field,
+                    unknown_field_data=str(fields[field])
+                )
 
     process_grades_and_weight(
         db, eid=eid, partner_account=partner_account, api_insert_id=api_insert,

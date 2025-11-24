@@ -50,5 +50,5 @@ CARCASS_DATA_ACCEPTED_FIELDS = {
     "sire_epd_dry_matter_intake", "sire_epd_carcass_weight", "sire_epd_rib_fat", "sire_epd_ribeye_area",
     "sire_epd_certified_hereford_beef_index", "sire_epd_marbling", "over_30", "hard_bone", "dark_cutter",
     "average_lot_live", "back_fat", "HotWt", "EID", "plant_id", "packer_account_number", "yield_grade",
-    "quality_grade", "Avg_Lot_Live", "kill_date", "carcass_weight"
+    "quality_grade", "Avg_Lot_Live", "kill_date", "carcass_weight", "hot_weight", "SendEIDToAPI"
 }

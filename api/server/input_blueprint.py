@@ -209,19 +209,6 @@ def serve_api_v2():
             left = 0
             size = 5000
             right = 0
-            received_fields = action["data"]["fields"]
-            for field in received_fields:
-                if field not in CARCASS_DATA_ACCEPTED_FIELDS:
-                    details = {
-                        "api_action": action["action"],
-                        "api_action_type": action["data"]["type"],
-                        "unknown_field_name": field
-                    }
-                    EventLogs(g.db).insert(
-                        event_type_id=EVENT_TYPE_NAMES_TO_IDS["Unknown Field in API request"],
-                        account_id=data["account"],
-                        details=details
-                    )
             while left < len(rows):
                 right = left + size
                 if right > len(rows):
