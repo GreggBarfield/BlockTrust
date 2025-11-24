@@ -2835,3 +2835,18 @@ ADD COLUMN `average_lot_live` FLOAT NULL AFTER `dark_cutter`;
 /* Nisheet Thakur 11/06/2025 */
 ALTER TABLE `animals`
 ADD COLUMN `back_fat` VARCHAR(128) NULL AFTER `average_lot_live`;
+
+/* Nisheet Thakur 11/24/2025 */
+CREATE TABLE `api_inserts_unknown_fields` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NOT NULL,
+  `api_action` VARCHAR(128) NOT NULL, 
+  `api_action_type` VARCHAR(128) NOT NULL, 
+  `unknown_field_name` VARCHAR(128) NOT NULL, 
+  `unknown_field_data` VARCHAR(512) NOT NULL, 
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+ALTER TABLE `api_inserts_unknown_fields` 
+ADD INDEX `api_inserts_unknown_fields_unknown_field_name_idx` (`unknown_field_name`) VISIBLE;

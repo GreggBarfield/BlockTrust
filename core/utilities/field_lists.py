@@ -37,3 +37,18 @@ SALES_GROUP_REPORTED_FIELDS = [
     {"field_name": "nutrition_type", "field_default": ""},
     {"field_name": "vaccinations_and_dates", "field_default": []},
 ]
+
+CARCASS_DATA_ACCEPTED_FIELDS = {
+    "eid", "visual_id", "breed", "calf_registration_number", "sire_registration_number",
+    "dam_registration_number", "birth_weight", "implants", "sex", "description", "lot_number", "pen_number",
+    "feeder_account_number", "feeder_weight", "terminal_reimplant_weight", "terminal_reimplant_date", 
+    "api_insert_id", "seller_id", "vaccination_date", "vaccination_summary", "herd_sire",
+    "ranch_source_county", "ranch_size", "home_raised", "family_farm_or_ranch", "harvest_date",
+    "program_certification", "marbling_score", "marbling_score_code", "ribeye_area", "fat_thickness",
+    "calculated_live_weight", "total_gain", "days_on_test", "average_daily_gain", "packer_api_insert_id",
+    "feeder_api_insert_id", "is_paid", "sire_epd_wean_weight", "sire_epd_yearling_weight",
+    "sire_epd_dry_matter_intake", "sire_epd_carcass_weight", "sire_epd_rib_fat", "sire_epd_ribeye_area",
+    "sire_epd_certified_hereford_beef_index", "sire_epd_marbling", "over_30", "hard_bone", "dark_cutter",
+    "average_lot_live", "back_fat", "HotWt", "EID", "plant_id", "packer_account_number", "yield_grade",
+    "quality_grade", "Avg_Lot_Live", "kill_date", "carcass_weight", "hot_weight", "SendEIDToAPI"
+}

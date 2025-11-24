@@ -17,6 +17,7 @@ from ..database.tables.api_inserts import ApiInserts, STATUS_NAMES_TO_IDS
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts, NATIONAL_BEEF_COMPANY
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import Advertisements, ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
+from ..database.tables.api_inserts_unknown_fields import APIInsertsUnknownFields
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.employees import Employees, EmployeesException
 from ..database.tables.event_logs import EventLogs, EVENT_TYPE_IDS_TO_NAMES
@@ -767,9 +768,6 @@ def serve_upload_ranch_accounts_test(partner_id):
 @crut.require_employee
 def serve_view_all_accounts_event_logs():
     event_logs = EventLogs(g.db).get()
-    for event in event_logs:
-        if event["details"] is not None:
-            event["details"] = json.loads(event["details"])
     return employee_render("/employee/accounts/view-all-accounts-event-logs.html", {
         "event_logs": event_logs,
         "event_type_ids_to_names": EVENT_TYPE_IDS_TO_NAMES
@@ -1003,9 +1001,6 @@ def serve_sales_group_payments():
 @crut.require_employee
 def serve_view_account_event_logs(account_id):
     account_event_logs = EventLogs(g.db).get(account_id=account_id)
-    for event in account_event_logs:
-        if event["details"] is not None:
-            event["details"] = json.loads(event["details"])
     return employee_render("/employee/accounts/view-account-event-logs.html", {
         "account_event_logs": account_event_logs,
         "event_type_ids_to_names": EVENT_TYPE_IDS_TO_NAMES
@@ -1216,3 +1211,15 @@ def serve_fetch_api_inserts_report_by_account():
             insert_count["inserts_date"] = insert_count["inserts_date"].strftime('%m-%d-%Y')
 
     return {"daily_api_inserts_counts": daily_api_inserts_counts}, 200
+
+
+@bp.route('/employee/dashboard/unknown-api-fields-logs', methods=["GET"])
+@crut.require_employee
+def serve_unknown_api_fields_logs():
+    api_inserts_unknown_fields_data = APIInsertsUnknownFields(g.db).get(
+        api_inserts_unknown_fields_order_by="created_timestamp",
+        api_inserts_unknown_fields_sort_by="DESC"
+    )
+    return employee_render("/employee/external-api-reports/unknown-api-fields-logs.html", {
+        "api_inserts_unknown_fields_data": api_inserts_unknown_fields_data
+    })
