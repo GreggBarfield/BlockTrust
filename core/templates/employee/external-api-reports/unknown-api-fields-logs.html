@@ -20,15 +20,16 @@
                 <th>Details</th>
             </thead>
             <tbody>
-                {% for unknown_field_log in unknown_fields_event_logs %}
+                {% for unknown_field_data in api_inserts_unknown_fields_data %}
                 <tr>
-                    <td>{{ unknown_field_log.account_id }}</td>
-                    <td>{{ unknown_field_log.created_timestamp.strftime("%m/%d/%Y at %H:%M") }}</td>
+                    <td>{{ unknown_field_data.account_id }}</td>
+                    <td>{{ unknown_field_data.created_timestamp.strftime("%m/%d/%Y at %H:%M") }}</td>
                     <td>
                         <ul>
-                            <li>API Action: {{ unknown_field_log.details.api_action }}</li>
-                            <li>API Action Type: {{ unknown_field_log.details.api_action_type }}</li>
-                            <li>Unknown Field: {{ unknown_field_log.details.unknown_field_name }}</li>
+                            <li>API Action: {{ unknown_field_data.api_action }}</li>
+                            <li>API Action Type: {{ unknown_field_data.api_action_type }}</li>
+                            <li>Unknown Field: {{ unknown_field_data.unknown_field_name }}</li>
+                            <li>Unknown Field Value: {{ unknown_field_data.unknown_field_data }}</li>
                         </ul>
                     </td>
                 </tr>

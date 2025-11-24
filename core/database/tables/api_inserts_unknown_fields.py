@@ -1,9 +1,8 @@
 from ..no_value import NoValue
-from json import dumps, loads
 
 NO_VALUE = NoValue()
 
-event_log_cols = ("id", "account_id", "user_id", "event_type_id", "details", "created_timestamp", "last_updated_timestamp")
+api_inserts_unknown_fields_cols = ("id", "account_id", "api_action", "api_action_type", "unknown_field_name", "unknown_field_data", "created_timestamp", "last_updated_timestamp")
 
 class APIInsertsUnknownFields:
 
@@ -39,8 +38,9 @@ class APIInsertsUnknownFields:
         )
 
 
-    def get(self, id=NO_VALUE, account_id=None, api_action=None, api_action_type=None, unknown_field_name=None,
-            unknown_field_data=None):
+    def get(self, id=NO_VALUE, account_id=NO_VALUE, api_action=NO_VALUE, api_action_type=NO_VALUE, 
+            unknown_field_name=NO_VALUE, unknown_field_data=NO_VALUE, api_inserts_unknown_fields_order_by=NO_VALUE,
+            api_inserts_unknown_fields_sort_by=NO_VALUE):
         """
         Gets the API Insert unknown fields based on provided parameters
 
@@ -83,6 +83,17 @@ class APIInsertsUnknownFields:
             combined_query_condition = ""
 
         query = base_query + combined_query_condition
+
+        if api_inserts_unknown_fields_order_by is not NO_VALUE:
+            if api_inserts_unknown_fields_order_by not in api_inserts_unknown_fields_cols:
+                raise Exception("api_inserts_unknown_fields_order_by column doesn't exist")
+            order_by_clause = " ORDER BY " + api_inserts_unknown_fields_order_by
+            if api_inserts_unknown_fields_sort_by is not NO_VALUE:
+                if api_inserts_unknown_fields_sort_by not in ("ASC", "DESC"):
+                    raise Exception("Incorrect value for api_inserts_unknown_fields_sort_by")
+                order_by_clause += " " + api_inserts_unknown_fields_sort_by
+            query = query + order_by_clause
+
         api_inserts_unknown_fields_rows = self._db.execute_d(query, query_values)
         if len(api_inserts_unknown_fields_rows) > 0:
             return api_inserts_unknown_fields_rows

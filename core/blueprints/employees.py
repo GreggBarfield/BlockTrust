@@ -17,6 +17,7 @@ from ..database.tables.api_inserts import ApiInserts, STATUS_NAMES_TO_IDS
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts, NATIONAL_BEEF_COMPANY
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import Advertisements, ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
+from ..database.tables.api_inserts_unknown_fields import APIInsertsUnknownFields
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.employees import Employees, EmployeesException
 from ..database.tables.event_logs import EventLogs, EVENT_TYPE_IDS_TO_NAMES
@@ -1215,11 +1216,10 @@ def serve_fetch_api_inserts_report_by_account():
 @bp.route('/employee/dashboard/unknown-api-fields-logs', methods=["GET"])
 @crut.require_employee
 def serve_unknown_api_fields_logs():
-    unknown_fields_event_logs = EventLogs(g.db).get(
-        event_type_id=EVENT_TYPE_NAMES_TO_IDS["Unknown Field in API request"],
-        event_logs_order_by="created_timestamp",
-        event_logs_sort_by="DESC"
+    api_inserts_unknown_fields_data = APIInsertsUnknownFields(g.db).get(
+        api_inserts_unknown_fields_order_by="created_timestamp",
+        api_inserts_unknown_fields_sort_by="DESC"
     )
     return employee_render("/employee/external-api-reports/unknown-api-fields-logs.html", {
-        "unknown_fields_event_logs": unknown_fields_event_logs
+        "api_inserts_unknown_fields_data": api_inserts_unknown_fields_data
     })
