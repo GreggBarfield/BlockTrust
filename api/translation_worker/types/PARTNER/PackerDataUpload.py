@@ -2,7 +2,6 @@ from api.translation_worker.types.helper import process_grades_and_weight, proce
 from ...exceptions import ExecutionException
 from core.database.database import Database
 from core.database.tables.api_inserts_unknown_fields import APIInsertsUnknownFields
-from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from core.utilities.field_lists import CARCASS_DATA_ACCEPTED_FIELDS
 from remapper import remap
 

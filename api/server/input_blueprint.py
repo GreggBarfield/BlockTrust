@@ -20,14 +20,13 @@ from core.database.tables.accounts import Accounts
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.auction_markets import AuctionMarkets
 from core.database.tables.error_logs import ErrorLogs
-from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from core.database.tables.files import Files, SALES_GROUP_FILES_S3_PATH
 from core.database.tables.sales_groups import SalesGroups
 from core.database.tables.users import Users, UsersException
 from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG, TEMPORARY_SALES_GROUP_API_TOKEN, TEMPORARY_CREATE_ACCOUNT_API_TOKEN
 from core.common_exceptions import ExportException
 from core.utilities import auth
-from core.utilities.field_lists import SALES_GROUP_REPORTED_FIELDS, CARCASS_DATA_ACCEPTED_FIELDS
+from core.utilities.field_lists import SALES_GROUP_REPORTED_FIELDS
 
 from datetime import datetime
 from traceback import format_exc
