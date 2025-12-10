@@ -2850,3 +2850,7 @@ CREATE TABLE `api_inserts_unknown_fields` (
 
 ALTER TABLE `api_inserts_unknown_fields` 
 ADD INDEX `api_inserts_unknown_fields_unknown_field_name_idx` (`unknown_field_name`) VISIBLE;
+
+/* Nisheet Thakur 11/12/2025 BTN-1017 */
+ALTER TABLE `animals` 
+ADD INDEX `fk_animals_packer_api_insert_id_idx` (`packer_api_insert_id` DESC) VISIBLE;
