@@ -473,3 +473,25 @@ class Animals:
         total_animals = total_animals_rows[0]["total_animals"]
         total_pages = (total_animals // ANIMALS_PAGINATION_LIMIT) + 1
         return total_pages
+    
+    def get_daily_animal_update_count_for_account(self, account_id=NO_VALUE, created_date=NO_VALUE):
+        
+        """
+        Returns the list API inserts based on attributes provided
+
+        Params:
+            account_id: Account ID of animal updated by insert
+            created_date: Animal updated date
+
+        Returns:
+            Total updated count for the date
+        """
+        total_animals_updated_rows = self._db.execute_d("""
+            SELECT count(*) as total_animals_updated FROM animals WHERE packer_api_insert_id in 
+            (SELECT id FROM api_inserts where account=%(account_id)s AND DATE(created) = %(created_date)s)
+        """, {
+            "account_id": account_id,
+            "created_date": created_date
+        })
+        total_animals_updated = total_animals_updated_rows[0]["total_animals_updated"]
+        return total_animals_updated

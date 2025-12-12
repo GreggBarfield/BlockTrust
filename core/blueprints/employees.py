@@ -18,6 +18,7 @@ from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_C
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import Advertisements, ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
 from ..database.tables.api_inserts_unknown_fields import APIInsertsUnknownFields
+from ..database.tables.animals import Animals
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.employees import Employees, EmployeesException
 from ..database.tables.event_logs import EventLogs, EVENT_TYPE_IDS_TO_NAMES
@@ -1208,8 +1209,12 @@ def serve_fetch_api_inserts_report_by_account():
             daily_processed_api_inserts_counts_dict[processed_count["inserts_date"]] = processed_count["inserts_count"]
         for insert_count in daily_api_inserts_counts:
             insert_count["processed_inserts_count"] = daily_processed_api_inserts_counts_dict.get(insert_count["inserts_date"], 0)
+            insert_count["total_animals_updated_count"] = Animals(g.db).get_daily_animal_update_count_for_account(
+                account_id=account_id,
+                created_date=insert_count["inserts_date"].strftime('%Y-%m-%d')
+            )
             insert_count["inserts_date"] = insert_count["inserts_date"].strftime('%m-%d-%Y')
-
+            
     return {"daily_api_inserts_counts": daily_api_inserts_counts}, 200
 
 

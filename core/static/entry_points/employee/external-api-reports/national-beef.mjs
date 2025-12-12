@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async() => {
             headers: {"Content-type": "application/json; charset=UTF-8"}
     });
     const data = await response.json();
-    let reportTableColumns = [{"data": 'inserts_date', "title": "Date", "type": 'date'}, {"data": 'inserts_count', "title": "Number of Inserts"}, {"data": "processed_inserts_count", "title": "Number of Inserts Processed Successfully"}]
+    let reportTableColumns = [{"data": 'inserts_date', "title": "Date", "type": 'date'}, {"data": 'inserts_count', "title": "Number of Inserts"}, {"data": "processed_inserts_count", "title": "Number of Inserts Processed Successfully"}, {"data": 'total_animals_updated_count', "title": "Total Animal Records Updated"}]
     if("daily_api_inserts_counts" in data){
         let dailyApiInsertsCounts = data.daily_api_inserts_counts;
         $('#api-report-table').DataTable({columns: reportTableColumns, pageLength:50});
