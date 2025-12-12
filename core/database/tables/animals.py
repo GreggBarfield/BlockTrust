@@ -474,20 +474,17 @@ class Animals:
         total_pages = (total_animals // ANIMALS_PAGINATION_LIMIT) + 1
         return total_pages
     
-    def get_daily_animal_update_count_for_account(self, account_id=NO_VALUE, created_date=NO_VALUE, created_end_time=NO_VALUE):
+    def get_daily_animal_update_count_for_account(self, account_id=NO_VALUE, created_date=NO_VALUE):
         
         """
         Returns the list API inserts based on attributes provided
 
         Params:
-            id: ID of the insert
-            account: Account ID of account performing the insert
-            namespace: Insert namespace
-            type: Type of Insert
-            status: Status of Insert
+            account_id: Account ID of animal updated by insert
+            created_date: Animal updated date
 
         Returns:
-            List of API inserts
+            Total updated count for the date
         """
         total_animals_updated_rows = self._db.execute_d("""
             SELECT count(*) as total_animals_updated FROM animals WHERE packer_api_insert_id in 
