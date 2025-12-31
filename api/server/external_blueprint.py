@@ -17,7 +17,8 @@ from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from core.database.tables.matches import Matches
-from core.database.tables.sales_groups import SalesGroups
+from core.database.tables.sales_groups import SalesGroups, SalesGroupsException
+from core.database.tables.sales_group_animals import SalesGroupAnimals
 from core.database.tables.sustainability_responses import SustainabilityResponses
 from core.database.tables.users import Users
 from core.database.tables.view_logs import ViewLogs, DATA_TYPE_NAME_TO_ID
@@ -648,4 +649,24 @@ def serve_fetch_packer_carcass_data_v2():
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Packer Carcass Data Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
+
+
+@bp.route('/fetch-sales-group-eids', methods=["GET"])
+def serve_fetch_sales_group_eids():
+    try:
+        try:
+            request_data = json.loads(request.data)
+        except json.decoder.JSONDecodeError:
+            return {"error": "Decoding request JSON has failed"}, 400
+        if "sales_group_id" not in request_data:
+            raise ExportException("Sales Group ID needs to be provided.")
+        original_row = SalesGroups(g.db).get_sales_group_by_id(request_data["sales_group_id"])
+        sales_group_eids = SalesGroupAnimals(g.db).get(sales_group_id=original_row["id"])
+        return {"eids_data": sales_group_eids}, 200
+    except (ExportException, SalesGroupsException) as e:
+        raise e
+    except Exception as e:
+        print("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500

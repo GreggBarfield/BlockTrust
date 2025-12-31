@@ -21,7 +21,8 @@ from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.auction_markets import AuctionMarkets
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.files import Files, SALES_GROUP_FILES_S3_PATH
-from core.database.tables.sales_groups import SalesGroups
+from core.database.tables.sales_groups import SalesGroups, SalesGroupsException
+from core.database.tables.sales_group_animals import SalesGroupAnimals
 from core.database.tables.users import Users, UsersException
 from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG, TEMPORARY_SALES_GROUP_API_TOKEN, TEMPORARY_CREATE_ACCOUNT_API_TOKEN
 from core.common_exceptions import ExportException
@@ -635,4 +636,63 @@ def serve_update_sales_group():
     except Exception as e:
         print("Update Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Update Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
+
+
+@bp.route('/api/insert-sales-group-eids', methods=["POST"])
+def serve_insert_sales_group_eids():
+    try:
+        try:
+            request_data = json.loads(request.data)
+        except json.decoder.JSONDecodeError:
+            return {"error": "Decoding request JSON has failed"}, 400
+        if "sales_group_id" not in request_data:
+            raise ExportException("Sales Group ID needs to be provided.")
+        if "eids" not in request_data:
+            raise ExportException("EIDs need to be provided of the sales group.")
+        if not isinstance(request_data.get("eids", None), list):
+            raise ExportException("EIDs need to be provided as a list for the sales group.")
+
+        original_row = SalesGroups(g.db).get_sales_group_by_id(request_data["sales_group_id"])
+        sales_group_id = original_row["id"]
+        sales_group_eids_data = request_data["eids"]
+        eid_and_visual_ids = []
+        for eid_data in sales_group_eids_data:
+            if not isinstance(eid_data, dict):
+                raise ExportException("Incorrect format provided for EID data")
+            if "eid" not in eid_data:
+                raise ExportException("Missing value for EID in EID data field")
+            eid_and_visual_ids.append({
+                "eid": eid_data["eid"],
+                "visual_id": eid_data.get("visual_id", None)
+            })
+        SalesGroupAnimals(g.db).insert(sales_group_id=sales_group_id, eids_and_visual_ids=eid_and_visual_ids)
+        uploaded_eids_count = len(eid_and_visual_ids)
+        return {"response": f"{uploaded_eids_count} EIDs uploaded for Sales Group {sales_group_id}"}, 200
+    except (ExportException, SalesGroupsException) as e:
+        raise e
+    except Exception as e:
+        print("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
+
+
+@bp.route('/api/clear-sales-group-eids', methods=["POST"])
+def serve_clear_sales_group_eids():
+    try:
+        try:
+            request_data = json.loads(request.data)
+        except json.decoder.JSONDecodeError:
+            return {"error": "Decoding request JSON has failed"}, 400
+        if "sales_group_id" not in request_data:
+            raise ExportException("Sales Group ID needs to be provided.")
+        original_row = SalesGroups(g.db).get_sales_group_by_id(request_data["sales_group_id"])
+        sales_group_id = original_row["id"]
+        SalesGroupAnimals(g.db).delete(sales_group_id=sales_group_id)
+        return {"response": f"EIDs cleared for Sales Group {sales_group_id}"}, 200
+    except (ExportException, SalesGroupsException) as e:
+        raise e
+    except Exception as e:
+        print("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
