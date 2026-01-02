@@ -693,6 +693,6 @@ def serve_clear_sales_group_eids():
     except (ExportException, SalesGroupsException) as e:
         return {"error": str(e)}
     except Exception as e:
-        print("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
-        ErrorLogs(g.db).insert_error_log("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
+        print("Clear Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Clear Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
