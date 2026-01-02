@@ -649,7 +649,7 @@ def serve_insert_sales_group_eids():
         if "sales_group_id" not in request_data:
             raise ExportException("Sales Group ID needs to be provided.")
         if "eids" not in request_data:
-            raise ExportException("EIDs need to be provided of the sales group.")
+            raise ExportException("EIDs need to be provided for the sales group.")
         if not isinstance(request_data.get("eids", None), list):
             raise ExportException("EIDs need to be provided as a list for the sales group.")
 
