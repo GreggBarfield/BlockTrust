@@ -670,7 +670,7 @@ def serve_insert_sales_group_eids():
         uploaded_eids_count = len(eid_and_visual_ids)
         return {"response": f"{uploaded_eids_count} EIDs uploaded for Sales Group {sales_group_id}"}, 200
     except (ExportException, SalesGroupsException) as e:
-        raise e
+        return {"error": str(e)}
     except Exception as e:
         print("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
@@ -691,7 +691,7 @@ def serve_clear_sales_group_eids():
         SalesGroupAnimals(g.db).delete(sales_group_id=sales_group_id)
         return {"response": f"EIDs cleared for Sales Group {sales_group_id}"}, 200
     except (ExportException, SalesGroupsException) as e:
-        raise e
+        return {"error": str(e)}
     except Exception as e:
         print("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())

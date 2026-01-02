@@ -665,7 +665,7 @@ def serve_fetch_sales_group_eids():
         sales_group_eids = SalesGroupAnimals(g.db).get(sales_group_id=original_row["id"])
         return {"eids_data": sales_group_eids}, 200
     except (ExportException, SalesGroupsException) as e:
-        raise e
+        return {"error": str(e)}
     except Exception as e:
         print("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Insert Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
