@@ -662,10 +662,12 @@ def serve_insert_sales_group_eids():
                 raise ExportException("Incorrect format provided for EID data")
             if "eid" not in eid_data:
                 raise ExportException("Missing value for EID in EID data field")
-            eid_and_visual_ids.append({
-                "eid": eid_data["eid"],
-                "visual_id": eid_data.get("visual_id", None)
-            })
+            existing_eid_rows = SalesGroupAnimals(g.db).get(sales_group_id=sales_group_id, eid=eid_data["eid"])
+            if len(existing_eid_rows) == 0:
+                eid_and_visual_ids.append({
+                    "eid": eid_data["eid"],
+                    "visual_id": eid_data.get("visual_id", None)
+                })
         SalesGroupAnimals(g.db).insert(sales_group_id=sales_group_id, eids_and_visual_ids=eid_and_visual_ids)
         uploaded_eids_count = len(eid_and_visual_ids)
         return {"response": f"{uploaded_eids_count} EIDs uploaded for Sales Group {sales_group_id}"}, 200
