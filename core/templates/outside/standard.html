@@ -123,9 +123,6 @@
                       Logout
                     </a>
                     {% else %}
-                    <a class="btn btn-link text-white" href="/signup">
-                      Register
-                    </a>&nbsp;|&nbsp;
                     <a class="btn btn-link text-white" href="/login">
                       Sign In
                     </a>
@@ -243,25 +240,25 @@ Needs outside content
             </a>
           </div>
           <div class="item">
-            <a href="https://mfa-inc.com/" target="_blank">
-              <div class="client-logo client-logo-grayscale">
-                <img src="/static/images/partners/mfa_small.png" alt="">
-              </div>
-            </a>
-          </div>
-          <div class="item">
             <a href="https://redangus.org/" target="_blank">
               <div class="client-logo client-logo-grayscale">
                 <img src="/static/images/partners/redangus_new.png"
-                  style="transform:scaleX(0.7) scaleY(1.6);margin-top:6.5%;margin-left:-10%;" alt="">
+                  style="transform:scaleX(0.65) scaleY(1.6);margin-top:6.5%;margin-left:-12%" alt="">
               </div>
             </a>
           </div>
           <div class="item">
-            <a href="https://vytelle.com/" target="_blank">
+            <a href="https://www.landolakesinc.com/" target="_blank">
               <div class="client-logo client-logo-grayscale">
-                <img src="/static/images/partners/vytelle_sm.png"
-                  style="transform:scaleX(0.8) scaleY(1.6); margin-top:6%" alt="">
+                <img src="/static/images/partners/land_lakes_vvsm.png"
+                  style="transform:scaleX(0.75) scaleY(1.2);margin-top:2%;margin-left:-5%" alt="">
+              </div>
+            </a>
+          </div>
+          <div class="item">
+            <a href="https://mfa-inc.com/" target="_blank">
+              <div class="client-logo client-logo-grayscale">
+                <img src="/static/images/partners/mfa_small.png" alt="">
               </div>
             </a>
           </div>
@@ -279,9 +276,12 @@ Needs outside content
       responsiveClass: true,
       responsive: {
         0: {
+          items: 1
+        },
+        500: {
           items: 2
         },
-        600: {
+        800: {
           items: 3
         },
         1000: {
