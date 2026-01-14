@@ -670,3 +670,23 @@ def serve_fetch_sales_group_eids():
         print("Fetch Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Fetch Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
+
+
+@bp.route('/fetch-auction-markets', methods=["GET"])
+def serve_fetch_auction_markets():
+    try:
+        try:
+            request_data = json.loads(request.data)
+        except json.decoder.JSONDecodeError:
+            return {"error": "Decoding request JSON has failed"}, 400
+        if "sales_group_id" not in request_data:
+            raise ExportException("Sales Group ID needs to be provided.")
+        original_row = SalesGroups(g.db).get_sales_group_by_id(request_data["sales_group_id"])
+        sales_group_eids = SalesGroupAnimals(g.db).get(sales_group_id=original_row["id"])
+        return {"eids_data": sales_group_eids}, 200
+    except (ExportException, SalesGroupsException) as e:
+        return {"error": str(e)}
+    except Exception as e:
+        print("Fetch Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Fetch Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
