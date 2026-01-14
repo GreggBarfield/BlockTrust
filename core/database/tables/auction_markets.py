@@ -78,7 +78,7 @@ class AuctionMarkets:
             combined_query_condition = ""
 
         query = base_query + combined_query_condition
-        print(query)
+
         auction_market_rows = self._db.execute_d(query, query_values)
         if len(auction_market_rows) > 0:
             return auction_market_rows
