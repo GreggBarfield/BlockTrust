@@ -118,8 +118,8 @@ class AuctionMarkets:
         return self._db.last_row_id()
 
 
-    def check_and_create_new_auction_market(self, name=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE,
-                                            email=NO_VALUE, phone=NO_VALUE, zip_code=NO_VALUE):
+    def check_and_create_new_auction_market(self, name=None, address=None, city=None, state=None, email=None,
+                                            phone=None, zip_code=None):
         """
         Check if the provided auction market already exists and creates a new auction market record if not present
         
