@@ -697,7 +697,7 @@ def serve_clear_sales_group_eids():
     except Exception as e:
         print("Clear Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Clear Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
-        return {"error": "Internal Server Error"}, 500    
+        return {"error": "Internal Server Error"}, 500
 
 
 @bp.route('/api/create-auction-market', methods=["POST"])
@@ -708,10 +708,11 @@ def serve_create_auction_market():
         except json.decoder.JSONDecodeError:
             return {"error": "Decoding request JSON has failed"}, 400
         if "auction_market_name" not in request_data:
-            raise ExportException("Please provide a name for the Auction Market")
+            raise ExportException("Please provide a name for the Auction Market.")
 
         auction_market_id, new_auction_market_created = AuctionMarkets(g.db).check_and_create_new_auction_market(
             name=request_data["auction_market_name"],
+            address=request_data.get("auction_market_address", None),
             city=request_data.get("auction_market_city", None),
             state=request_data.get("auction_market_state", None),
             email=request_data.get("email", None),
@@ -726,12 +727,12 @@ def serve_create_auction_market():
             }, 200
         else:
             return {
-                "response": "Auction Market with a same name already exists",
+                "response": "Auction Market with a same name already exists.",
                 "auction_market_id": auction_market_id
             }, 200
     except ExportException as e:
         return {"error": str(e)}, 400
     except Exception as e:
-        print("Clear Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
-        ErrorLogs(g.db).insert_error_log("Clear Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
+        print("Create Auction Market API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Create Auction Market API", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500

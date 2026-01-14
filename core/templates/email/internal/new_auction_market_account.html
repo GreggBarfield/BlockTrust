@@ -18,7 +18,9 @@
     <ul>
         <li>Account Number: {{account_id}}</li>
         <li>Company: {{market_name}}</li>
+        {% if group_name is not none %}
         <li>Sales Group: {{group_name}}</li>
+        {% endif %}
     </ul>
 </div>
 (Please don't respond to this email.)<br>

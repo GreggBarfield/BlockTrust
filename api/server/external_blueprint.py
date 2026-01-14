@@ -13,6 +13,7 @@ from core.database.tables.account_users import AccountUsers
 from core.database.tables.animals import Animals, ANIMALS_PAGINATION_LIMIT
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.api_inserts import ApiInserts, API_INSERTS_PAGINATION_LIMIT
+from core.database.tables.auction_markets import AuctionMarkets
 from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
@@ -679,14 +680,30 @@ def serve_fetch_auction_markets():
             request_data = json.loads(request.data)
         except json.decoder.JSONDecodeError:
             return {"error": "Decoding request JSON has failed"}, 400
-        if "sales_group_id" not in request_data:
-            raise ExportException("Sales Group ID needs to be provided.")
-        original_row = SalesGroups(g.db).get_sales_group_by_id(request_data["sales_group_id"])
-        sales_group_eids = SalesGroupAnimals(g.db).get(sales_group_id=original_row["id"])
-        return {"eids_data": sales_group_eids}, 200
+        id = request_data.get("auction_market_id", NO_VALUE)
+        name = request_data.get("auction_market_name", NO_VALUE)
+        address = request_data.get("address", NO_VALUE)
+        city = request_data.get("city", NO_VALUE)
+        state = request_data.get("state", NO_VALUE)
+        zip_code = request_data.get("zip_code", NO_VALUE)
+        email = request_data.get("email", NO_VALUE)
+        phone = request_data.get("phone", NO_VALUE)
+        is_archived = request_data.get("is_archived", NO_VALUE)
+        auction_markets = AuctionMarkets(g.db).get_auction_markets(
+            id=id,
+            name=name,
+            address=address,
+            city=city,
+            state=state,
+            zip_code=zip_code,
+            email=email,
+            phone=phone,
+            is_archived=is_archived
+        )
+        return {"auction_markets": auction_markets}, 200
     except (ExportException, SalesGroupsException) as e:
         return {"error": str(e)}
     except Exception as e:
-        print("Fetch Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
-        ErrorLogs(g.db).insert_error_log("Fetch Sales Group EIDs API", e.__class__.__name__ + ": " + str(e), format_exc())
+        print("Fetch Auction Markets API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Fetch Auction Markets API", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
