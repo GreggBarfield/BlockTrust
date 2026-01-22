@@ -23,7 +23,6 @@
         "autocommit": true
     },
     "api_mysql": "same",
-    "dev_mysql": "same",
     "email": {
         "sender": "Ledgerspacedev <no-reply@ledgerspacedev.com>",
         "secondary_recipient_for_match_found": "",
