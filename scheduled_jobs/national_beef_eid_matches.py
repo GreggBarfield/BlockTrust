@@ -1,4 +1,4 @@
-from core.database.combinations import perform_feeder_packer_data_received_actions
+from core.database.combinations import perform_feeder_packer_data_received_actions, schedule_match_found_email
 from core.database.tables.accounts import Accounts, NATIONAL_BEEF_COMPANY
 from core.database.tables.animals import Animals, ANIMALS_PAGINATION_LIMIT
 from core.database.tables.debug_logs import DebugLogs
@@ -23,10 +23,8 @@ def run_national_beef_eid_matches_task(job_run_id, db):
             created_start_time=START_TIMESTAMP,
             created_end_time=END_TIMESTAMP
         )
-        print("--------------")
         print(total_animal_pages)
         for page_number in range(1, total_animal_pages + 1):
-            print("---------------")
             offset = (page_number - 1) * ANIMALS_PAGINATION_LIMIT
             packer_animals = Animals(db).get_animals_by_packer_api_insert_ids(
                 account_id=national_beef_partner["id"],
@@ -34,6 +32,7 @@ def run_national_beef_eid_matches_task(job_run_id, db):
                 created_end_time=END_TIMESTAMP,
                 offset=offset
             )
+            print(len(packer_animals))
             for packer_animal in packer_animals:
                 sightings = Matches(db).get_matches_with_account_links(
                     matches_eid=packer_animal["eid"],
@@ -45,10 +44,12 @@ def run_national_beef_eid_matches_task(job_run_id, db):
                     owner_match_account_link = sightings[0]
                     existing_debug_logs = DebugLogs(db).get(
                         component=perform_feeder_packer_data_received_actions.__name__,
-                        details_json_key="owner_account_id",
-                        details_json_value=owner_match_account_link["account"]
+                        details_owner_account_id=owner_match_account_link["account"],
+                        details_eid=packer_animal["eid"]
                     )
-                    print(existing_debug_logs)
+                    if(len(existing_debug_logs)) == 0:
+                        schedule_match_found_email(db, owner_match_account_link)
+            break
 
         print("National Beef EID matches Job Exiting. Current time: ", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
     except Exception as e:
