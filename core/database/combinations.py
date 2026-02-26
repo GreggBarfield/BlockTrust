@@ -118,6 +118,34 @@ def perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, f
             pass
 
 
+def perform_rancher_data_received_actions(db, eid, owner_account_link, schedule_email=False, api_insert_id=None):
+    """
+    Performs actions when new data is received from a rancher
+    """
+    if len(sightings := Matches(db).get_matches_with_account_links(
+        matches_eid=eid, matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
+        account_links_sector=SECTORS_NAME_TO_ID["Packer"], matches_order_by="created"
+    )) > 0:
+        match_account_link = sightings[0]
+        debug_log = {"schedule_email": schedule_email, "owner_account_id": owner_account_link['account'],
+                    "matched_account_id": match_account_link['account'], "api_insert_id": api_insert_id, "eid": eid}
+        DebugLogs(db).insert_debug_log(perform_rancher_data_received_actions.__name__, "Function execution", None, debug_log)
+        if schedule_email:
+            schedule_match_found_email(db, owner_account_link)
+        try:
+            if match_account_link["account"]:
+                Connections(db).create_or_fail_connection(
+                    from_account_id=owner_account_link["account"],
+                    to_account_id=match_account_link['account'],
+                    status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
+                    connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Acquired"],
+                    details={"created_by_operation": perform_rancher_data_received_actions.__name__,
+                                "eid": eid,  "api_insert_id": api_insert_id}
+                )
+        except ConnectionException:
+            pass
+
+
 def perform_new_account_actions(db, account_id, user_id, event_type_id, sector_id, partner_id=None, email=None,
                                 employee_id=None):
     """
