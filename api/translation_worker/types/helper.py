@@ -2,7 +2,8 @@
 from core.database.combinations import (
     create_connection_with_all_sighted_accounts_for_eid,
     create_connection_with_eid_owner,
-    perform_feeder_packer_data_received_actions
+    perform_feeder_packer_data_received_actions,
+    perform_rancher_data_received_actions
 )
 from core.database.tables.animals import Animals, AnimalsException
 from api.translation_worker.all_to_unix import all_to_unix
@@ -89,6 +90,9 @@ def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_
                     db, eid, account_id,
                     details=connection_details
                 )
+                perform_rancher_data_received_actions(
+                    db, eid=eid, owner_account_link=account_link_id, schedule_email=True, api_insert_id=api_insert_id
+                )
             else:
                 create_connection_with_eid_owner(
                     db=db, eid=eid, connecting_account_id=account_id,
@@ -122,6 +126,9 @@ def process_birth_date(db, input_data, eid, partner_account, account_link, api_i
                     eid=eid,
                     api_insert=api_insert
                 )
+            perform_rancher_data_received_actions(
+                db, eid=eid, owner_account_link=account_link, schedule_email=True, api_insert_id=api_insert
+            )
 
 
 def process_weaning_data(db, input_data, eid, partner_account, account_link, api_insert=None, timezone=None):
@@ -176,6 +183,9 @@ def process_weaning_data(db, input_data, eid, partner_account, account_link, api
                     eid=eid,
                     api_insert=api_insert
                 )
+            perform_rancher_data_received_actions(
+                db, eid=eid, owner_account_link=account_link, schedule_email=True, api_insert_id=api_insert
+            )
 
 
 def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id=None, timezone=None, is_paid=None):

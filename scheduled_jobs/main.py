@@ -60,7 +60,7 @@ try:
                 t.start()
                 threads.append(t)
                 print('Main: appended thread Reports', 'Total number of threads:', len(threads), 'Current time:', current_time)
-       
+
         # this will run once between 7 and 8 AM
         if datetime.time(7, 0, 0) <= current_time < datetime.time(8, 0, 0):
             if not any(t.getName() == "Emails" for t in threads):

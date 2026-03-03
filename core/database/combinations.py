@@ -117,21 +117,6 @@ def perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, f
         except ConnectionException:
             pass
 
-def perform_rancher_data_received_actions(db, eid, schedule_email=False, cow_calf_account_id=None, packer_account_id=None, api_insert_id=None):
-    """
-        Performs actions when data is received from Rancher
-    """
-    if len(sightings := Matches(db).get_matches_with_account_links(
-        matches_eid=eid, matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
-        account_links_sector=SECTORS_NAME_TO_ID["Packer"], matches_order_by="created"
-    )) > 0:
-        packer_match_account_link = sightings[0]
-        debug_log = {"schedule_email": schedule_email, "owner_account_id": packer_match_account_link['account'],
-                     "cow_calf_account_id": cow_calf_account_id, "packer_account_id": packer_account_id, 
-                     "api_insert_id": api_insert_id, "eid": eid}
-        DebugLogs(db).insert_debug_log(perform_rancher_data_received_actions.__name__, "Function execution", None, debug_log)
-        if schedule_email:
-            schedule_match_found_email(db, packer_match_account_link)
 
 def perform_rancher_data_received_actions(db, eid, owner_account_link, schedule_email=False, api_insert_id=None):
     """
