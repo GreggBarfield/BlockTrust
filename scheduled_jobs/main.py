@@ -3,7 +3,6 @@ from usda_data_retriever import get_usda_data
 from blockchain import run_bc_tasks
 from reports import run_report_tasks
 from emails import run_email_tasks
-from national_beef_eid_matches import run_national_beef_eid_matches_task
 from partners import run_partner_tasks
 from sales_groups_search_summary_emails import run_sales_group_search_summary_emails
 from tag_store import run_tag_store_tasks
@@ -26,8 +25,7 @@ try:
         "Partners": "partners.py|run_partner_tasks",
         "Tag Store": "tag_store.py|run_tag_store_tasks",
         "Payments": (payments, payments.run_payment_tasks),
-        "Sales Groups Search Summary Emails": "sales_group_search_summary_emails.py|run_sales_group_search_summary_emails",
-        "Natonal Beef EID Matches": "national_beef_eid_matches.py|run_national_beef_eid_matches_task"
+        "Sales Groups Search Summary Emails": "sales_group_search_summary_emails.py|run_sales_group_search_summary_emails"
     }
     print("Executing main.py")
     db = Database(MYSQL_CONFIG)
@@ -62,16 +60,7 @@ try:
                 t.start()
                 threads.append(t)
                 print('Main: appended thread Reports', 'Total number of threads:', len(threads), 'Current time:', current_time)
-        
-        # this will run once between 7 and 8 AM
-        if datetime.time(0, 0, 0) <= current_time < datetime.time(23, 0, 0):
-            if not any(t.getName() == "Natonal Beef EID Matches" for t in threads):
-                job_run_id = JobRuns(db).insert("Natonal Beef EID Matches", scheduled_jobs["Natonal Beef EID Matches"].split('|')[0], scheduled_jobs["Natonal Beef EID Matches"].split('|')[1])
-                t = Thread(target=run_national_beef_eid_matches_task, name="Natonal Beef EID Matches", args=[job_run_id, Database(MYSQL_CONFIG)])
-                t.start()
-                threads.append(t)
-                print('Main: appended thread Natonal Beef EID Matches', 'Total number of threads:', len(threads), 'Current time:', current_time)
-
+       
         # this will run once between 7 and 8 AM
         if datetime.time(7, 0, 0) <= current_time < datetime.time(8, 0, 0):
             if not any(t.getName() == "Emails" for t in threads):
