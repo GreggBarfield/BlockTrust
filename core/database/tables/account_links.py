@@ -194,8 +194,8 @@ class AccountLinks:
             # insert the account_link
             self.insert(account=account_id, affiliate_id=affiliate_id, company=company, name=name, sector=sector, partner_account=partner_id)
 
-    def get_account_links(self, id=NO_VALUE, partner_account=NO_VALUE, affiliate_id=NO_VALUE, account_id=NO_VALUE,
-                          account_is_not_null=False, selectColumns=[]):
+    def get_account_links(self, partner_account=NO_VALUE, affiliate_id=NO_VALUE, account_id=NO_VALUE,
+                          account_is_not_null=False, id=NO_VALUE, selectColumns=[]):
         """
         Get an account link by the values specified.
 
