@@ -91,7 +91,7 @@ def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_
                     details=connection_details
                 )
                 perform_rancher_data_received_actions(
-                    db, eid=eid, owner_account_link=account_link_id, schedule_email=True, api_insert_id=api_insert_id
+                    db, eid=eid, owner_account_link_id=account_link_id, schedule_email=True, api_insert_id=api_insert_id
                 )
             else:
                 create_connection_with_eid_owner(
@@ -127,7 +127,7 @@ def process_birth_date(db, input_data, eid, partner_account, account_link, api_i
                     api_insert=api_insert
                 )
             perform_rancher_data_received_actions(
-                db, eid=eid, owner_account_link=account_link, schedule_email=True, api_insert_id=api_insert
+                db, eid=eid, owner_account_link_id=account_link, schedule_email=True, api_insert_id=api_insert
             )
 
 
@@ -184,7 +184,7 @@ def process_weaning_data(db, input_data, eid, partner_account, account_link, api
                     api_insert=api_insert
                 )
             perform_rancher_data_received_actions(
-                db, eid=eid, owner_account_link=account_link, schedule_email=True, api_insert_id=api_insert
+                db, eid=eid, owner_account_link_id=account_link, schedule_email=True, api_insert_id=api_insert
             )
 
 
